@@ -1,0 +1,9 @@
+package com.mind.poc;
+
+import java.util.LinkedList;
+
+public class GraphforBfs {
+
+	private int v;
+	private LinkedList<Integer> adj[];
+}

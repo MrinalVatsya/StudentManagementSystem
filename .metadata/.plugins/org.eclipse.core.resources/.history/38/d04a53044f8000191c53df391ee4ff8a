@@ -1,0 +1,22 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class InvertBinaryTree {
+	
+
+	    public TreeNode invertTree(TreeNode a) {
+	    	
+	    	return invertTreeUtil(a);
+	    }
+
+		private TreeNode invertTreeUtil(TreeNode a) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+}

@@ -1,0 +1,17 @@
+package javademo;
+import java.util.*;
+public class Mappractice {
+	public static void main(String[] args) {
+		Map<Integer, String> m = new HashMap<Integer,String>();
+		m.put(21, "mrinal");
+		m.put(18, "vishal");
+		m.put(15, "vimal");
+		m.put(2, "kushal");
+		m.put(50, "sambhal");
+	 for(Map.Entry<Integer, String> entry : m.entrySet())
+	 {
+		 System.out.println("key is : " +entry.getKey()+ "value is : "+entry.getValue());
+	 }
+}
+}
+

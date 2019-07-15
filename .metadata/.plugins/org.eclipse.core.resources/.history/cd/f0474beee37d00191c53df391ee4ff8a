@@ -1,0 +1,61 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class MinimumPathSum {
+	
+	    public int minPathSum(ArrayList<ArrayList<Integer>> a) {
+	    	
+	    	int m = a.size();
+	    	int n = a.get(0).size();
+	    	
+	    	return minPathSumUtil(m, n, a);
+	    }
+
+		private int minPathSumUtil(int m, int n, ArrayList<ArrayList<Integer>> a) {
+			
+			if(m==0&&n==0)
+			{
+				return a.get(0).get(0);
+			}
+			
+			if(m < 0)
+			{
+				return a.get(0).get(n-1) + a.get(0).get(n);
+			}
+			
+			if(n < 0)
+			{
+				return a.get(m-1).get(0) + a.get(m).get(0);
+			}
+			
+			return Math.min(minPathSumUtil(m-1, n, a), minPathSumUtil(m, n-1, a)) + a.get(m).get(n); 
+		}
+		
+		public static void main(String[] args) {
+			MinimumPathSum mp = new MinimumPathSum();
+			ArrayList<ArrayList<Integer>> a = new ArrayList<ArrayList<Integer>>();
+			a.add(new ArrayList<>());
+			a.add((ArrayList<Integer>) Arrays.asList(4,3,1));
+			a.add((ArrayList<Integer>) Arrays.asList(5,6,1));
+			
+			for(int i =  0; i < a.size(); i++)
+			{
+				for(int j = 0; j < a.get(i).size(); j++)
+				{
+					System.out.print(a.get(i).get(j) + " ");
+				}
+				System.out.println();
+			}
+			
+			System.out.println(mp.minPathSum(a));
+		}
+}

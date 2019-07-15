@@ -1,0 +1,21 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class EcoFullStack {
+	public static void main(String[] args) {
+		String str = "";
+		
+		Integer len = str.length();
+		Integer i = 0;
+		while(i<len) {
+			len--;
+			
+		}
+	}
+}

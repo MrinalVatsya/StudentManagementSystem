@@ -1,0 +1,16 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class SakshamTCS {
+
+	public static int minimizeCost(List<Integer> p , List<Integer> x, List<Integer> y)
+	{
+		
+	}
+}

@@ -1,0 +1,93 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+class VertexWeightPair
+{
+	public VertexWeightPair(int v, int w) {
+		super();
+		this.v = v;
+		this.w = w;
+	}
+
+	int v;
+	
+	int w;
+}
+
+public class ChanduGraph {
+	
+	private int V;
+	private LinkedList<VertexWeightPair> adj[];
+	
+	public ChanduGraph(int v) {
+		super();
+		this.V = v;
+		adj = new LinkedList[v];
+		for(int i = 0; i < v; i++)
+			adj[i] = new LinkedList<>();
+	}
+
+	 void DFSUtil(int v,boolean visited[]) 
+	    { 
+	        // Mark the current node as visited and print it 
+	        visited[v] = true; 
+	        System.out.print(v+" "); 
+	  
+	        // Recur for all the vertices adjacent to this vertex 
+	        Iterator<Integer> i = adj[v].listIterator(); 
+	        while (i.hasNext()) 
+	        { 
+	            int n = i.next(); 
+	            if (!visited[n]) 
+	                DFSUtil(n, visited); 
+	        } 
+	    } 
+	  
+	    // The function to do DFS traversal. It uses recursive DFSUtil() 
+	    void DFS(int v) 
+	    { 
+	        // Mark all the vertices as not visited(set as 
+	        // false by default in java) 
+	        boolean visited[] = new boolean[V]; 
+	  
+	        // Call the recursive helper function to print DFS traversal 
+	        DFSUtil(v, visited); 
+	    } 
+	    
+	void addEdge(int u , int v, int w)
+	{
+		adj1[u].add(new VertexWeightPair(v, w));
+	}
+	
+		
+ 	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int t = sc.nextInt();
+		while(t-- > 0)
+		{
+			int n = sc.nextInt();
+			sc.nextLine();
+			int x = n-1;
+			while(x-- > 0)
+			{
+			String str = sc.nextLine();
+			String[] strArray = str.split("\\s+");
+			int u = Integer.parseInt(strArray[0]);
+			int v = Integer.parseInt(strArray[1]);
+			int w = Integer.parseInt(strArray[2]);
+			}
+			
+		}
+	}
+
+}

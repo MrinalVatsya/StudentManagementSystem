@@ -1,0 +1,57 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class RootToLeafPathSum {
+
+
+	private static ArrayList<ArrayList<Integer>> allPathList = new ArrayList<ArrayList<Integer>>();
+	
+	private static ArrayList<Integer> path = new ArrayList<>();
+	
+	void printPathsRecur(Node node, ArrayList<Integer> path, int pathLen, int sum, int b) 
+	{ 
+		if (node == null) 
+			return; 
+
+		sum = sum + node.data;
+		/* append this node to the path array */
+		path.set(pathLen, node.data) ; 
+		pathLen++; 
+
+		/* it's a leaf, so print the path that led to here */
+		if (node.left == null && node.right == null) 
+		{
+			if(sum==b)
+			{
+				allPathList.add(path);
+			}
+		}
+		else
+		{ 
+			/* otherwise try both subtrees */
+			printPathsRecur(node.left, path, pathLen, sum, b); 
+			printPathsRecur(node.right, path, pathLen, sum, b); 
+		} 
+	} 
+	    
+	    public ArrayList<ArrayList<Integer>> pathSum(TreeNode a, int b) {
+	    	
+	    	   boolean ans = hasPathSumUtil(a, b,0);
+		       return allPathList;
+	    }
+	    
+	    public static void main(String[] args) {
+			TreeNode t = new TreeNode(1);
+			
+			
+			
+		}
+}

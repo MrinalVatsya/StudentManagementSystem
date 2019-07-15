@@ -1,0 +1,63 @@
+package com.mind.poc;
+
+import java.util.Scanner;
+
+class Node  
+{ 
+    int data; 
+    Node left, right, nextRight; 
+   
+    Node(int item)  
+    { 
+        data = item; 
+        left = right = null; 
+    } 
+} 
+public class BinaryTree2 {
+	
+	Node root;
+	
+	public int isSumPossible(Node node)
+	{
+		return isSumTree(node, 0);
+	}
+	
+	public int isSumTree(Node node, int sum)
+	{
+		if(node == null)
+		{
+			return 0;
+		}
+		
+		if(node.left==null&&node.right==null)
+		{
+			sum = sum + node.data;
+			return sum;
+		}
+		
+		int ls = isSumTree(node.left, sum);
+		int rs = isSumTree(node.right, sum);
+		
+		if(ls+rs==node.data)
+			return ls+rs+node.data;
+		
+		return 0;
+	}
+	
+	 public static void main(String args[])  
+	    { 
+	        BinaryTree2 tree = new BinaryTree2(); 
+	        tree.root = new Node(26); 
+	        tree.root.left = new Node(10); 
+	        tree.root.right = new Node(3); 
+	        tree.root.left.left = new Node(4); 
+	        tree.root.left.right = new Node(6); 
+	        tree.root.right.right = new Node(3); 
+	   
+	        if (tree.isSumPossible(tree.root) != 0) 
+	            System.out.println("The given tree is a sum tree"); 
+	        else
+	            System.out.println("The given tree is not a sum tree"); 
+	    } 
+
+}

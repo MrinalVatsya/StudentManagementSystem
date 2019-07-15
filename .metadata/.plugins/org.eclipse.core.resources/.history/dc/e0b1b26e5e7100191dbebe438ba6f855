@@ -1,0 +1,126 @@
+
+
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class FileEncryptorDecryptor {
+
+    private SecretKey secretKey;
+    private Cipher cipher;
+
+    FileEncryptorDecryptor(SecretKey secretKey, String cipher) throws NoSuchPaddingException, NoSuchAlgorithmException {
+        this.secretKey = secretKey;
+        this.cipher = Cipher.getInstance(cipher);
+    }
+
+    public void encrypt(String content, String fileName) throws InvalidKeyException, IOException {
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] iv = cipher.getIV();
+
+        try (
+                FileOutputStream fileOut = new FileOutputStream(fileName);
+                CipherOutputStream cipherOut = new CipherOutputStream(fileOut, cipher)
+        ) {
+            fileOut.write(iv);
+            cipherOut.write(content.getBytes());
+        }
+
+    }
+
+    public String decrypt(String fileName) throws InvalidAlgorithmParameterException, InvalidKeyException, IOException {
+
+        String content;
+
+        try (FileInputStream fileIn = new FileInputStream(fileName)) {
+            byte[] fileIv = new byte[16];
+            fileIn.read(fileIv);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(fileIv));
+
+            try (
+                    CipherInputStream cipherIn = new CipherInputStream(fileIn, cipher);
+                    InputStreamReader inputReader = new InputStreamReader(cipherIn);
+                    BufferedReader reader = new BufferedReader(inputReader)
+                ) {
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
+                content = sb.toString();
+            }
+
+        }
+        return content;
+    }
+    
+    public void fileRead(String path)
+    {
+    try {
+		File fileDir = new File(path);
+			
+		BufferedReader in = new BufferedReader(
+		   new InputStreamReader(
+                      new FileInputStream(fileDir), "UTF8"));
+		        
+		String str;
+		      
+		while ((str = in.readLine()) != null) {
+		    System.out.println(str);
+		}
+		        
+                in.close();
+	    } 
+	    catch (UnsupportedEncodingException e) 
+	    {
+			System.out.println(e.getMessage());
+	    } 
+	    catch (IOException e) 
+	    {
+			System.out.println(e.getMessage());
+	    }
+	    catch (Exception e)
+	    {
+			System.out.println(e.getMessage());
+	    }
+	}
+    
+    public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, InvalidAlgorithmParameterException {
+    	
+    	//String originalContent = "foobar";
+    	  String inputFile = "C:/Users/mrinalvatsya/Desktop/EncryptedTest/Sample.pdf";
+    	    FileInputStream inputStream = new FileInputStream(inputFile);
+    	    byte[] inputBytes = new byte[(int) inputFile.length()];
+    	    inputStream.read(inputBytes);
+    	    
+    	    System.out.println("Input Byte Array is : " +  inputBytes);
+    	    
+    	    inputStream.close();
+        SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
+
+        FileEncryptorDecryptor fileEncrypterDecrypter = new FileEncryptorDecryptor(secretKey, "AES/CBC/PKCS5Padding");
+       // fileEncrypterDecrypter.fileRead(inputFile);//printing input file..
+        fileEncrypterDecrypter.encrypt(inputBytes.toString(), "baz.enc");
+      
+        String decryptedContent = fileEncrypterDecrypter.decrypt("baz.enc");
+        InputStream targetStream = new ByteArrayInputStream(decryptedContent.getBytes());
+        
+        StringBuilder textBuilder = new StringBuilder();
+        try (Reader reader = new BufferedReader(new InputStreamReader
+        	      (targetStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+        	        int c = 0;
+        	        while ((c = reader.read()) != -1) {
+        	            textBuilder.append((char) c);
+        	        }
+        	    }
+        System.out.println("Decrypted String is : " + decryptedContent);
+	}
+    
+    
+}

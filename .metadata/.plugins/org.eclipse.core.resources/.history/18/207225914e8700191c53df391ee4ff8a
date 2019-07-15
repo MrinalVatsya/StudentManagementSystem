@@ -1,0 +1,31 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class BlackShapes {
+	
+	public int black(ArrayList<String> a) {
+		
+		int m = a.size();
+		int n = a.get(0).length();
+		int i , j ;
+		for(i = 0; i < m; i++)
+		{
+			for(j = 0; j < n; j++)
+			{
+				if(a.get(i).charAt(j)=='X')
+				{
+					dfs(i,j,a);
+				}
+			}
+		}
+    }
+
+}

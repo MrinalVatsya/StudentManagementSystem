@@ -1,0 +1,69 @@
+package com.mind.poc;
+
+public class LongestPalindromeSubsequence {
+	
+	private static int dp[][] =  new int[3001][3001];
+	private static void initDp()
+	{
+	       for(int i = 0; i < dp.length ; i++) {
+	            for(int j = 0; j < dp[i].length ; j++)
+	                dp[i][j] = -1;
+	        }
+	}
+
+	private static int lpsHelper(String seq, int i, int j) {
+
+		
+	    if(dp[i][j] != -1)
+	        return dp[i][j];
+	    if(i==j)
+	    {
+	        return dp[i][j] = 1;
+	    }
+	    
+	    if(i==1 && j == 10)
+	    {
+	    	System.out.println("aa gya");
+	    }
+	    
+	    
+	    if(j == i+1)
+	    {
+	        if(seq.charAt(i)==seq.charAt(j))
+	        {
+	            return dp[i][j] = 2;
+	        }
+	        else
+	        {
+	            return dp[i][j] = 0;
+	        }
+	    }
+	    
+	    int ans = 0;
+	    if(seq.charAt(i)==seq.charAt(j))
+	    {
+	    	if(i==1 && j == 10)
+		    {
+		    	System.out.println("aa gya");
+		    }
+	        ans = lpsHelper(seq, i+1, j-1) + 2;
+	    }
+	    else
+	    {
+	        ans =  Math.max(lpsHelper(seq, i+1, j), lpsHelper(seq, i, j-1));
+	    }
+
+	    return dp[i][j] = ans;
+	}
+	
+	private static int lps(String seq)
+	{
+		return lpsHelper(seq,0,seq.length() - 1);
+	}
+	
+	public static void main(String[] args) {
+		String testString = "GEEKSFORGEEKS";
+		initDp();
+		System.out.println(lps(testString));
+	}
+}

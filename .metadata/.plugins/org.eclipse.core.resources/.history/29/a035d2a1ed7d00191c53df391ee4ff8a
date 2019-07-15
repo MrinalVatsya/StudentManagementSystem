@@ -1,0 +1,21 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class WaysToDecode {
+
+	public int numDecodings(String a) {
+		
+		int size = a.length();
+		return numDecodingsUtil(a, 0, size);
+    }
+
+	private int numDecodingsUtil(String a, int i,  int size) {
+		return 0;
+	}
+}

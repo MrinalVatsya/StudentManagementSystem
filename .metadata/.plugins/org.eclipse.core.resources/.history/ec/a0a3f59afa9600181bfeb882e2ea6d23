@@ -1,0 +1,27 @@
+package javademo;
+import java.util.*;
+public class TreeSetExample {
+	public static void main(String[] args) {
+		TreeSet<Integer> t = new TreeSet();
+		t.add(24);
+		t.add(15);
+		t.add(16);
+		t.add(45);
+		
+		t.add("mrinal");
+		System.out.println("Contents of my tree are : "+t);//default natural sorting order
+		
+		TreeSet t1 = new TreeSet();
+		//adding null value
+		t1.add(null);
+		
+		
+		t1.add("mrinal");
+		t1.add("vishal");
+		t1.add("hitesh");
+		
+		System.out.println(t1);//null pointer exception
+		
+	}
+
+}

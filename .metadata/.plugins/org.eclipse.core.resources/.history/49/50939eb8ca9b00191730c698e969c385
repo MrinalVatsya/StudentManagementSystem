@@ -1,0 +1,94 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+
+class ListNode {
+	public int val;
+	public ListNode next;
+	ListNode(int x) { val = x; next = null; }
+}
+public class InterviewBitLinkedList {
+
+
+	public ListNode removeNthFromEnd(ListNode a, int b) {
+
+		int i, count = 0;
+		ListNode head = a;
+		while(head != null)
+		{
+			count++;
+			head = head.next;
+		}
+
+		if(count==1)
+		{
+			return null;
+		}
+
+		if(b > count)//remove first node from linked list..
+		{
+			ListNode temp = a.next;
+			a = temp;
+			return a;
+		}
+
+		for(i = 1; i <= count-b-1; i++)
+		{
+			a = a.next;
+		}
+
+		if(a!=null)
+		{
+			ListNode temp = a.next;
+			if(temp != null)
+				a.next = temp.next;
+		}
+		return a;
+	}
+
+	public static void printLinkedList(ListNode a)
+	{
+		while(a != null)
+		{
+			System.out.println(a.val);
+			a = a.next;
+		}
+		
+		int x = 4+2%-8;
+		System.out.println(x);
+	}
+	
+	public ListNode rotateRight(ListNode a, int b) {
+		
+		ListNode head = a;
+		int count = 0;
+		while(head.next != null)
+		{
+			head = head.next;
+			count++;
+		}
+		
+		head = head.next;
+		count++;//total no of nodes in linked list..
+		
+    }
+
+	public static void main(String[] args) {
+		InterviewBitLinkedList obj = new InterviewBitLinkedList();
+		ListNode lt = new ListNode(1);
+		lt.next = new ListNode(2);
+		lt.next.next = new ListNode(3);
+		lt.next.next.next = new ListNode(4);
+		lt.next.next.next.next = new ListNode(5);
+		ListNode node = obj.removeNthFromEnd(lt, 1);
+		printLinkedList(node);
+
+	}
+
+}

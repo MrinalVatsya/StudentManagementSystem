@@ -1,0 +1,71 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Arrays;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class PrintSubsequencesString {
+
+	public static void printAllSubSequences(String input){
+		int [] temp = new int[input.length()];
+		int index = 0;
+		solve(input, index, temp);
+	}
+
+	private static void print(String input, int [] temp){
+		String result = "";
+		for (int i = 0; i <temp.length ; i++) {
+			if(temp[i]==1)
+				result += input.charAt(i);
+		}
+		if(result != "")
+		{
+			int i = 0, j = result.length() - 1;
+			boolean flag = false;
+			while(i < j)
+			{
+				if(result.charAt(i)==result.charAt(j))
+				{
+					i++;
+					j--;
+				}
+				else
+				{
+					flag = true;
+					break;
+				}
+			}
+			if(!flag)
+			{
+				System.out.println(result);
+			}
+		}
+		
+	}
+
+	private static void solve(String input, int index, int[] temp) {
+
+		if(index == input.length())
+		{
+			print(input,temp);
+			return ;
+		}
+		temp[index] = 1;//set this bit in array..
+		solve(input, index+1, temp);
+		temp[index] = 0;
+		solve(input, index+1, temp);
+	}
+
+	public static void main(String[] args) {
+		String input = "madam";
+		char[] charInputArray = input.toCharArray();
+		Arrays.sort(charInputArray);
+		printAllSubSequences(input);
+	}
+
+}

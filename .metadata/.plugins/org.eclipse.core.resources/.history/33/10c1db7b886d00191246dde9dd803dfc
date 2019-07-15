@@ -1,0 +1,71 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.io.FileInputStream;
+
+/**
+ * 
+ */
+/**
+ * 
+ */
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
+
+public class TestClass {
+	
+	private static final String mySecretkey = "aesEncryptionKey";
+	private static final String initVector = "encryptionIntVec";
+
+	public static String decrypt(final String encrypted) throws Exception {
+
+		 try {
+			 
+			 
+		 SecretKey key = new SecretKeySpec(mySecretkey.getBytes("UTF-8"), "AES");
+		 IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+		 byte[] decodeBase64 = Base64.decodeBase64(encrypted);
+		 Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		 cipher.init(Cipher.DECRYPT_MODE, key, iv);
+		 return new String(cipher.doFinal(decodeBase64), "UTF-8");
+		 } catch (Exception e) {
+		 e.printStackTrace();
+		 throw new RuntimeException("This should not happen in production.", e);
+		 }
+		} 
+	
+	public static String encrypt(final String encrypted) throws Exception{
+		
+		try {
+			
+		SecretKey key = new SecretKeySpec(mySecretkey.getBytes("UTF-8"), "AES");
+		IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+		 
+		 Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		 cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+		 byte[] encryptedByteArray = cipher.doFinal(encrypted.getBytes()); 
+		 return Base64.encodeBase64String(encryptedByteArray);
+	 } catch (Exception e) {
+		 e.printStackTrace();
+		 throw new RuntimeException("This should not happen in production.", e);
+		 }
+	}
+
+	public static void main(String[] args) throws Exception {
+//		String encryptedString = encrypt("mrinal");
+//		System.out.println(encryptedString);
+//		String decryptedString = decrypt(encryptedString);
+//		System.out.println(decryptedString);
+		
+		FileInputStream fin = new FileInputStream("C:/Users/mrinalvatsya/Desktop/EncryptedTest/sample.pdf");
+		String fileInputString = fin.toString();
+		String encryptedString = encrypt("mrinal");
+	}
+}

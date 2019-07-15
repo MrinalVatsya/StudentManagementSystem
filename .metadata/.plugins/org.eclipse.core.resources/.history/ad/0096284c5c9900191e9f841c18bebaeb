@@ -1,0 +1,131 @@
+package crud;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+
+public class FizzBuzz {
+
+	public static void fizzBuzz(int n) {
+
+		for(int i = 1; i <= n; i++)
+		{
+			if(i%3==0 && i%5 == 0)
+			{
+				System.out.println("FizzBuzz");
+			}
+			else if(i%3==0&&i%5!=0)
+			{
+				System.out.println("Fizz");
+			}
+			else if(i%5==0&&i%3!=0)
+			{
+				System.out.println("Buzz");
+			}
+			else
+			{
+				System.out.println(i);
+			}
+		}
+	}
+
+	public static List<Integer> fibonacci(int n) {
+
+		List<Integer> fibList = new ArrayList<>();
+		if(n==1)
+		{
+			fibList.add(0);
+			return fibList;
+		}
+		else if(n==2)
+		{
+			fibList.add(0);
+			fibList.add(1);
+			return fibList;
+		}
+		else
+		{
+			fibList.add(0);
+			fibList.add(1);
+			int a = 0;
+			int b = 1;
+
+			for(int i = 3; i <= n; i++)
+			{
+				int c = a + b;
+				fibList.add(c);
+				a = b;
+				b = c;
+			}
+
+			return fibList;
+
+		}
+	}
+
+	public static String arrange(String sentence) {
+
+		List<String> wordsList = new LinkedList<>();
+		StringBuilder sb = new StringBuilder(sentence);
+		String inputString = sb.deleteCharAt(sentence.length()-1).toString();
+		String[] words = inputString.split("\\s+");
+
+		for(int i = 0; i < words.length; i++)
+		{
+			wordsList.add(words[i]);
+		}
+		Comparator<String> ct = new Comparator<String>() {
+
+			@Override
+			public int compare(String o1, String o2) {
+
+				Integer len1 = o1.length();
+				Integer len2 = o2.length();
+
+				if(len1 != len2)
+				{
+					return len1.compareTo(len2);
+				}
+				else
+				{
+					return 0;
+				}
+
+			}
+
+		};
+
+		StringBuilder temp = new StringBuilder();
+		wordsList.sort(ct);
+
+		for(String word: wordsList)
+		{
+			temp.append(word+" ");
+		}
+
+		temp = temp.deleteCharAt(temp.length()-1);
+		String finalString  = temp.toString().toLowerCase();
+		String s1 = finalString.substring(0, 1).toUpperCase();
+		String nameCapitalized = s1 + finalString.substring(1) + ".";
+		return nameCapitalized;
+
+	}
+
+	public static void main(String[] args) {
+
+		String sentence = "The lines are printed in reverse order.";
+		System.out.println(arrange(sentence));
+		lastLetters("mrinal");
+	}
+
+	public static String lastLetters(String word) {
+		// Write your code here
+		int n = word.length();
+		String reverse = "";
+		reverse = reverse + word.charAt(n-1) + " " + word.charAt(n-2);
+		return reverse;
+
+	}
+
+}

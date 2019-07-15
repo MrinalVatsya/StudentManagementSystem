@@ -1,0 +1,75 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+
+public class NitikaAndGame {
+
+	private static int dp[][] ;
+
+	static int arraySplitting(int[] arr) {
+
+		int n = arr.length;
+		return arrayHelper(arr, 0, n);
+	}
+
+	private static int arrayHelper(int[] arr, int start, int end) {
+
+		int i , j ;
+		int count = 0;
+		int leftsum = 0;
+		for(i = 0; i < n; i++)
+		{
+			leftsum += arr[i];
+
+			int rightsum = 0;
+			for(j = i+1; j < n; j++)
+				rightsum += arr[i];
+
+			if(leftsum==rightsum)
+				return count = count + Integer.max(arrayHelper(arr,));
+		}
+		
+		return -1;
+	}
+
+	private static final Scanner scanner = new Scanner(System.in);
+
+	public static void main(String[] args) throws IOException {
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(("D://Solution.txt")));
+
+		int t = Integer.parseInt(scanner.nextLine().trim());
+
+		for (int tItr = 0; tItr < t; tItr++) {
+			int arrCount = Integer.parseInt(scanner.nextLine().trim());
+
+			int[] arr = new int[arrCount];
+
+			String[] arrItems = scanner.nextLine().split(" ");
+
+			for (int arrItr = 0; arrItr < arrCount; arrItr++) {
+				int arrItem = Integer.parseInt(arrItems[arrItr].trim());
+				arr[arrItr] = arrItem;
+			}
+
+			int result = arraySplitting(arr);
+
+			bufferedWriter.write(String.valueOf(result));
+			bufferedWriter.newLine();
+		}
+
+		bufferedWriter.close();
+	}
+}
+

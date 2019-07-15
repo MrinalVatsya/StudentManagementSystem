@@ -1,0 +1,3704 @@
+/**
+ * 
+ */
+package com.mind.legalOne.boardGovernance.logic.impl;
+
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.mind.legalOne.DMS.logic.DMSLogic;
+import com.mind.legalOne.admin.common.CommonConst;
+import com.mind.legalOne.admin.common.CommonUtils;
+import com.mind.legalOne.admin.common.UserValidation;
+import com.mind.legalOne.admin.dto.DocumentFile;
+import com.mind.legalOne.admin.dto.RegionalOffice;
+import com.mind.legalOne.admin.dto.UploadedDocument;
+import com.mind.legalOne.admin.dto.User;
+import com.mind.legalOne.admin.dto.WorkFlow;
+import com.mind.legalOne.admin.dto.WorkFlowSeqDetail;
+import com.mind.legalOne.admin.entity.CommitteeMasterEntity;
+import com.mind.legalOne.admin.entity.CompanyMasterEntity;
+import com.mind.legalOne.admin.entity.DirectorMasterEntity;
+import com.mind.legalOne.admin.entity.MOMCheckListMstrEntity;
+import com.mind.legalOne.admin.entity.MOMChecklistDirectorMapEntity;
+import com.mind.legalOne.admin.entity.ModuleMasterEntity;
+import com.mind.legalOne.admin.entity.UserInfoMasterEntity;
+import com.mind.legalOne.admin.entity.WorkFlowMasterEntity;
+import com.mind.legalOne.admin.entity.WorkFlowStepDetailEntity;
+import com.mind.legalOne.admin.exception.RecordNotFoundException;
+import com.mind.legalOne.admin.exception.UpdatedByAnotherUserException;
+import com.mind.legalOne.admin.exception.ValidationException;
+import com.mind.legalOne.admin.logic.BoardSubLogic;
+import com.mind.legalOne.admin.logic.PrivilegeSubLogic;
+import com.mind.legalOne.admin.logic.UserLogic;
+import com.mind.legalOne.admin.logic.impl.DocumentLogicImpl;
+import com.mind.legalOne.admin.logic.impl.DocumentSubLogicImpl;
+import com.mind.legalOne.admin.logic.impl.PrivilegeSubLogicImpl;
+import com.mind.legalOne.admin.logic.impl.UserLogicImpl;
+import com.mind.legalOne.admin.logic.impl.UserSubLogicImpl;
+import com.mind.legalOne.boardGovernance.dto.Agenda;
+import com.mind.legalOne.boardGovernance.dto.AgendaDetail;
+import com.mind.legalOne.boardGovernance.dto.Attendee;
+import com.mind.legalOne.boardGovernance.dto.AttendeeType;
+import com.mind.legalOne.boardGovernance.dto.AttendeeTypeDetail;
+import com.mind.legalOne.boardGovernance.dto.BgWorkFlow;
+import com.mind.legalOne.boardGovernance.dto.Director;
+import com.mind.legalOne.boardGovernance.dto.Guest;
+import com.mind.legalOne.boardGovernance.dto.MOM;
+import com.mind.legalOne.boardGovernance.dto.Meeting;
+import com.mind.legalOne.boardGovernance.dto.MeetingDetail;
+import com.mind.legalOne.boardGovernance.dto.MeetingInfo;
+import com.mind.legalOne.boardGovernance.dto.MeetingMOMChecklistMap;
+import com.mind.legalOne.boardGovernance.dto.MeetingType;
+import com.mind.legalOne.boardGovernance.dto.Member;
+import com.mind.legalOne.boardGovernance.dto.MomDetail;
+import com.mind.legalOne.boardGovernance.dto.VotingAccess;
+import com.mind.legalOne.boardGovernance.dto.VotingMember;
+import com.mind.legalOne.boardGovernance.entity.BgAgendaDocumentMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgAgendaVotingMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgCommitteeMemberMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgCompanyPermanentInviteeMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgDirectorCompanyMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgMeetingAgendaMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgMeetingAttendeeMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgMeetingGuestMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgMeetingMOMChecklistMapEntity;
+import com.mind.legalOne.boardGovernance.entity.BgMeetingMasterEntity;
+import com.mind.legalOne.boardGovernance.entity.BgMeetingWFUserMapEntity;
+import com.mind.legalOne.boardGovernance.logic.BGDirectorSubLogic;
+import com.mind.legalOne.boardGovernance.logic.BGMeetingLogic;
+import com.mind.legalOne.boardGovernance.logic.BGMeetingSubLogic;
+
+
+
+/**
+ * @author maneeshkpandey
+ *
+ */
+@Transactional
+@Service
+public class BGMeetingLogicImpl implements BGMeetingLogic {
+
+	
+	
+	@Autowired
+	UserLogic userLogic;
+	
+	@Autowired
+	UserValidation userValidation;
+	
+	@Autowired
+	BGMeetingSubLogic bgMeetingSubLogic;
+	
+	@Autowired
+	PrivilegeSubLogicImpl privilegeSubLogicImpl;
+	
+	@Autowired
+	BoardSubLogic boardSubLogic;
+	
+	@Autowired
+	DMSLogic dmsLogic;
+	
+	
+	
+	@Autowired
+	DocumentLogicImpl documentLogicImpl;
+	
+	@Autowired
+	UserLogicImpl userLogicImpl;
+	
+	@Autowired
+	BGDirectorSubLogic bGDirectorSubLogic;
+	
+	@Autowired
+	DocumentSubLogicImpl documentTypeSubLogicImpl;
+	
+	@Autowired
+	UserSubLogicImpl userSubLogicImpl;
+	
+	@Autowired
+	PrivilegeSubLogic privilegeSubLogic;
+	
+	private static Long moduleId = 4L;
+	
+	private static Integer meetingWorkFlowType = 1;
+	private static Integer agendaWorkFlowType = 2;
+	private static Integer draftMomWorkFlowType = 3;
+	private static Integer finalMomWorkFlowType = 4;
+	private static Integer agendaMainDocType=0; 
+	private static Integer agendaAnnexureType = 1;
+		
+	
+	/***
+	 * To fetch meeting details on basis of Company Id, Meeting Id, User Id, Role Id
+	 */
+	@Override
+	public Meeting getMeeting(Integer companyId,Long meetingId, Integer userId, Long roleId) {
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt=getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			BgMeetingMasterEntity bgMeeting=bgMeetingMasterEntityOpt.get();
+			Meeting meeting=getMeetingMaster(bgMeeting);
+			
+		Iterable<BgMeetingAttendeeMapEntity> bgMeetingAttendeeMapEntityIt =  getBgMeetingSubLogic().getMeetingAttendeeMapRecords(meetingId);
+		Map<Long,List<BgMeetingAttendeeMapEntity>> attendeeMapEntity = StreamSupport.stream(bgMeetingAttendeeMapEntityIt.spliterator(),false).collect(Collectors.groupingBy(entity -> entity.getAttendeeTypeId()));
+		
+		 
+		//Fetching Attendee Type Name From Committee Master Entity 
+		Set<Long> attendeeTypeIds = attendeeMapEntity.keySet();
+	    List<AttendeeType> attendeeType = getAttendeeType(attendeeTypeIds); 
+		Map<Long,String> attendeeMap = attendeeType.stream().collect(Collectors.toMap(attendee -> attendee.getId(), attendee -> attendee.getName())) ;
+		
+		
+		//Attendee Type Details i.e. Id,Name,List of members*
+		  List<AttendeeTypeDetail> attendeeList = attendeeMapEntity.entrySet().stream().map(entityEntrySet ->{
+			AttendeeTypeDetail attendeeTypeDetail = new AttendeeTypeDetail();
+			attendeeTypeDetail.setId(entityEntrySet.getKey());
+			attendeeTypeDetail.setName(attendeeMap.get(entityEntrySet.getKey()));
+
+			
+			List<Member> members = entityEntrySet.getValue().stream().map(entity ->{
+				Member member = new Member();
+				member.setId(entity.getDirectorMasterEntity().getId());
+				member.setPermanentInvitee(entity.getPermanentInvitee());
+				member.setName(entity.getDirectorMasterEntity().getName());
+				
+				Iterable<BgDirectorCompanyMapEntity>  bgDirectorCompanyMapEntityIt = getBgMeetingSubLogic().getDirectorCompanyMapRecords(entity.getDirectorMasterEntity().getId());
+				Map<Long,List<BgDirectorCompanyMapEntity>> directorMapEntity = StreamSupport.stream(bgDirectorCompanyMapEntityIt.spliterator(),false).collect(Collectors.groupingBy(desigEntity -> desigEntity.getDirectorDesignationMasterEntity().getId()));  
+				 
+				directorMapEntity.forEach((id,desig) -> { 		
+				String designation = desig.stream().map(desigMap ->{
+						 
+							return desigMap.getDirectorDesignationMasterEntity().getName();
+							}).collect(Collectors.joining(" & "));
+					
+					 member.setDesignation(designation);
+				 });
+				
+				return member;
+			}).collect(Collectors.toList());
+			attendeeTypeDetail.setMembers(members);
+			
+			return attendeeTypeDetail;
+		}).collect(Collectors.toList());
+		  meeting.setAttendeeTypeDetails(attendeeList);
+			
+		 // Meeting Guest List
+		  Iterable<BgMeetingGuestMapEntity> bgMeetingGuestMapEntityIt =  getBgMeetingSubLogic().getMeetingGuestMapRecords(meetingId);
+		  List<Guest>guestList=StreamSupport.stream(bgMeetingGuestMapEntityIt.spliterator(),false).map(guestEntity ->{
+			Guest guest = getGuest(guestEntity);
+			
+			return guest;
+		}).collect(Collectors.toList());
+		  meeting.setGuests(guestList);	
+		  
+	    // To fetch user name on basis of user Id
+		  Iterable<BgMeetingWFUserMapEntity> bgMeetingWFUserMapEntityIt =  getBgMeetingSubLogic().getMeetingWorkFlowUserMapRecords(meetingId);
+		  
+		  Set<Integer> workFlowsUsers = new HashSet<Integer>();
+			StreamSupport.stream(bgMeetingWFUserMapEntityIt.spliterator(),false).forEach(workFlowUserMap ->{
+							
+				workFlowsUsers.add(workFlowUserMap.getUserId());
+			});
+			
+			List<User> workFlowUsers = getUserLogicImpl().getUser(workFlowsUsers);
+			Map<Integer,String> userMap = workFlowUsers.stream().collect(Collectors.toMap(user -> user.getId(), user -> user.getName())) ;
+		
+			
+		 // To fetch Meeting Work flow Steps
+		    Long meetingWorkFlowId = bgMeeting.getMeetingWorkflowId();
+		  
+		      if(meetingWorkFlowId != null) {
+			  List<WorkFlow> meetingWorkFlows = getDocumentLogicImpl().getWorkFlow(meetingWorkFlowId);
+			  Map<Integer,WorkFlow> meetingWorkFlowMap = meetingWorkFlows.stream().collect(Collectors.toMap(step -> step.getSeq(), step -> step));
+			  List<WorkFlow>meetingWorkflowSteps = StreamSupport.stream(bgMeetingWFUserMapEntityIt.spliterator(),false).filter(entity -> meetingWorkFlowType.equals(entity.getWorkflowType())).map(entity -> {
+					
+				    WorkFlow obj = getWorkflow(meetingWorkFlowMap, entity,userMap);
+					return obj;
+					
+				}).collect(Collectors.toList());
+			    meeting.setMeetingWorkflowSteps(meetingWorkflowSteps);
+			  
+			  
+		  }
+		  
+          // To fetch Agenda Work flow Steps
+			  Long agendaWorkFlowId = bgMeeting.getAgendaWorkflowId();
+			  
+			  if(agendaWorkFlowId != null) {
+			  List<WorkFlow> agendaWorkFlows = getDocumentLogicImpl().getWorkFlow(agendaWorkFlowId);
+			  Map<Integer,WorkFlow> agendaWorkFlowMap = agendaWorkFlows.stream().collect(Collectors.toMap(step -> step.getSeq(), step -> step));
+		      List<WorkFlow>agendaWorkflowSteps = StreamSupport.stream(bgMeetingWFUserMapEntityIt.spliterator(),false).filter(entity -> agendaWorkFlowType.equals(entity.getWorkflowType())).map(entity -> {
+				
+			  WorkFlow obj = getWorkflow(agendaWorkFlowMap, entity,userMap);
+			  return obj;
+				
+			}).collect(Collectors.toList());
+		    meeting.setAgendaWorkflowSteps(agendaWorkflowSteps);
+		  
+			  }
+			  
+		// To fetch Draft MOM Work flow Steps 
+		     Long draftMomWorkFlowId = bgMeeting.getDraftMomWorkflowId();
+		     
+		     if(draftMomWorkFlowId != null) {
+			 List<WorkFlow> draftMomWorkFlows = getDocumentLogicImpl().getWorkFlow(draftMomWorkFlowId);
+			 Map<Integer,WorkFlow> draftWorkFlowMap = draftMomWorkFlows.stream().collect(Collectors.toMap(step -> step.getSeq(), step -> step));
+		     List<WorkFlow>draftMomWorkflowSteps = StreamSupport.stream(bgMeetingWFUserMapEntityIt.spliterator(),false).filter(entity -> draftMomWorkFlowType.equals(entity.getWorkflowType())).map(entity -> {
+				
+			  WorkFlow obj = getWorkflow(draftWorkFlowMap, entity,userMap);
+			  return obj;
+				
+			}).collect(Collectors.toList());
+		    meeting.setDraftMomWorkflowSteps(draftMomWorkflowSteps);
+		     }
+		 
+		// To fetch Final MOM Work Flow Steps     
+		     Long finalMomWorkFlowId = bgMeeting.getFinalMomWorkflowId();
+		     
+		     if(finalMomWorkFlowId != null) {
+			 List<WorkFlow> finalMomWorkFlows = getDocumentLogicImpl().getWorkFlow(finalMomWorkFlowId);
+			 Map<Integer,WorkFlow> finalWorkFlowMap = finalMomWorkFlows.stream().collect(Collectors.toMap(step -> step.getSeq(), step -> step));
+		     List<WorkFlow>finalMomWorkflowSteps = StreamSupport.stream(bgMeetingWFUserMapEntityIt.spliterator(),false).filter(entity -> finalMomWorkFlowType.equals(entity.getWorkflowType())).map(entity -> {
+				
+			  WorkFlow obj = getWorkflow(finalWorkFlowMap, entity,userMap);
+			  return obj;
+				
+			}).collect(Collectors.toList());
+		    meeting.setFinalMomWorkflowSteps(finalMomWorkflowSteps);
+		     }
+		     
+		     Iterable<BgAgendaDocumentMapEntity> bgAgendaDocumentMapEntity= getBgMeetingSubLogic().getAgendaDocumentMapRecords(meetingId);
+			  List<BgAgendaDocumentMapEntity>docList=StreamSupport.stream(bgAgendaDocumentMapEntity.spliterator(),false).map(docEntity ->{
+					return docEntity;
+				}).collect(Collectors.toList());
+			//  Integer membercount=guestList.size()+attendeeList.size();
+			  Long attendeeSize= bgMeetingAttendeeMapEntityIt.spliterator().getExactSizeIfKnown();
+			  Integer membercount=guestList.size()+attendeeSize.intValue();
+			  meeting.setMemberCount(membercount);
+			  meeting.setDocumentCount(docList.size());
+			
+			return meeting;
+		}
+		else {
+			
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+		
+	}
+	
+	/***
+	 * To fetch list of meetings between two given dates
+	 */
+	@Override
+	public List<Meeting> getMeetingList(LocalDate startDate,LocalDate endDate,Integer userId, Long roleId) {
+		
+		Iterable<BgMeetingMasterEntity> bgMeetingMasterEntityIt=getBgMeetingSubLogic().getMeetingMasterRecords(startDate, endDate);
+	    List<Meeting> meetings=StreamSupport.stream(bgMeetingMasterEntityIt.spliterator(),false).map(entity -> {
+		  
+		Meeting meeting=new Meeting();
+		CommonUtils.copyProperties(meeting, entity);
+		Iterable<BgMeetingAttendeeMapEntity> bgMeetingAttendeeMapEntityIt = getBgMeetingSubLogic().getMeetingAttendeeMapRecords(entity.getId());
+		Map<Long,List<BgMeetingAttendeeMapEntity>> attendeeMap = StreamSupport.stream(bgMeetingAttendeeMapEntityIt.spliterator(), false).collect(Collectors.groupingBy(attendeeEntity -> attendeeEntity.getAttendeeTypeId()));
+	
+		 
+		//Fetching Attendee Type Name From Committee Master Entity 
+		Set<Long> attendeeTypeIds = attendeeMap.keySet();
+	    List<AttendeeType> attendeeType = getAttendeeType(attendeeTypeIds);
+		Map<Long,String> EntityAttendeeMap = attendeeType.stream().collect(Collectors.toMap(attendee -> attendee.getId( ), attendee -> attendee.getName())) ;
+		
+		
+		//Attendee Type Details i.e. Id,Name,List of members*
+		  List<AttendeeTypeDetail> attendeeList = attendeeMap.entrySet().stream().map(entityEntrySet ->{
+			AttendeeTypeDetail attendeeTypeDetail = new AttendeeTypeDetail();
+			attendeeTypeDetail.setId(entityEntrySet.getKey());
+			attendeeTypeDetail.setName(EntityAttendeeMap.get(entityEntrySet.getKey()));
+
+			
+			List<Member> members = entityEntrySet.getValue().stream().map(memberEntity ->{
+				Member member = new Member();
+				member.setId(memberEntity.getDirectorMasterEntity().getId());
+				member.setPermanentInvitee(memberEntity.getPermanentInvitee());
+				member.setName(memberEntity.getDirectorMasterEntity().getName());
+				
+				Iterable<BgDirectorCompanyMapEntity>  bgDirectorCompanyMapEntityIt = getBgMeetingSubLogic().getDirectorCompanyMapRecords(memberEntity.getDirectorMasterEntity().getId());
+				Map<Long,List<BgDirectorCompanyMapEntity>> directorMapEntity = StreamSupport.stream(bgDirectorCompanyMapEntityIt.spliterator(),false).collect(Collectors.groupingBy(desigEntity -> desigEntity.getDirectorDesignationMasterEntity().getId()));  
+				 
+				directorMapEntity.forEach((id,desig) -> { 		
+				String designation = desig.stream().map(desigMap ->{
+						 
+							return desigMap.getDirectorDesignationMasterEntity().getName();
+							}).collect(Collectors.joining(" & "));
+					
+					 member.setDesignation(designation);
+				 });
+				
+				return member;
+			}).collect(Collectors.toList());
+			attendeeTypeDetail.setMembers(members);
+			
+			return attendeeTypeDetail;
+		}).collect(Collectors.toList());
+		  meeting.setAttendeeTypeDetails(attendeeList);
+		  
+		  Iterable<BgAgendaDocumentMapEntity> bgAgendaDocumentMapEntity= getBgMeetingSubLogic().getAgendaDocumentMapRecords(entity.getId());
+		  List<BgAgendaDocumentMapEntity>docList=StreamSupport.stream(bgAgendaDocumentMapEntity.spliterator(),false).map(docEntity ->{
+				return docEntity;
+			}).collect(Collectors.toList());
+		  
+		 // Meeting Guest List
+		  Iterable<BgMeetingGuestMapEntity> bgMeetingGuestMapEntityIt =  getBgMeetingSubLogic().getMeetingGuestMapRecords(entity.getId());
+		  List<Guest>guestList=StreamSupport.stream(bgMeetingGuestMapEntityIt.spliterator(),false).map(guestEntity ->{
+			Guest guest = getGuest(guestEntity);
+			
+			return guest;
+		}).collect(Collectors.toList());
+		  meeting.setGuests(guestList);	
+		  meeting.setMeetingTypeId(entity.getCommitteeMasterEntity().getId());
+		//  Integer membercount=guestList.size()+attendeeList.size(); 
+		  Long attendeeSize= bgMeetingAttendeeMapEntityIt.spliterator().getExactSizeIfKnown();
+		  Integer membercount=guestList.size()+attendeeSize.intValue();
+		  meeting.setMemberCount(membercount);
+		  meeting.setDocumentCount(docList.size());
+		  meeting.setCoOrdinatorMailId(entity.getCoOrdinatorMailId());
+		  meeting.setCoOrdinatorPhoneNo(entity.getCoOrdinatorPhoneNo());
+		
+		  return meeting;
+	}).collect(Collectors.toList());
+		return meetings;
+	}
+	
+	/***
+	 * To fetch list of permanent Invitee
+	 */
+	@Override
+	public List<Director> getPermanentInvitee(Integer companyId,Integer userId, Long roleId) {
+		
+		Iterable<BgCompanyPermanentInviteeMapEntity> bgCompanyPermanentInviteeMapEntityIt =  getBgMeetingSubLogic().getCompanyPermanentInviteeMap(companyId);
+		List<Director> director=StreamSupport.stream(bgCompanyPermanentInviteeMapEntityIt.spliterator(),false).map( entity -> {
+			Director invitee=new Director();
+			invitee.setId(entity.getId());
+			invitee.setName(entity.getDirectorMasterEntity().getName());
+			invitee.setCommitteeName(null);
+			invitee.setImage(null);
+			
+			 Iterable<BgDirectorCompanyMapEntity> bgDirectorCompanyMapEntityIt =  getbGDirectorSubLogic().getDirectorCompanyMap(entity.getDirectorMasterEntity().getId());
+			 Map<Integer,List<BgDirectorCompanyMapEntity>> desigMapEntity = StreamSupport.stream(bgDirectorCompanyMapEntityIt.spliterator(),false).collect(Collectors.groupingBy(action -> action.getCompanyId()));
+			
+			 desigMapEntity.forEach((compId,desig) -> { 
+			
+		 
+				 String designation = desig.stream().map(desigEntity ->{
+					 
+						return desigEntity.getDirectorDesignationMasterEntity().getName();
+						}).collect(Collectors.joining(" & "));
+				
+				 invitee.setDesignation(designation);
+			 });
+			return invitee;
+		}).collect(Collectors.toList());
+		return director;
+	}
+
+	
+	/***
+	 * To fetch agenda on basis of Company Id, Meeting Id, User Id, Role Id
+	 */
+
+	@Override
+	public AgendaDetail getAgenda(Integer companyId,Long meetingId, Integer userId, Long roleId) {
+		
+		AgendaDetail agendaDetail=new AgendaDetail();
+
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt=getBgMeetingSubLogic().getMeetingMasterRecod(meetingId,true);
+
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+		BgMeetingMasterEntity bgMeeting=bgMeetingMasterEntityOpt.get();
+		Iterable<BgMeetingAgendaMapEntity> bgMeetingAgendaMapEntityIt=getBgMeetingSubLogic().getMeetingAgendaMapRecords(meetingId);
+		
+	//To fetch user name
+          Iterable<BgMeetingWFUserMapEntity> bgMeetingWFUserMapEntityIt =  getBgMeetingSubLogic().getMeetingWorkFlowUserMapRecords(meetingId);
+		  
+		  Set<Integer> workFlowsUsers = new HashSet<Integer>();
+			StreamSupport.stream(bgMeetingWFUserMapEntityIt.spliterator(),false).forEach(workFlowUserMap ->{
+							
+				workFlowsUsers.add(workFlowUserMap.getUserId());
+			});
+			
+			List<User> workFlowUsers = getUserLogicImpl().getUser(workFlowsUsers);
+			Map<Integer,String> userMap = workFlowUsers.stream().collect(Collectors.toMap(user -> user.getId(), user -> user.getName())) ;
+		
+			
+	  //To fetch Agenda Work flow steps	
+		Long agendaWorkFlowId = bgMeeting.getAgendaWorkflowId();
+		List<WorkFlow> agendaWorkFlows = getDocumentLogicImpl().getWorkFlow(agendaWorkFlowId);
+		Map<Integer,WorkFlow> agendaWorkFlowMap = agendaWorkFlows.stream().collect(Collectors.toMap(step -> step.getSeq(), step -> step));
+		List<WorkFlow>agendaWorkflowSteps = StreamSupport.stream(bgMeetingWFUserMapEntityIt.spliterator(),false).filter(entity -> agendaWorkFlowType.equals(entity.getWorkflowType())).map(entity -> {
+				
+			  WorkFlow obj = getWorkflow(agendaWorkFlowMap, entity,userMap);
+			  return obj;
+				
+			}).collect(Collectors.toList());
+		      agendaDetail.setAgendaWorkflowSteps(agendaWorkflowSteps);
+		List<Agenda> agendaList=StreamSupport.stream(bgMeetingAgendaMapEntityIt.spliterator(), false).filter(entity -> entity.getParentAgenda() == null).filter(entity -> entity.getActive().equals(true)).map(entity ->{
+			
+			Agenda agenda = getAgenda(entity);
+
+			agenda = updatedChildAgenda(agenda,entity);
+			return agenda;
+			
+		}).collect(Collectors.toList());
+		
+		agendaDetail.setAgends(agendaList);
+		agendaDetail.setStatus(bgMeeting.getAgendaStatus());
+		
+		return agendaDetail;
+		
+		}
+		
+		
+		else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+	}
+	
+	
+
+	
+
+	/***
+	 * To fetch meeting type list on basis of Company Id, User Id, Role Id
+	 */
+	
+	@Override
+	public List<MeetingType> getMeetingType(Integer companyId, Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		
+		Iterable<BgCommitteeMemberMapEntity> bgCommitteeMemberMapEntityIt = getBgMeetingSubLogic().getCommitteeMemberMapRecords(companyId);
+		
+		
+		Map<Long,String> committeeMap = StreamSupport.stream(bgCommitteeMemberMapEntityIt.spliterator(), false).collect(Collectors.toMap(entity -> entity.getCommitteeMasterEntity().getId(), entity -> entity.getCommitteeMasterEntity().getName() , (oldValue, newValue) -> oldValue));
+		
+		List<MeetingType> meetingTypes = committeeMap.entrySet().stream().map(committeeEntry -> {
+			
+			MeetingType meetingType = new MeetingType();
+			meetingType.setId(committeeEntry.getKey());
+			meetingType.setName(committeeEntry.getValue());
+			return meetingType;
+			
+		}).collect(Collectors.toList());
+		
+		
+		return meetingTypes;
+	}
+
+
+	/***
+	 * To fetch list of attendee type
+	 */
+	
+	@Override
+	public List<AttendeeType> getAttendeeType(Integer companyId, Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		Iterable<BgCommitteeMemberMapEntity> bgCommitteeMemberMapEntityIt = getBgMeetingSubLogic().getCommitteeMemberMapRecords(companyId);
+		
+		Map<Long,String> committeeMap = StreamSupport.stream(bgCommitteeMemberMapEntityIt.spliterator(), false).collect(Collectors.toMap(entity -> entity.getCommitteeMasterEntity().getId(), entity -> entity.getCommitteeMasterEntity().getName() , (oldValue, newValue) -> oldValue));
+		
+		List<AttendeeType> attendeeTypes = committeeMap.entrySet().stream().map(committeeEntry -> {
+			
+			AttendeeType attendeeType = new AttendeeType();
+			attendeeType.setId(committeeEntry.getKey());
+			attendeeType.setName(committeeEntry.getValue());
+			return attendeeType;
+			
+		}).collect(Collectors.toList());
+		
+		
+		return attendeeTypes;
+		
+	}
+	
+	/***
+	 * To fetch attendee Type detail on basis of Company Id, Attendee Type Id, User Id, Role Id
+	 */
+	@Override
+	public AttendeeTypeDetail getAttendeeTypeDetail(Integer companyId, Long attendeeTypeId, Integer userId,
+			Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		Iterable<BgCommitteeMemberMapEntity> bgCommitteeMemberMapEntityIt = getBgMeetingSubLogic().getCommitteeMemberMapRecords(companyId,attendeeTypeId);
+		
+		AttendeeTypeDetail attendeeTypeDetail = new AttendeeTypeDetail();
+		List<Member> members = new ArrayList<>();
+		attendeeTypeDetail.setMembers(members);
+		
+		
+		attendeeTypeDetail = StreamSupport.stream(bgCommitteeMemberMapEntityIt.spliterator(), false).reduce(attendeeTypeDetail,(accum,element) ->{
+			
+			accum.setId(element.getCommitteeMasterEntity().getId());
+			accum.setName(element.getCommitteeMasterEntity().getName());
+			
+			Member member = new Member();
+			member.setId(element.getDirectorMasterEntity().getId());
+			member.setName(element.getDirectorMasterEntity().getName());
+			member.setPermanentInvitee(element.getPermanentInvitee());
+			if(element.getChairman()) {
+				member.setDesignation("Chairman");
+			}else {
+				member.setDesignation("Member");
+			}
+			
+			accum.getMembers().add(member);
+			
+			return accum;
+		}, (accum1,accum2) ->{
+			
+			accum1.getMembers().addAll(accum2.getMembers());
+			
+			return accum1;
+		});
+		
+		return attendeeTypeDetail;
+	}
+	
+	
+	/***
+	 * To create meeting
+	 */
+	@Override
+	public Meeting createMeeting(Meeting meeting, Integer companyId, Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
+		String startTime = meeting.getStartTime();
+		LocalDate date = meeting.getDate();
+		
+		BgMeetingMasterEntity meetingMstrEntity = new BgMeetingMasterEntity();
+		
+		LocalTime meetingStartTime = LocalTime.parse(startTime, dateTimeFormatter);
+		LocalDateTime dateTime = date.atTime(meetingStartTime);
+		LocalDateTime meetingStartUtcTime = dateTime.minusMinutes(540L);
+		
+		DateTimeFormatter dateformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		String dateInDb = meetingStartUtcTime.format(dateformatter);
+		LocalDate finalDate = LocalDate.parse(dateInDb);
+		
+		DateTimeFormatter timeformatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+		String startTimeInDb = meetingStartUtcTime.format(dateformatter);
+		
+		meetingMstrEntity.setStartTime(startTimeInDb);//save time to database..
+		meetingMstrEntity.setDate(finalDate);//save Date to database..
+		
+		meeting.getDate();
+		meeting.getEndTime();
+		String endTime = meeting.getStartTime();
+		LocalDate meetingDate = meeting.getDate();
+		
+		LocalTime meetingEndTime = LocalTime.parse(endTime, dateTimeFormatter);
+		LocalTime meetingEndUtcTime = meetingEndTime.minusMinutes(540L);
+		
+		meetingDate.atTime(meetingEndUtcTime);
+		
+		meeting = createMeetingMasterRecord(meeting,companyId, userId);
+		
+		meeting = createMeetingAttendeeMapRecords(meeting,userId);
+		
+		meeting = createMeetingGuestMapRecords(meeting,userId);
+		
+		meeting = createMeetingWorkflowUserMapRecords(meeting,userId);
+		
+		return meeting;
+	}
+	
+	/***
+	 * To update meeting details
+	 */ 
+	
+	@Override
+	public Meeting updateMeeting(Meeting meeting, Long meetingId, Integer companyId, Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		meeting = updateMeetingMasterRecord(meeting,companyId, userId);
+		
+		meeting = updateMeetingAttendeeMapRecords(meeting, userId,meetingId);
+		
+		meeting = updateMeetingGuestMapRecords(meeting,userId,meetingId);
+		
+		meeting = updateMeetingWorkflowUserMapRecords(meeting, userId,meetingId);
+		
+		return meeting;
+	}  
+
+	
+	/***
+	 * To submit meeting work flow
+	 */
+	@Override
+	public BgWorkFlow submitMeetingWorkFlow(BgWorkFlow bgWorkFlow, Integer companyId, Long meetingId,
+			Integer workflowType, Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		//To check if work flow is not submitted before(000 code denotes that work flow is in still save state)
+		if(bgWorkFlow.getWorkflows() != null && bgWorkFlow.getWorkflows().size() > 0 && !("000".equals(bgWorkFlow.getWorkflowStatus()))) {
+			
+			List<WorkFlow> workflows = bgWorkFlow.getWorkflows();
+			Collections.sort(workflows);
+			
+			Boolean nextWorkFlowFound = false;
+			String nextWorkFlowStatus = "";
+			String returnedWorkFlowStatus = "";
+			
+			returnedWorkFlowStatus = checkForFirstStepReturn(bgWorkFlow, returnedWorkFlowStatus);
+			
+			for(int count = 0 ; count < workflows.size(); count ++) {
+				WorkFlow workflow = workflows.get(count);
+				 
+				if(workflow.getDocWorkFlowId() == null) {
+					throw new UpdatedByAnotherUserException();
+				}
+				
+				returnedWorkFlowStatus = getReturnedWorkFlowStatus(bgWorkFlow, returnedWorkFlowStatus, workflow);
+				if(!nextWorkFlowFound) {
+					if(workflow.getCode().equals(bgWorkFlow.getWorkflowStatus())) {
+						nextWorkFlowFound = true;
+					}
+				}else {
+					nextWorkFlowStatus = getNextWorkFlowStatus(bgWorkFlow, returnedWorkFlowStatus, workflow);
+					Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+					if(bgMeetingMasterEntityOpt.isPresent()) {
+						
+						bgWorkFlow.setWorkflowStatus(nextWorkFlowStatus);
+						
+						BgMeetingMasterEntity entity = bgMeetingMasterEntityOpt.get();
+						
+						Boolean meetingReturned = entity.getMeetingReturned();
+						
+						entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+						entity.setLastUpdatedUserId(userId);
+						entity.setVersion(entity.getVersion() + 1);
+						
+						updateWorkflowStatus(bgWorkFlow, workflowType, workflows, nextWorkFlowStatus, count, entity);
+						
+						
+						Optional<BgMeetingWFUserMapEntity>  bgMeetingWFUserMapEntityOpt = getBgMeetingSubLogic().getMeetingWorkFlowUserMapRecord(workflow.getDocWorkFlowId(), workflowType, meetingId);
+						if(bgMeetingWFUserMapEntityOpt.isPresent()) {
+							
+							BgMeetingWFUserMapEntity workflowEntity = bgMeetingWFUserMapEntityOpt.get();
+							
+							updateWorkflowUserMapRecod(bgWorkFlow, userId, workflow, workflowEntity);
+							
+							workflow.setVersion(workflow.getVersion() + 1);
+							
+							if(workflowType.intValue() == 1 && !meetingReturned) {
+								createMeetingFolder(entity);
+							}
+						}else {
+							throw new ValidationException("Workflow Id :- " + workflow.getDocWorkFlowId());
+						}
+						
+					}else {
+						throw new RecordNotFoundException("Meeting id :- " + meetingId); 
+					}
+					
+					break;
+				}
+			}
+		}
+		
+		return bgWorkFlow;
+	}
+
+	/***
+	 * To add agenda in meeting
+	 */
+	@Override
+	public AgendaDetail addMeetingAgenda(AgendaDetail agendaDetail, Integer companyId, Long meetingId, Integer userId,
+			Long roleId){
+		
+		validateUser(companyId, userId);
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			
+			BgMeetingMasterEntity bgMeetingMasterEntity = bgMeetingMasterEntityOpt.get();
+			
+			//bgMeetingMasterEntity.setAgendaStatus("000");
+			bgMeetingMasterEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			bgMeetingMasterEntity.setLastUpdatedUserId(userId);
+			bgMeetingMasterEntity.setVersion(bgMeetingMasterEntity.getVersion() + 1);
+			
+			
+			Iterable<BgMeetingAgendaMapEntity> bgMeetingAgendaMapEntityIt = getBgMeetingSubLogic().getMeetingAgendaMapRecords(meetingId);
+			Map<Long,BgMeetingAgendaMapEntity> agendaEntityMap = StreamSupport.stream(bgMeetingAgendaMapEntityIt.spliterator(), false).collect(Collectors.toMap(bgMeetingAgendaMapEntity -> bgMeetingAgendaMapEntity.getId(), bgMeetingAgendaMapEntity -> bgMeetingAgendaMapEntity));
+			agendaDetail.getAgends().forEach(agenda ->{
+				
+				// Create agenda
+				if(agenda.getId() == null) {
+					
+					BgMeetingAgendaMapEntity bgMeetingAgendaMapEntity = createMeetingAgendaMapDTO(meetingId, agenda,userId);
+					
+					Long agendaId = getBgMeetingSubLogic().createMeetingAgendaMapRecord(bgMeetingAgendaMapEntity);
+					agenda.setId(agendaId);
+					agenda.setVersion(1L);
+					
+					List<VotingAccess> votingAccessList = agenda.getVotingAccessList();
+					
+					updateVotingAccessDetails(meetingId, userId, agendaId, votingAccessList);
+					
+					updateAgendaSubItems(meetingId, userId, agendaEntityMap, agenda, agendaId,bgMeetingAgendaMapEntity);
+					
+					//Update agenda
+				}else {
+					
+					
+					BgMeetingAgendaMapEntity entity = agendaEntityMap.get(agenda.getId());
+					
+					updateMeetingAgendaMapEntity(userId,agenda, entity);
+					agenda.setVersion(agenda.getVersion() + 1);
+					
+					List<VotingAccess> votingAccessList = agenda.getVotingAccessList();
+					
+					updateVotingAccessDetails(meetingId, userId, agenda.getId(), votingAccessList);
+					
+					agendaEntityMap.remove(agenda.getId());
+					updateAgendaSubItems(meetingId, userId, agendaEntityMap, agenda, agenda.getId(),entity);
+					
+				}
+			});
+			
+			
+			agendaEntityMap.forEach((id,entity) ->{
+				entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+				entity.setLastUpdatedUserId(userId);
+				entity.setActive(false);
+				entity.setVersion(entity.getVersion() + 1);
+			});
+			
+			if(agendaDetail.getSubmitForApproval() != null && agendaDetail.getSubmitForApproval()) {
+				
+				if(agendaDetail.getAgendaWorkflowSteps() == null || agendaDetail.getAgendaWorkflowSteps().size() == 0) {
+					throw new ValidationException("Agenda Workflow detail required");
+				}
+				
+				
+				agendaDetail.getAgendaWorkflowSteps().forEach(workflow ->{
+					
+					if(workflow.getSeq() == 1) {
+						bgMeetingMasterEntity.setAgendaStatus(workflow.getCode());
+						bgMeetingMasterEntity.setAgendaReturned(false);
+						agendaDetail.setStatus(workflow.getCode());
+						Optional<BgMeetingWFUserMapEntity>  bgMeetingWFUserMapEntityOpt = getBgMeetingSubLogic().getMeetingWorkFlowUserMapRecord(workflow.getDocWorkFlowId(), 2, meetingId);
+						if(bgMeetingWFUserMapEntityOpt.isPresent()) {
+							
+							BgMeetingWFUserMapEntity workflowEntity = bgMeetingWFUserMapEntityOpt.get();
+							
+							if(!workflowEntity.getVersion().equals(workflowEntity.getVersion())) {
+								throw new UpdatedByAnotherUserException();
+							}
+							
+							
+							workflowEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+							workflowEntity.setLastUpdatedUserId(userId);
+							workflowEntity.setApprovalDate(CommonUtils.getCurrentDateTime());
+							workflowEntity.setRemarks("Submit for approval");
+							workflowEntity.setVersion(workflowEntity.getVersion() + 1);
+							
+							workflow.setVersion(workflow.getVersion() + 1);
+							
+							
+						}else {
+							throw new ValidationException("Workflow Id :- " + workflow.getDocWorkFlowId());
+						}
+					}
+				});
+				
+			}
+			
+		}else {
+			throw new RecordNotFoundException("Meeting Id :- " + meetingId);
+		}
+		
+		
+		return agendaDetail;
+	}
+
+
+
+	@Override
+	public MomDetail updateDraftMom(MomDetail momDetail, Integer companyId, Long meetingId, Integer userId,
+			Long roleId) {
+		validateUser(companyId, userId);
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			
+			BgMeetingMasterEntity bgMeetingMasterEntity = bgMeetingMasterEntityOpt.get();
+			
+			bgMeetingMasterEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			bgMeetingMasterEntity.setLastUpdatedUserId(userId);
+			bgMeetingMasterEntity.setVersion(bgMeetingMasterEntity.getVersion() + 1);
+			
+			
+			if(momDetail.getSubmitForApproval() != null && momDetail.getSubmitForApproval()) {
+				
+				if(momDetail.getMomWorkflowSteps() == null || momDetail.getMomWorkflowSteps().size() == 0) {
+					throw new ValidationException("Draft Mom Workflow detail required");
+				}
+				
+				
+				momDetail.getMomWorkflowSteps().forEach(workflow ->{
+					
+					if(workflow.getSeq() == 1) {
+						bgMeetingMasterEntity.setDraftMomStatus(workflow.getCode());
+						bgMeetingMasterEntity.setDraftMomReturned(false);
+						momDetail.setStatus(workflow.getCode());
+						Optional<BgMeetingWFUserMapEntity>  bgMeetingWFUserMapEntityOpt = getBgMeetingSubLogic().getMeetingWorkFlowUserMapRecord(workflow.getDocWorkFlowId(), 3, meetingId);
+						if(bgMeetingWFUserMapEntityOpt.isPresent()) {
+							
+							BgMeetingWFUserMapEntity workflowEntity = bgMeetingWFUserMapEntityOpt.get();
+							
+							if(!workflowEntity.getVersion().equals(workflowEntity.getVersion())) {
+								throw new UpdatedByAnotherUserException();
+							}
+							
+							
+							workflowEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+							workflowEntity.setLastUpdatedUserId(userId);
+							workflowEntity.setApprovalDate(CommonUtils.getCurrentDateTime());
+							workflowEntity.setRemarks("Submit for approval");
+							workflowEntity.setVersion(workflowEntity.getVersion() + 1);
+							
+							workflow.setVersion(workflow.getVersion() + 1);
+							
+							
+						}else {
+							throw new ValidationException("Workflow Id :- " + workflow.getDocWorkFlowId());
+						}
+					}
+				});
+				
+			}
+
+
+		}else {
+			throw new RecordNotFoundException("Meeting Id :- " + meetingId);
+		}
+		return momDetail;
+	}
+
+	@Override
+	public MomDetail updateFinalMom(MomDetail momDetail, Integer companyId, Long meetingId, Integer userId,
+			Long roleId) {
+		validateUser(companyId, userId);
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			
+			BgMeetingMasterEntity bgMeetingMasterEntity = bgMeetingMasterEntityOpt.get();
+			
+			bgMeetingMasterEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			bgMeetingMasterEntity.setLastUpdatedUserId(userId);
+			bgMeetingMasterEntity.setVersion(bgMeetingMasterEntity.getVersion() + 1);
+			
+			
+			
+			if(momDetail.getSubmitForApproval() != null && momDetail.getSubmitForApproval()) {
+				
+				if(momDetail.getMomWorkflowSteps() == null || momDetail.getMomWorkflowSteps().size() == 0) {
+					throw new ValidationException("Draft Mom Workflow detail required");
+				}
+				
+				
+				momDetail.getMomWorkflowSteps().forEach(workflow ->{
+					
+					if(workflow.getSeq() == 1) {
+						bgMeetingMasterEntity.setFinalMomStatus(workflow.getCode());
+						bgMeetingMasterEntity.setFinalMomReturned(false);
+						momDetail.setStatus(workflow.getCode());
+						Optional<BgMeetingWFUserMapEntity>  bgMeetingWFUserMapEntityOpt = getBgMeetingSubLogic().getMeetingWorkFlowUserMapRecord(workflow.getDocWorkFlowId(), 4, meetingId);
+						if(bgMeetingWFUserMapEntityOpt.isPresent()) {
+							
+							BgMeetingWFUserMapEntity workflowEntity = bgMeetingWFUserMapEntityOpt.get();
+							
+							if(!workflowEntity.getVersion().equals(workflowEntity.getVersion())) {
+								throw new UpdatedByAnotherUserException();
+							}
+							
+							
+							workflowEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+							workflowEntity.setLastUpdatedUserId(userId);
+							workflowEntity.setApprovalDate(CommonUtils.getCurrentDateTime());
+							workflowEntity.setRemarks("Submit for approval");
+							workflowEntity.setVersion(workflowEntity.getVersion() + 1);
+							
+							workflow.setVersion(workflow.getVersion() + 1);
+							
+							
+						}else {
+							throw new ValidationException("Workflow Id :- " + workflow.getDocWorkFlowId());
+						}
+					}
+				});
+				
+			}
+
+
+
+		}else {
+			throw new RecordNotFoundException("Meeting Id :- " + meetingId);
+		}
+		return momDetail;
+	}
+
+
+	/***
+	 * To upload meeting agenda document
+	 */
+	@Override
+	public List<UploadedDocument> uploadMeetingAgendaDocument(MultipartFile[] uploadfiles, Integer companyId, Long meetingId,
+			Long agendaId, Integer documentType, Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		List<UploadedDocument> documents = new ArrayList<>();
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			BgMeetingMasterEntity entity = bgMeetingMasterEntityOpt.get();
+			
+			String companyName = getComapnyName(companyId);
+			String moduleName = getModuleName(moduleId);
+			String meetingTypeName = getMeetingTypeName(entity.getCommitteeMasterEntity().getId());
+			String meetingFolderName = getMeetingFolderName(entity);
+			
+			Map<Long,String> fileNameKeyMap = getDmsLogic().uploadDcoumentToDMS(companyName, moduleName, meetingTypeName, meetingFolderName, meetingId.toString() + "_" + agendaId.toString()+"_" + documentType.toString(), Arrays.asList(uploadfiles));
+			
+			createAgendaDocumentMapRecords(meetingId, agendaId, documents, fileNameKeyMap, documentType,userId);
+			
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+		
+		
+		
+		return documents;
+	}
+
+	
+	/***
+	 * To upload meeting agenda sub item documents
+	 */
+	@Override
+	public List<UploadedDocument> uploadMeetingAgendaSubItemDocument(MultipartFile[] uploadfiles, Integer companyId,
+			Long meetingId, Long agendaId, Long subAgendaId, Integer documentType, Integer userId, Long roleId){
+		
+		validateUser(companyId, userId);
+		
+		List<UploadedDocument> documents = new ArrayList<>();
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			BgMeetingMasterEntity entity = bgMeetingMasterEntityOpt.get();
+			
+			String companyName = getComapnyName(companyId);
+			String moduleName = getModuleName(moduleId);
+			String meetingTypeName = getMeetingTypeName(entity.getCommitteeMasterEntity().getId());
+			String meetingFolderName = getMeetingFolderName(entity);
+			
+			Map<Long,String> fileNameKeyMap = getDmsLogic().uploadDcoumentToDMS(companyName, moduleName, meetingTypeName, meetingFolderName, meetingId.toString() + "_" + agendaId.toString() + "_" + subAgendaId.toString()+"_" + documentType.toString(), Arrays.asList(uploadfiles));
+			
+			createAgendaDocumentMapRecords(meetingId, subAgendaId, documents, fileNameKeyMap, documentType,userId);
+			
+			
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+		
+		return documents;
+	}
+
+	@Override
+	public UploadedDocument uploadMom(MultipartFile uploadfile, Integer companyId, Long meetingId, Integer momType,Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		UploadedDocument document = new UploadedDocument();
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			BgMeetingMasterEntity entity = bgMeetingMasterEntityOpt.get();
+			String companyName = getComapnyName(companyId);
+			String moduleName = getModuleName(moduleId);
+			String meetingTypeName = getMeetingTypeName(entity.getCommitteeMasterEntity().getId());
+			String meetingFolderName = getMeetingFolderName(entity);
+			
+			MultipartFile[] uploadfiles = new MultipartFile[1];
+			uploadfiles[0] = uploadfile;
+			
+			Map<Long,String> fileNameKeyMap = getDmsLogic().uploadDcoumentToDMS(companyName, moduleName, meetingTypeName, meetingFolderName, meetingId.toString() + "_" + "MOM" +"_" + momType.toString(), Arrays.asList(uploadfiles));
+			
+			fileNameKeyMap.forEach((docKey,docName) ->{
+				if(momType == 1) {
+					
+					entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					entity.setLastUpdatedUserId(userId);
+					entity.setVersion(entity.getVersion() + 1);
+					entity.setDraftMOMDocKey(docKey);
+					entity.setDraftMOMDocName(docName);
+					
+				}else if(momType == 2) {
+					entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					entity.setLastUpdatedUserId(userId);
+					entity.setVersion(entity.getVersion() + 1);
+					entity.setFinalMOMDocKey(docKey);
+					entity.setFinalMOMDocName(docName);
+				}
+			});
+			
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+		return document;
+	}
+	
+	/***
+	 * To fetch meeting attendee list
+	 */
+	@Override
+	public List<Attendee> getMeetingAttendeeList(Integer companyId, Long meetingId, Long roleId, Integer userId){
+		
+		validateUser(companyId, userId);
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId,companyId);
+		
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			
+			Iterable<BgMeetingAttendeeMapEntity> bgMeetingAttendeeMapEntityIt =  getBgMeetingSubLogic().getMeetingAttendeeMapRecords(meetingId);
+			Map<Long,BgMeetingAttendeeMapEntity> attendeeMap = StreamSupport.stream(bgMeetingAttendeeMapEntityIt.spliterator(), false).collect(Collectors.toMap(bgMeetingAttendeeMapEntity -> bgMeetingAttendeeMapEntity.getDirectorMasterEntity().getId(), bgMeetingAttendeeMapEntity -> bgMeetingAttendeeMapEntity,(oldValue, newValue) -> oldValue));
+			Set<Long> directorIds = attendeeMap.keySet();
+			
+			Iterable<BgDirectorCompanyMapEntity> bgDirectorCompanyMapEntityIt = getBgMeetingSubLogic().getDirectorCompanyMapRecords(directorIds, companyId);
+			Map<Long,List<BgDirectorCompanyMapEntity>> directorCompanyMap = StreamSupport.stream(bgDirectorCompanyMapEntityIt.spliterator(), false).collect(Collectors.groupingBy(bgDirectorCompanyMapEntity -> bgDirectorCompanyMapEntity.getDirectorMasterEntity().getId()));
+			
+			List<Attendee> attendees = attendeeMap.entrySet().stream().map(attendeeMapEntry ->{
+				
+				BgMeetingAttendeeMapEntity bgMeetingAttendeeMapEntity = attendeeMapEntry.getValue();
+				Attendee attendee = new Attendee();
+				attendee.setId(attendeeMapEntry.getKey());
+				attendee.setName(bgMeetingAttendeeMapEntity.getDirectorMasterEntity().getName());
+				attendee.setAcceptance(bgMeetingAttendeeMapEntity.getAcceptance());
+				attendee.setAcceptanceType(bgMeetingAttendeeMapEntity.getAcceptanceType());
+				//attendee.setPhoto();//TODO
+				List<BgDirectorCompanyMapEntity> designationList = directorCompanyMap.get(attendeeMapEntry.getKey());
+				OptionalLong designationIdOpt = designationList.stream().mapToLong(designation -> designation.getId()).min();
+				if(designationIdOpt.isPresent()) {
+					attendee.setDesignationId(designationIdOpt.getAsLong());
+				}
+				String designationName = designationList.stream().map((designation) ->{
+					return  designation.getDirectorDesignationMasterEntity().getName();
+				}).collect(Collectors.joining("&"));
+				
+				attendee.setDesignation(designationName);
+				
+				return attendee;
+			}).collect(Collectors.toList());
+			
+			return attendees;
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+	}
+	
+	
+	/***
+	 * To fetch meeting document
+	 */
+	@Override
+	public InputStream getMeetingDocument(Integer companyId, Long meetingId, Long agendaId, Long docMapId,
+			Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId,companyId);
+		
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			
+			BgMeetingMasterEntity docMasterEntity = bgMeetingMasterEntityOpt.get();
+			
+			Optional<BgAgendaDocumentMapEntity> bgAgendaDocumentMapEntityOpt =  getBgMeetingSubLogic().getAgendaDocumentMapRecord(docMapId);
+			
+			if(bgAgendaDocumentMapEntityOpt.isPresent()) {
+				
+				BgAgendaDocumentMapEntity documentEntity = bgAgendaDocumentMapEntityOpt.get();
+				
+				String companyName = getComapnyName(companyId);
+				String moduleName = getModuleName(moduleId);
+				String meetingTypeName = getMeetingTypeName(docMasterEntity.getCommitteeMasterEntity().getId());
+				String meetingFolderName = getMeetingFolderName(docMasterEntity);
+				String fileName = documentEntity.getDocName();
+				Long docKey = documentEntity.getDocKey();
+				
+				InputStream inputStream = getDmsLogic().getFileFromDMS(companyName, moduleName, meetingTypeName, meetingFolderName, docKey, fileName);
+				
+				return inputStream;
+				
+			}else {
+				throw new RecordNotFoundException("Meeting id :- " + meetingId + " Agenda Id :- " + agendaId + " Document Id :- " + docMapId);
+			}
+			
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+		
+	}
+	
+	
+	@Override
+	public InputStream getMomDocument(Integer companyId, Long meetingId, Integer momType, Integer userId,
+			Long roleId) {
+		
+		validateUser(companyId, userId);
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId,companyId);
+		
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			BgMeetingMasterEntity docMasterEntity = bgMeetingMasterEntityOpt.get();
+			
+			String companyName = getComapnyName(companyId);
+			String moduleName = getModuleName(moduleId);
+			String meetingTypeName = getMeetingTypeName(docMasterEntity.getCommitteeMasterEntity().getId());
+			String meetingFolderName = getMeetingFolderName(docMasterEntity);
+			String fileName = "";
+			Long docKey = 0L;
+			
+			if(momType == 1) {
+				fileName = docMasterEntity.getDraftMOMDocName();
+				docKey = docMasterEntity.getDraftMOMDocKey();
+			}else if(momType == 2) {
+				fileName = docMasterEntity.getFinalMOMDocName();
+				docKey = docMasterEntity.getFinalMOMDocKey();
+			}
+			
+			InputStream inputStream = getDmsLogic().getFileFromDMS(companyName, moduleName, meetingTypeName, meetingFolderName, docKey, fileName);
+			
+			return inputStream;
+			
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+		
+	}
+	
+	
+	/***
+	 * To fetch meeting voting members
+	 */
+	@Override
+	public List<VotingMember> getMeetingVotingMembers(Integer companyId, Long meetingId, Long roleId, Integer userId){
+		
+		validateUser(companyId, userId);
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId,companyId);
+		
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			
+			BgMeetingMasterEntity docMasterEntity = bgMeetingMasterEntityOpt.get();
+			
+			Long meetingTypeId = docMasterEntity.getCommitteeMasterEntity().getId();
+			
+			Iterable<BgMeetingAttendeeMapEntity> bgMeetingAttendeeMapEntityIt = getBgMeetingSubLogic().getMeetingAttendeeMapRecords(meetingId,meetingTypeId);
+			
+			Map<Long,BgMeetingAttendeeMapEntity> attendeeMap = StreamSupport.stream(bgMeetingAttendeeMapEntityIt.spliterator(), false).collect(Collectors.toMap(bgMeetingAttendeeMapEntity -> bgMeetingAttendeeMapEntity.getDirectorMasterEntity().getId(), bgMeetingAttendeeMapEntity -> bgMeetingAttendeeMapEntity));
+			Set<Long> directorIds = attendeeMap.keySet();
+			
+			Iterable<BgDirectorCompanyMapEntity> bgDirectorCompanyMapEntityIt = getBgMeetingSubLogic().getDirectorCompanyMapRecords(directorIds, companyId);
+			Map<Long,List<BgDirectorCompanyMapEntity>> directorCompanyMap = StreamSupport.stream(bgDirectorCompanyMapEntityIt.spliterator(), false).collect(Collectors.groupingBy(bgDirectorCompanyMapEntity -> bgDirectorCompanyMapEntity.getDirectorMasterEntity().getId()));
+			
+			List<VotingMember> votingMembers = attendeeMap.entrySet().stream().map(attendeeMapEntry ->{
+				
+				BgMeetingAttendeeMapEntity bgMeetingAttendeeMapEntity = attendeeMapEntry.getValue();
+				VotingMember member = new VotingMember();
+				member.setDirectorId(attendeeMapEntry.getKey());
+				member.setDirectorName(bgMeetingAttendeeMapEntity.getDirectorMasterEntity().getName());
+				//attendee.setPhoto();//TODO
+				List<BgDirectorCompanyMapEntity> designationList = directorCompanyMap.get(attendeeMapEntry.getKey());
+				OptionalLong designationIdOpt = designationList.stream().mapToLong(designation -> designation.getId()).min();
+				if(designationIdOpt.isPresent()) {
+					member.setDesignationId(designationIdOpt.getAsLong());
+				}
+				String designationName = designationList.stream().map((designation) ->{
+					return  designation.getDirectorDesignationMasterEntity().getName();
+				}).collect(Collectors.joining("&"));
+				
+				member.setDesignationName(designationName);
+				
+				return member;
+			}).collect(Collectors.toList());
+			
+			return votingMembers;
+			
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+		
+	}
+	
+	
+
+
+/***
+ * To fetch attendee type
+ * @param AttendeeTypeIds
+ * @return
+ */
+	public List<AttendeeType> getAttendeeType(Set<Long> attendeeTypeIds) {
+		List<AttendeeType> attendeeType = new ArrayList<AttendeeType>();
+		Iterable<CommitteeMasterEntity> committeeMasterEntityIt = getBoardSubLogic().getCommitteeMasterRecord(attendeeTypeIds);
+		attendeeType=StreamSupport.stream(committeeMasterEntityIt.spliterator(),false).map( committeeMasterEntity -> {
+			AttendeeType attenddeType=new AttendeeType();
+			attenddeType.setId(committeeMasterEntity.getId());
+			attenddeType.setName(committeeMasterEntity.getName());
+			return attenddeType;
+		}).collect(Collectors.toList());
+		return attendeeType;
+	}
+
+	
+	/***
+	 * To fetch list of pending, returned and approved meetings
+	 */
+	@Override
+	public MeetingDetail getMeetingSummaryDetails(Integer companyId,Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+			
+			 Iterable<BgMeetingMasterEntity> meetingEntityIt = getBgMeetingSubLogic().getMeetingMasters(companyId);
+			 List<BgMeetingMasterEntity> meetingList = StreamSupport.stream(meetingEntityIt.spliterator(), false).map(entity ->{
+			 return entity;
+				}).collect(Collectors.toList());
+			 
+			 MeetingDetail meetingDetail = new MeetingDetail();
+			 List<MeetingInfo> pending = new ArrayList<>();
+			 List<MeetingInfo> submitted = new ArrayList<>();
+			 List<MeetingInfo> returned = new ArrayList<>();
+				
+				
+				 Set<Long> submittedInWFIds = new HashSet<Long>();
+				 Set<Long> notSubmittedInWFds = new HashSet<Long>();
+				 Set<Long> workFlowIds = new HashSet<Long>();
+				 Map<Long,BgMeetingMasterEntity> meetingMap = new HashMap<Long,BgMeetingMasterEntity>();
+				
+				 
+				 meetingList.stream().forEach(meeting ->{
+				  
+					 meetingMap.put(meeting.getId(), meeting);
+					if(CommonConst.draftStatus.equals(meeting.getMeetingStatus()) && meeting.getCreatedUserId().equals(userId) && meeting.getMeetingWorkflowId()== null) {
+						notSubmittedInWFds.add(meeting.getId());
+					}else if(meeting.getMeetingWorkflowId() != null){
+						submittedInWFIds.add(meeting.getId());
+						workFlowIds.add(meeting.getMeetingWorkflowId());
+					}
+				 });
+					
+				 Map<Long,WorkFlowSeqDetail> meetingWFSeqMap = new HashMap<Long,WorkFlowSeqDetail>();
+				if(submittedInWFIds.size() > 0) {
+					 Set<Long> roleIds = new HashSet<Long>();
+					roleIds.add(roleId);
+			
+						Iterable<BgMeetingWFUserMapEntity> meetingWorkFlowUserMapEntityIt=getBgMeetingSubLogic().getMeetingWorkFlowUserMapEntityRecords(submittedInWFIds, userId, roleIds);
+						
+						List<BgMeetingWFUserMapEntity> meetingWorkFlowUserMapList = StreamSupport.stream(meetingWorkFlowUserMapEntityIt.spliterator(), false).map(entity ->{
+						return entity;
+						}).collect(Collectors.toList());
+						 
+					    meetingWorkFlowUserMapList.stream().forEach(workFlowUser ->{
+						WorkFlowSeqDetail workFlowSeqDetail = new WorkFlowSeqDetail();
+						workFlowSeqDetail.setSeq(workFlowUser.getSeq());
+						workFlowSeqDetail.setWorkFlowId(workFlowUser.getWorkflowId());
+						meetingWFSeqMap.put(workFlowUser.getMeetingId(), workFlowSeqDetail);
+					});
+					 Map<Long,Collection<WorkFlowStepDetailEntity>> workFlowMap = getWorkFlows(workFlowIds);
+					 meetingWFSeqMap.forEach((meetingId,workFlowSeqDetail) ->{
+					 updateWorkFlowBeforeAfterSteps(workFlowMap, workFlowSeqDetail);
+					});
+					
+					
+					meetingMap.forEach((meetingId,meetingMaster)->{
+						
+						MeetingInfo meeting = getmeetingDashboardDetails(meetingMaster);
+					
+						if(notSubmittedInWFds.contains(meetingId)) {
+							
+							pending.add(meeting);
+						}else {
+							WorkFlowSeqDetail workFlowSeqDetail = meetingWFSeqMap.get(meetingId);
+							if(workFlowSeqDetail != null) {
+								//if(workFlowSeqDetail.getStatus().equals(meetingMaster.getMeetingStatus()) && meetingMaster.getMeetingReturned() != null && meetingMaster.getMeetingReturned()) {
+								if(workFlowSeqDetail.getStatus().equals(meetingMaster.getMeetingStatus()) && meetingMaster.getMeetingReturned() != null && meetingMaster.getMeetingReturned()) {
+									returned.add(meeting);
+								}else if(workFlowSeqDetail.getStatus().equals(meetingMaster.getMeetingStatus())) {
+									pending.add(meeting);
+								}else if(workFlowSeqDetail.getStatusAfterSeq().contains(meetingMaster.getMeetingStatus())){
+									submitted.add(meeting);
+								}else if(CommonConst.draftStatus.equals(meetingMaster.getMeetingStatus()) && userId == meetingMaster.getCreatedUserId() && meetingMaster.getMeetingReturned() != null && meetingMaster.getMeetingReturned()) {
+									returned.add(meeting);
+								}
+							}
+						}
+					});
+					
+					
+					
+				}else {
+					meetingMap.forEach((meetingId,meetingMaster)->{
+						if(notSubmittedInWFds.contains(meetingId)) {
+							MeetingInfo document = getmeetingDashboardDetails(meetingMaster);
+							pending.add(document);
+						}
+					});
+				}
+				
+				meetingDetail.setPending(pending);
+				meetingDetail.setReturned(returned);
+				meetingDetail.setSubmitted(submitted);
+		
+		
+		
+		return meetingDetail;
+	}
+ 
+
+	
+	/***
+	 * To fetch list of pending, returned and approved agendas of a meeting
+	 */
+	@Override
+	public MeetingDetail getAgendaSummaryDetails(Integer companyId,Integer userId, Long roleId) {
+		
+		   validateUser(companyId, userId);
+			
+			 Iterable<BgMeetingMasterEntity> meetingEntityIt = getBgMeetingSubLogic().getMeetingMasters(companyId);
+			 List<BgMeetingMasterEntity> meetingList = StreamSupport.stream(meetingEntityIt.spliterator(), false).map(entity ->{
+			 return entity;
+				}).collect(Collectors.toList());
+			 
+			 MeetingDetail meetingDetail = new MeetingDetail();
+			 List<MeetingInfo> pending = new ArrayList<>();
+			 List<MeetingInfo> submitted = new ArrayList<>();
+			 List<MeetingInfo> returned = new ArrayList<>();
+				
+				
+				 Set<Long> submittedInWFIds = new HashSet<Long>();
+				 Set<Long> notSubmittedInWFds = new HashSet<Long>();
+				 Set<Long> workFlowIds = new HashSet<Long>();
+				 Map<Long,BgMeetingMasterEntity> meetingMap = new HashMap<Long,BgMeetingMasterEntity>();
+				
+				 
+				 meetingList.stream().forEach(meeting ->{
+				  
+					 meetingMap.put(meeting.getId(), meeting);
+					//if(CommonConst.draftStatus.equals(meeting.getAgendaStatus()) && meeting.getCreatedUserId().equals(userId) && meeting.getAgendaStatus()!= null) {----------Removing userId check because agenda creator may be a different person
+					 if(meeting.getMeetingApproval()==true) {
+					if(CommonConst.draftStatus.equals(meeting.getAgendaStatus())) {
+						notSubmittedInWFds.add(meeting.getId());
+					
+					}else if(meeting.getAgendaWorkflowId() != null){
+						submittedInWFIds.add(meeting.getId());
+						workFlowIds.add(meeting.getAgendaWorkflowId());
+						
+					}
+					 }
+				 });
+				
+				 Map<Long,WorkFlowSeqDetail> meetingWFSeqMap = new HashMap<Long,WorkFlowSeqDetail>();
+				 submittedInWFIds.addAll(notSubmittedInWFds);
+				if(submittedInWFIds.size() > 0) {
+					 Set<Long> roleIds = new HashSet<Long>();
+					roleIds.add(roleId);
+			
+						Iterable<BgMeetingWFUserMapEntity> meetingWorkFlowUserMapEntityIt=getBgMeetingSubLogic().getAgendaWorkFlowUserMapEntityRecords(submittedInWFIds, userId, roleIds);
+						
+						List<BgMeetingWFUserMapEntity> meetingWorkFlowUserMapList = StreamSupport.stream(meetingWorkFlowUserMapEntityIt.spliterator(), false).map(entity ->{
+						return entity;
+						}).collect(Collectors.toList());
+						
+						Map<Long,BgMeetingWFUserMapEntity> agendaWFMap = new HashMap<>();
+						 
+					    meetingWorkFlowUserMapList.stream().forEach(workFlowUser ->{
+						WorkFlowSeqDetail workFlowSeqDetail = new WorkFlowSeqDetail();
+						workFlowSeqDetail.setSeq(workFlowUser.getSeq());
+						workFlowSeqDetail.setWorkFlowId(workFlowUser.getWorkflowId());
+						meetingWFSeqMap.put(workFlowUser.getMeetingId(), workFlowSeqDetail);
+						agendaWFMap.put(workFlowUser.getMeetingId(), workFlowUser);
+					});
+					 Map<Long,Collection<WorkFlowStepDetailEntity>> workFlowMap = getWorkFlows(workFlowIds);
+					 meetingWFSeqMap.forEach((meetingId,workFlowSeqDetail) ->{
+					 updateWorkFlowBeforeAfterSteps(workFlowMap, workFlowSeqDetail);
+					});
+					
+					
+					meetingMap.forEach((meetingId,meetingMaster)->{
+						
+						MeetingInfo meeting = getmeetingDashboardDetails(meetingMaster);
+					
+						if(notSubmittedInWFds.contains(meetingId)) {
+							
+							BgMeetingWFUserMapEntity wfEntity = agendaWFMap.get(meetingId);
+							if(wfEntity != null && wfEntity.getSeq() == 1) {
+								pending.add(meeting);
+							}
+							
+							
+						}else {
+							WorkFlowSeqDetail workFlowSeqDetail = meetingWFSeqMap.get(meetingId);
+							if(workFlowSeqDetail != null) {
+								//if(workFlowSeqDetail.getStatus().equals(meetingMaster.getMeetingStatus()) && meetingMaster.getMeetingReturned() != null && meetingMaster.getMeetingReturned()) {
+								if(workFlowSeqDetail.getStatus().equals(meetingMaster.getAgendaStatus()) && meetingMaster.getAgendaReturned() != null && meetingMaster.getAgendaReturned()) {
+									returned.add(meeting);
+								}else if(workFlowSeqDetail.getStatus().equals(meetingMaster.getAgendaStatus())) {
+									pending.add(meeting);
+								
+								}else if(workFlowSeqDetail.getStatusAfterSeq().contains(meetingMaster.getAgendaStatus())){
+									submitted.add(meeting);
+								}else if(CommonConst.draftStatus.equals(meetingMaster.getAgendaStatus()) && userId == meetingMaster.getCreatedUserId() && meetingMaster.getAgendaReturned() != null && meetingMaster.getAgendaReturned()) {
+									returned.add(meeting);
+		
+								}
+							}
+						}
+					});
+					
+					
+					
+				}else {
+					meetingMap.forEach((meetingId,meetingMaster)->{
+						if(notSubmittedInWFds.contains(meetingId)) {
+							MeetingInfo document = getmeetingDashboardDetails(meetingMaster);
+							pending.add(document);
+						}
+					});
+				}
+				
+				meetingDetail.setPending(pending);
+				meetingDetail.setReturned(returned);
+				meetingDetail.setSubmitted(submitted);
+		
+		
+		
+		return meetingDetail;
+	}
+ 
+
+	/***
+	 * To fetch list of pending, returned and approved draft MOMs of a meeting
+	 */
+	
+	@Override
+	public MeetingDetail getDraftMOMSummaryDetails(Integer companyId,Integer userId, Long roleId) {
+		
+		validateUser(companyId, userId);
+			
+			 Iterable<BgMeetingMasterEntity> meetingEntityIt = getBgMeetingSubLogic().getMeetingMasters(companyId);
+			 List<BgMeetingMasterEntity> agendaList = StreamSupport.stream(meetingEntityIt.spliterator(), false).map(entity ->{
+			 return entity;
+				}).collect(Collectors.toList());
+			 
+			 MeetingDetail meetingDetail = new MeetingDetail();
+			 List<MeetingInfo> pending = new ArrayList<>();
+			 List<MeetingInfo> submitted = new ArrayList<>();
+			 List<MeetingInfo> returned = new ArrayList<>();
+				
+				
+			Set<Long> submittedInWFIds = new HashSet<Long>();
+			Set<Long> notSubmittedInWFds = new HashSet<Long>();
+			Set<Long> workFlowIds = new HashSet<Long>();
+		    Map<Long,BgMeetingMasterEntity> meetingMap = new HashMap<Long,BgMeetingMasterEntity>();
+				
+				 
+				 agendaList.stream().forEach(meeting ->{
+				  
+					 meetingMap.put(meeting.getId(), meeting);
+					 
+					// if(meeting.getMeetingApproval()==true && meeting.getLastUpdatedDate().isBefore(CommonUtils.getCurrentDateTime())) {
+						 if(meeting.getMeetingApproval()==true && meeting.getAgendaApproval()==true ) {
+					if(CommonConst.draftStatus.equals(meeting.getDraftMomStatus()) && meeting.getDraftMomStatus()!= null) {
+						notSubmittedInWFds.add(meeting.getId());
+			
+					}else if(meeting.getDraftMomWorkflowId() != null){
+						submittedInWFIds.add(meeting.getId());
+						workFlowIds.add(meeting.getDraftMomWorkflowId());
+						
+					}
+					 }
+				 });
+				
+				 Map<Long,WorkFlowSeqDetail> meetingWFSeqMap = new HashMap<Long,WorkFlowSeqDetail>();
+				 submittedInWFIds.addAll(notSubmittedInWFds);
+				if(submittedInWFIds.size() > 0) {
+					 Set<Long> roleIds = new HashSet<Long>();
+					roleIds.add(roleId);
+			
+						Iterable<BgMeetingWFUserMapEntity> meetingWorkFlowUserMapEntityIt=getBgMeetingSubLogic().getDraftMOMWorkFlowUserMapEntityRecords(submittedInWFIds, userId, roleIds);
+						
+						List<BgMeetingWFUserMapEntity> meetingWorkFlowUserMapList = StreamSupport.stream(meetingWorkFlowUserMapEntityIt.spliterator(), false).map(entity ->{
+						return entity;
+						}).collect(Collectors.toList());
+						
+						Map<Long,BgMeetingWFUserMapEntity> draftMomWFMap = new HashMap<>();
+						
+					    meetingWorkFlowUserMapList.stream().forEach(workFlowUser ->{
+						WorkFlowSeqDetail workFlowSeqDetail = new WorkFlowSeqDetail();
+						workFlowSeqDetail.setSeq(workFlowUser.getSeq());
+						workFlowSeqDetail.setWorkFlowId(workFlowUser.getWorkflowId());
+						meetingWFSeqMap.put(workFlowUser.getMeetingId(), workFlowSeqDetail);
+						draftMomWFMap.put(workFlowUser.getMeetingId(), workFlowUser);
+					});
+					 Map<Long,Collection<WorkFlowStepDetailEntity>> workFlowMap = getWorkFlows(workFlowIds);
+					 meetingWFSeqMap.forEach((meetingId,workFlowSeqDetail) ->{
+					 updateWorkFlowBeforeAfterSteps(workFlowMap, workFlowSeqDetail);
+					});
+					
+					
+					meetingMap.forEach((meetingId,meetingMaster)->{
+						
+						MeetingInfo meeting = getmeetingDashboardDetails(meetingMaster);
+					
+						if(notSubmittedInWFds.contains(meetingId)) {
+							
+							BgMeetingWFUserMapEntity wfEntity = draftMomWFMap.get(meetingId);
+							if(wfEntity != null && wfEntity.getSeq() == 1) {
+								pending.add(meeting);
+							}
+							
+						}else {
+							WorkFlowSeqDetail workFlowSeqDetail = meetingWFSeqMap.get(meetingId);
+							if(workFlowSeqDetail != null) {
+								//if(workFlowSeqDetail.getStatus().equals(meetingMaster.getMeetingStatus()) && meetingMaster.getMeetingReturned() != null && meetingMaster.getMeetingReturned()) {
+								if(workFlowSeqDetail.getStatus().equals(meetingMaster.getDraftMomStatus()) && meetingMaster.getDraftMomReturned() != null && meetingMaster.getDraftMomReturned()) {
+									returned.add(meeting);
+								}else if(workFlowSeqDetail.getStatus().equals(meetingMaster.getDraftMomStatus())) {
+									pending.add(meeting);
+								}else if(workFlowSeqDetail.getStatusAfterSeq().contains(meetingMaster.getDraftMomStatus())){
+									submitted.add(meeting);
+								}else if(CommonConst.draftStatus.equals(meetingMaster.getDraftMomStatus()) && userId == meetingMaster.getCreatedUserId() && meetingMaster.getDraftMomReturned() != null && meetingMaster.getDraftMomReturned()) {
+									returned.add(meeting);
+								}
+							}
+						}
+					});
+					
+					
+					
+				}else {
+					meetingMap.forEach((meetingId,meetingMaster)->{
+						if(notSubmittedInWFds.contains(meetingId)) {
+							MeetingInfo document = getmeetingDashboardDetails(meetingMaster);
+							pending.add(document);
+						}
+					});
+				}
+				
+				meetingDetail.setPending(pending);
+				meetingDetail.setReturned(returned);
+				meetingDetail.setSubmitted(submitted);
+		
+		
+		
+		return meetingDetail;
+	}
+ 
+
+	/***
+	 *  To fetch list of pending, returned and approved final Moms of a meeting
+	 */
+	@Override
+	public MeetingDetail getfinalMOMSummaryDetails(Integer companyId,Integer userId, Long roleId) {
+		//TODO
+		validateUser(companyId, userId);
+			
+			 Iterable<BgMeetingMasterEntity> meetingEntityIt = getBgMeetingSubLogic().getMeetingMasters(companyId);
+			 List<BgMeetingMasterEntity> agendaList = StreamSupport.stream(meetingEntityIt.spliterator(), false).map(entity ->{
+			 return entity;
+				}).collect(Collectors.toList());
+			 
+			 MeetingDetail meetingDetail = new MeetingDetail();
+			 List<MeetingInfo> pending = new ArrayList<>();
+			 List<MeetingInfo> submitted = new ArrayList<>();
+			 List<MeetingInfo> returned = new ArrayList<>();
+				
+				
+				 Set<Long> submittedInWFIds = new HashSet<Long>();
+				 Set<Long> notSubmittedInWFds = new HashSet<Long>();
+				 Set<Long> workFlowIds = new HashSet<Long>();
+				 Map<Long,BgMeetingMasterEntity> meetingMap = new HashMap<Long,BgMeetingMasterEntity>();
+				
+				 
+				 agendaList.stream().forEach(meeting ->{
+				  
+					 meetingMap.put(meeting.getId(), meeting);
+					
+					// if(meeting.getMeetingApproval()==true &&  meeting.getLastUpdatedDate().isBefore(CommonUtils.getCurrentDateTime()) ) {
+							 if(meeting.getMeetingApproval()==true && meeting.getAgendaApproval()==true) {
+					//if(CommonConst.draftStatus.equals(meeting.getFinalMomStatus()) && meeting.getCreatedUserId().equals(userId) && meeting.getFinalMomStatus()!= null) {----------Removing userId check because agenda creator may be a different person
+					if(CommonConst.draftStatus.equals(meeting.getFinalMomStatus()) && meeting.getFinalMomStatus()!= null) {
+						notSubmittedInWFds.add(meeting.getId());
+					
+					}else if(meeting.getFinalMomWorkflowId() != null){
+						submittedInWFIds.add(meeting.getId());
+						workFlowIds.add(meeting.getFinalMomWorkflowId());
+						
+					}
+					 }
+				 });
+				
+				 Map<Long,WorkFlowSeqDetail> meetingWFSeqMap = new HashMap<Long,WorkFlowSeqDetail>();
+				 submittedInWFIds.addAll(notSubmittedInWFds);
+				if(submittedInWFIds.size() > 0) {
+					 Set<Long> roleIds = new HashSet<Long>();
+					roleIds.add(roleId);
+			
+						Iterable<BgMeetingWFUserMapEntity> meetingWorkFlowUserMapEntityIt=getBgMeetingSubLogic().getFinalMOMWorkFlowUserMapEntityRecords(submittedInWFIds, userId, roleIds);
+						
+						List<BgMeetingWFUserMapEntity> meetingWorkFlowUserMapList = StreamSupport.stream(meetingWorkFlowUserMapEntityIt.spliterator(), false).map(entity ->{
+						return entity;
+						}).collect(Collectors.toList());
+						Map<Long,BgMeetingWFUserMapEntity> finalMomWFMap = new HashMap<>(); 
+					    meetingWorkFlowUserMapList.stream().forEach(workFlowUser ->{
+						WorkFlowSeqDetail workFlowSeqDetail = new WorkFlowSeqDetail();
+						workFlowSeqDetail.setSeq(workFlowUser.getSeq());
+						workFlowSeqDetail.setWorkFlowId(workFlowUser.getWorkflowId());
+						meetingWFSeqMap.put(workFlowUser.getMeetingId(), workFlowSeqDetail);
+						finalMomWFMap.put(workFlowUser.getMeetingId(), workFlowUser);
+					});
+					 Map<Long,Collection<WorkFlowStepDetailEntity>> workFlowMap = getWorkFlows(workFlowIds);
+					 meetingWFSeqMap.forEach((meetingId,workFlowSeqDetail) ->{
+					 updateWorkFlowBeforeAfterSteps(workFlowMap, workFlowSeqDetail);
+					});
+					
+					
+					meetingMap.forEach((meetingId,meetingMaster)->{
+						
+						MeetingInfo meeting = getmeetingDashboardDetails(meetingMaster);
+					
+						if(notSubmittedInWFds.contains(meetingId)) {
+							
+							BgMeetingWFUserMapEntity wfEntity = finalMomWFMap.get(meetingId);
+							if(wfEntity != null && wfEntity.getSeq() == 1) {
+								pending.add(meeting);
+							}
+							
+						}else {
+							WorkFlowSeqDetail workFlowSeqDetail = meetingWFSeqMap.get(meetingId);
+							if(workFlowSeqDetail != null) {
+								//if(workFlowSeqDetail.getStatus().equals(meetingMaster.getMeetingStatus()) && meetingMaster.getMeetingReturned() != null && meetingMaster.getMeetingReturned()) {
+								if(workFlowSeqDetail.getStatus().equals(meetingMaster.getFinalMomStatus()) && meetingMaster.getFinalMomReturned() != null && meetingMaster.getFinalMomReturned()) {
+									returned.add(meeting);
+								}else if(workFlowSeqDetail.getStatus().equals(meetingMaster.getFinalMomStatus())) {
+									pending.add(meeting);
+								}else if(workFlowSeqDetail.getStatusAfterSeq().contains(meetingMaster.getFinalMomStatus())){
+									submitted.add(meeting);
+								}else if(CommonConst.draftStatus.equals(meetingMaster.getFinalMomStatus()) && userId == meetingMaster.getCreatedUserId() && meetingMaster.getFinalMomReturned() != null && meetingMaster.getFinalMomReturned()) {
+									returned.add(meeting);
+								}
+							}
+						}
+					});
+					
+					
+					
+				}else {
+					meetingMap.forEach((meetingId,meetingMaster)->{
+						if(notSubmittedInWFds.contains(meetingId)) {
+							MeetingInfo document = getmeetingDashboardDetails(meetingMaster);
+							pending.add(document);
+						}
+					});
+				}
+				
+				meetingDetail.setPending(pending);
+				meetingDetail.setReturned(returned);
+				meetingDetail.setSubmitted(submitted);
+		
+		
+		
+		return meetingDetail;
+	}
+ 
+	
+	/***
+	 * To fetch meeting MOM
+	 */
+	/*@Override
+	public MOM getMeetingMOM(Integer companyId, Long meetingId,Integer userId, Long roleId) {
+		
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt=getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			BgMeetingMasterEntity bgMeeting=bgMeetingMasterEntityOpt.get();
+            MOM mom = getMOM(meetingId, bgMeeting);
+		   
+		return mom;
+		}else {
+			
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+	}*/
+	
+	@Override
+	public List<MeetingMOMChecklistMap> getMeetingMOM(Integer companyId, Long meetingId,Integer userId, Long roleId) {
+		validateUser(companyId, userId);
+		List<MeetingMOMChecklistMap> finalListReturn=new ArrayList<>();
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt=getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+		     Iterable<MOMCheckListMstrEntity> MOMCheckListMstrEntityIt=getBgMeetingSubLogic().getMOMCheckListMstrEntity();
+
+		     //This list will return master data of mom checklist
+		     List<MeetingMOMChecklistMap> meetingMOMCheckList=StreamSupport.stream(MOMCheckListMstrEntityIt.spliterator(), false).map(entity -> {
+		    	 
+		    	 MeetingMOMChecklistMap meetingMOMChecklistMap=new MeetingMOMChecklistMap();
+		    	 meetingMOMChecklistMap.setMeetingId(meetingId);
+		    	 meetingMOMChecklistMap.setMomChecklistId(entity.getId());
+		    	 meetingMOMChecklistMap.setQuestion(entity.getQuestion());
+		    	 //Director list corresponding to each question of checklist
+		    	 List<MOMChecklistDirectorMapEntity> momChecklistDirectorMapEntityList = (List<MOMChecklistDirectorMapEntity>)entity.getMomChecklistDirectorMapEntity();
+		    	 List<Director> directorList = getDirector(momChecklistDirectorMapEntityList);
+		    	 meetingMOMChecklistMap.setDirectorList(directorList);
+		  		   
+		    	 
+		     return meetingMOMChecklistMap;     
+		     }).collect(Collectors.toList());
+
+		       //Obtained list converted into map
+			   Map<Long,MeetingMOMChecklistMap> meetingMOMMap=StreamSupport.stream(meetingMOMCheckList.spliterator(), false).collect(Collectors.toMap(entity -> entity.getMomChecklistId(), entity -> entity));
+			  
+			   Iterable<BgMeetingMOMChecklistMapEntity> bgMeetingMOMChecklistMapEntityIt=getBgMeetingSubLogic().getMeetingMOMCheckListMap(meetingId);
+			   if(bgMeetingMOMChecklistMapEntityIt!=null) {
+	           List<MeetingMOMChecklistMap> momChecklistMapList = StreamSupport.stream(bgMeetingMOMChecklistMapEntityIt.spliterator(), false).map(entity ->{
+			   MeetingMOMChecklistMap checkListMap=new MeetingMOMChecklistMap();
+			   if(meetingMOMMap.get(entity.getMomCheckListMstrEntity().getId())!=null) {
+				    checkListMap.setId(entity.getId());
+					checkListMap.setRemarks(entity.getRemarks());
+					checkListMap.setVersion(entity.getVersion()); 
+					checkListMap.setMeetingId(meetingId);
+				    checkListMap.setQuestion(entity.getMomCheckListMstrEntity().getQuestion());
+					checkListMap.setMomChecklistId(entity.getMomCheckListMstrEntity().getId());
+				    //Director list corresponding to each question of checklist
+					List<MOMChecklistDirectorMapEntity> momChecklistDirectorMapEntityList = (List<MOMChecklistDirectorMapEntity>)entity.getMomCheckListMstrEntity().getMomChecklistDirectorMapEntity();
+				    List<Director> directorList = getDirector(momChecklistDirectorMapEntityList);
+				    checkListMap.setDirectorList(directorList);
+					  
+				meetingMOMMap.remove(entity.getMomCheckListMstrEntity().getId());
+			   }
+			   
+			   return checkListMap;
+		   	}).collect(Collectors.toList());
+	           finalListReturn.addAll(momChecklistMapList);
+			   }
+	 
+			   meetingMOMMap.forEach((id,entity) -> {
+				   finalListReturn.add(entity);
+			   });
+			   
+			  
+		return finalListReturn;
+		}else {
+			
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+	}
+
+	
+
+	/***
+	 * To add and update MOM
+	 */
+	@Override
+	public List<MeetingMOMChecklistMap> updateMOM(List<MeetingMOMChecklistMap> momCheckList, Integer userId, Long meetingId) {
+	
+      Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+		
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			
+		Iterable<BgMeetingMOMChecklistMapEntity> bgMeetingMOMChecklistMapEntityIt=getBgMeetingSubLogic().getMeetingMOMCheckListMap(meetingId);
+		Map<Long,BgMeetingMOMChecklistMapEntity> momEntityMap = StreamSupport.stream(bgMeetingMOMChecklistMapEntityIt.spliterator(), false).collect(Collectors.toMap(entity -> entity.getId(), entity -> entity));
+		momCheckList.forEach(action -> {
+		
+			if(action.getId()==null) {
+				
+				
+				BgMeetingMOMChecklistMapEntity bgMeetingMOMChecklistMapEntity = new BgMeetingMOMChecklistMapEntity();
+				
+		
+				bgMeetingMOMChecklistMapEntity.setMeetingId(meetingId);
+				bgMeetingMOMChecklistMapEntity.setRemarks(action.getRemarks());
+				bgMeetingMOMChecklistMapEntity.setMomCheckListMstrEntity(getMOMCheckListMstrEntity(action.getMomChecklistId()));
+				bgMeetingMOMChecklistMapEntity.setActive(true);
+				bgMeetingMOMChecklistMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+				bgMeetingMOMChecklistMapEntity.setCreatedUserId(userId);
+				
+				Long momId = getBgMeetingSubLogic().createMeetingMOMRecord(bgMeetingMOMChecklistMapEntity);
+				
+				
+				action.setId(momId);
+				action.setVersion(bgMeetingMOMChecklistMapEntity.getVersion());
+				
+			}
+			else {
+                BgMeetingMOMChecklistMapEntity entity = momEntityMap.get(action.getId());
+                
+            	if(!entity.getVersion().equals(action.getVersion())) {
+					throw new UpdatedByAnotherUserException();
+				}
+                entity.setRemarks(action.getRemarks());
+                entity.setVersion(entity.getVersion() + 1L);
+                entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+                entity.setLastUpdatedUserId(userId);
+         
+                action.setVersion(entity.getVersion());
+                momEntityMap.remove(action.getId());
+			
+			}
+			
+			
+		});
+		
+		momEntityMap.forEach((id,entity)->{
+			
+			entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			entity.setLastUpdatedUserId(userId);
+			entity.setActive(false);
+			entity.setVersion(entity.getVersion()+1L);
+			
+	});
+			return momCheckList;
+			
+			
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meetingId);
+		}
+		
+		
+	}
+	
+	@Override
+	public void deleteMeeting(Integer companyId,Long meetingId,Integer userId) {
+		validateUser(companyId, userId);
+		
+		 Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);
+			
+			if(bgMeetingMasterEntityOpt.isPresent()) {
+				BgMeetingMasterEntity bgMeetingMasterEntity=bgMeetingMasterEntityOpt.get();
+				bgMeetingMasterEntity.setActive(false);
+				bgMeetingMasterEntity.setVersion(bgMeetingMasterEntity.getVersion()+1L);
+				bgMeetingMasterEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+				bgMeetingMasterEntity.setLastUpdatedUserId(userId);
+		
+			}else {
+				throw new RecordNotFoundException("Meeting id :- " + meetingId);
+			}
+			
+	}
+	
+	@Override
+	public void deleteAgenda(Integer companyId,Long meetingId,Integer userId) {
+		validateUser(companyId, userId);
+		
+		 Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meetingId);			
+			if(bgMeetingMasterEntityOpt.isPresent()) {
+				Iterable<BgMeetingAgendaMapEntity> bgMeetingAgendaMapEntityIt=getBgMeetingSubLogic().getMeetingAgendaMapRecords(meetingId);
+				bgMeetingAgendaMapEntityIt.forEach(entity -> {
+					entity.setActive(false);
+					entity.setVersion(entity.getVersion()+1L);
+					entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					entity.setLastUpdatedUserId(userId);
+				});
+		
+			}else {
+				throw new RecordNotFoundException("Meeting id :- " + meetingId);
+			}
+			
+	}
+	
+	
+	/***
+	 * To create agenda document records
+	 * @param meetingId
+	 * @param agendaId
+	 * @param documents
+	 * @param fileNameKeyMap
+	 * @param docType
+	 * @param userId
+	 */
+	private void createAgendaDocumentMapRecords(Long meetingId, Long agendaId, List<UploadedDocument> documents,
+			Map<Long, String> fileNameKeyMap, Integer docType,Integer userId) {
+		fileNameKeyMap.forEach((docKey,docName) ->{
+			BgAgendaDocumentMapEntity bgAgendaDocumentMapEntity = new BgAgendaDocumentMapEntity();
+			bgAgendaDocumentMapEntity.setMeetingId(meetingId);
+			bgAgendaDocumentMapEntity.setAgendaId(agendaId);
+			bgAgendaDocumentMapEntity.setDocName(docName);
+			bgAgendaDocumentMapEntity.setDocKey(docKey);
+			bgAgendaDocumentMapEntity.setDocType(docType);
+			bgAgendaDocumentMapEntity.setActive(true);
+			bgAgendaDocumentMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+			bgAgendaDocumentMapEntity.setCreatedUserId(userId);
+			Long id = getBgMeetingSubLogic().createAgendaDocumentMapRecord(bgAgendaDocumentMapEntity);
+			
+			UploadedDocument document = new UploadedDocument();
+			document.setId(id);
+			document.setDocId(meetingId);
+			document.setName(docName);
+			document.setVersion(1L);
+			documents.add(document);
+		});
+	}
+	
+	/***
+	 * To update agenda sub items
+	 * @param meetingId
+	 * @param userId
+	 * @param agendaEntityMap
+	 * @param agenda
+	 * @param agendaId
+	 * @param parentAgenda
+	 */
+	private void updateAgendaSubItems(Long meetingId, Integer userId,
+			Map<Long, BgMeetingAgendaMapEntity> agendaEntityMap, Agenda agenda, Long agendaId, BgMeetingAgendaMapEntity parentAgenda) {
+		if(agenda.getAgendaSubItems() != null && agenda.getAgendaSubItems().size() > 0) {
+			agenda.getAgendaSubItems().forEach(subItem ->{
+				
+				// Create sub item
+				if(subItem.getId() == null) {
+					
+					BgMeetingAgendaMapEntity bgMeetingAgendaSubItemMapEntity = createMeetingAgendaMapDTO(meetingId, subItem,userId);
+					bgMeetingAgendaSubItemMapEntity.setParentAgenda(parentAgenda);
+					
+					Long agendaSubItemId = getBgMeetingSubLogic().createMeetingAgendaMapRecord(bgMeetingAgendaSubItemMapEntity);
+					subItem.setId(agendaSubItemId);
+					subItem.setVersion(1L);
+					
+					List<VotingAccess> votingAccessList = subItem.getVotingAccessList();
+					
+					updateVotingAccessDetails(meetingId, userId, agendaSubItemId, votingAccessList);
+					
+					// Update sub item
+				}else {
+					BgMeetingAgendaMapEntity entity = agendaEntityMap.get(subItem.getId());
+					
+					updateMeetingAgendaMapEntity(userId,subItem, entity);
+					subItem.setVersion(subItem.getVersion() + 1);
+					
+					
+					List<VotingAccess> votingAccessList = subItem.getVotingAccessList();
+					
+					updateVotingAccessDetails(meetingId, userId, subItem.getId(), votingAccessList);
+					
+					agendaEntityMap.remove(subItem.getId());
+				}
+			});
+		}
+	}
+
+
+
+	/***
+	 * To update meeting agenda entity
+	 * @param userId
+	 * @param agenda
+	 * @param entity
+	 */
+	private void updateMeetingAgendaMapEntity(Integer userId, Agenda agenda,
+			BgMeetingAgendaMapEntity entity) {
+		if(entity == null) {
+			throw new RecordNotFoundException("Agenda Id :- " + agenda.getId());
+		}
+		
+		if(!entity.getVersion().equals(agenda.getVersion())){
+			throw new UpdatedByAnotherUserException();
+		}
+		
+		entity.setPublish(agenda.getPublish());
+		entity.setPublishDate(agenda.getPublishDate());
+		entity.setPublishTime(agenda.getPublishTime());
+		entity.setSeq(agenda.getSeq());
+		entity.setEvoting(agenda.getEvoting());
+		entity.setTitle(agenda.getTitle());
+		entity.setRemarks(agenda.getRemarks());
+		entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+		entity.setLastUpdatedUserId(userId);
+		entity.setVersion(entity.getVersion() + 1);
+	}
+
+
+
+/***
+ *  
+ * @param meetingId
+ * @param agenda
+ * @param userId
+ * @return
+ */
+	private BgMeetingAgendaMapEntity createMeetingAgendaMapDTO(Long meetingId, Agenda agenda, Integer userId) {
+		BgMeetingAgendaMapEntity bgMeetingAgendaMapEntity = new BgMeetingAgendaMapEntity();
+		bgMeetingAgendaMapEntity.setMeetingId(meetingId);
+		bgMeetingAgendaMapEntity.setSeq(agenda.getSeq());
+		bgMeetingAgendaMapEntity.setEvoting(agenda.getEvoting());
+		bgMeetingAgendaMapEntity.setTitle(agenda.getTitle());
+		bgMeetingAgendaMapEntity.setRemarks(agenda.getRemarks());
+		bgMeetingAgendaMapEntity.setPublish(agenda.getPublish());
+		bgMeetingAgendaMapEntity.setPublishDate(agenda.getPublishDate());
+		bgMeetingAgendaMapEntity.setPublishTime(agenda.getPublishTime());
+		bgMeetingAgendaMapEntity.setActive(true);
+		bgMeetingAgendaMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		bgMeetingAgendaMapEntity.setCreatedUserId(userId);
+		return bgMeetingAgendaMapEntity;
+	}
+	
+	
+	/***
+	 * To fetch director entity
+	 * @param id
+	 * @return
+	 */
+	private DirectorMasterEntity getDirectorEntity(Long id) {
+		Optional<DirectorMasterEntity> directorMasterEntityOpt = getBoardSubLogic().getDirectorMasterRecord(id);
+		if(directorMasterEntityOpt.isPresent()) {
+			return directorMasterEntityOpt.get();
+		}else {
+			throw new RecordNotFoundException("Director id :- " + id);
+		}
+	}
+
+	/***
+	 * To fetch committee Entity
+	 * @param id
+	 * @return
+	 */
+	private CommitteeMasterEntity getCommitteeEntity(Long id) {
+		
+		Optional<CommitteeMasterEntity> committeeMasterEntityOpt = getBoardSubLogic().getCommitteeMasterRecord(id);
+		
+		if(committeeMasterEntityOpt.isPresent()) {
+			return committeeMasterEntityOpt.get();
+		}else {
+			throw new RecordNotFoundException("Committee id :- " + id);
+		}
+		
+	}
+	
+	private MOMCheckListMstrEntity getMOMCheckListMstrEntity(Long id) {
+		
+		Optional<MOMCheckListMstrEntity> MOMCheckListMstrEntityOpt= getBgMeetingSubLogic().getMOMCheckListMstrEntity(id);
+		
+		if(MOMCheckListMstrEntityOpt.isPresent()) {
+			return MOMCheckListMstrEntityOpt.get();
+		}else {
+			throw new RecordNotFoundException("momCheck id :- " + id);
+		}
+		
+	}
+	
+	/***
+	 * To create meeting folder
+	 * @param entity
+	 */
+	private void createMeetingFolder(BgMeetingMasterEntity entity) {
+
+		Integer companyId = entity.getCompanyId();
+		Long meetingTypeId = entity.getCommitteeMasterEntity().getId();
+		
+		String companyName = getComapnyName(companyId);
+		String moduleName = getModuleName(moduleId);
+		String meetingTypeName = getMeetingTypeName(meetingTypeId);
+		String meetingFolderName = getMeetingFolderName(entity);
+		
+		getDmsLogic().createFolderToDMS(companyName,moduleName,meetingTypeName,meetingFolderName);
+	}
+
+
+/***
+ * To fetch meeting folder name
+ * @param entity
+ * @return
+ */
+	private String getMeetingFolderName(BgMeetingMasterEntity entity) {
+		String meetingFolderName;
+		String meetingDate = CommonUtils.getDateForMeetingFolderName(entity.getDate());
+		String meetingId = entity.getId().toString();
+		meetingFolderName = meetingDate + "_" + meetingId;
+		return meetingFolderName;
+	}
+
+	
+	/***
+	 * To fetch meeting type name
+	 * @param meetingTypeId
+	 * @return
+	 */
+	private String getMeetingTypeName(Long meetingTypeId) {
+		String meetingTypeName = "";
+		
+		Optional<CommitteeMasterEntity> committeeMasterEntityOpt = getBoardSubLogic().getCommitteeMasterRecord(meetingTypeId);
+		if(committeeMasterEntityOpt.isPresent()) {
+			CommitteeMasterEntity committeeMasterEntity = committeeMasterEntityOpt.get();
+			meetingTypeName = committeeMasterEntity.getName();
+		}else {
+			throw new RecordNotFoundException("Committee Id :- " + meetingTypeId);
+		}
+		return meetingTypeName;
+	}
+	
+	/***
+	 * To fetch module name
+	 * @param moduleId
+	 * @return
+	 */
+	private String getModuleName(Long moduleId) {
+		
+		String moduleName = "";
+		
+		Optional<ModuleMasterEntity> moduleMasterEntityOpt = getPrivilegeSubLogicImpl().getModuleRecord(moduleId);
+		if(moduleMasterEntityOpt.isPresent()) {
+			ModuleMasterEntity moduleMasterEntity = moduleMasterEntityOpt.get();
+			moduleName = moduleMasterEntity.getName();
+		}else {
+			throw new RecordNotFoundException("Module Id :- " + moduleId);
+		}
+		return moduleName;
+	}
+
+	
+	/***
+	 * To fetch company name
+	 * @param companyId
+	 * @return
+	 */
+	private String getComapnyName(Integer companyId) {
+		
+		String companyName = "";
+		
+		Optional<CompanyMasterEntity> companyMasterEntityOpt = getPrivilegeSubLogicImpl().getCompanyRecord(companyId);
+		if(companyMasterEntityOpt.isPresent()) {
+			CompanyMasterEntity companyMasterEntity = companyMasterEntityOpt.get();
+			companyName = companyMasterEntity.getName();
+		}else {
+			throw new RecordNotFoundException("Company Id :- " + companyId);
+		}
+		return companyName;
+	}
+	
+	
+	/***
+	 * To update work flow user map record
+	 * @param bgWorkFlow
+	 * @param userId
+	 * @param workflow
+	 * @param workflowEntity
+	 */
+	private void updateWorkflowUserMapRecod(BgWorkFlow bgWorkFlow, Integer userId, WorkFlow workflow,
+			BgMeetingWFUserMapEntity workflowEntity) {
+		if(!workflowEntity.getVersion().equals(workflow.getVersion())) {
+			throw new UpdatedByAnotherUserException();
+		}
+		workflowEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+		workflowEntity.setLastUpdatedUserId(userId);
+		if(bgWorkFlow.getIsApproved() != null && bgWorkFlow.getIsApproved()) {
+			workflowEntity.setApprovalDate(CommonUtils.getCurrentDateTime());
+			workflowEntity.setRemarks("Approved");
+		}else {
+			workflowEntity.setApprovalDate(null);
+		}
+		//workflowEntity.setRemarks(workflow.getRemarks());
+		
+		workflowEntity.setVersion(workflowEntity.getVersion() + 1);
+	}
+
+	/***
+	 * To update work  flow status
+	 * @param bgWorkFlow
+	 * @param workflowType
+	 * @param workflows
+	 * @param nextWorkFlowStatus
+	 * @param count
+	 * @param entity
+	 */
+	private void updateWorkflowStatus(BgWorkFlow bgWorkFlow, Integer workflowType, List<WorkFlow> workflows,
+			String nextWorkFlowStatus, int count, BgMeetingMasterEntity entity) {
+		
+		// If work flow type id is of meeting type
+		if(workflowType.intValue() == 1){
+			entity.setMeetingStatus(nextWorkFlowStatus);
+			if(bgWorkFlow.getIsApproved() != null && !bgWorkFlow.getIsApproved()) {
+				entity.setMeetingReturned(true);
+				entity.setMeetingApproval(false);
+				
+				
+			}else {
+				entity.setMeetingReturned(false);
+				
+				if(count == (workflows.size() -1)) {
+					entity.setMeetingApproval(true);
+				}
+				
+				
+			}
+			
+			
+			//If work flow type id is of agenda type
+		}else if(workflowType.intValue() == 2){
+			
+			entity.setAgendaStatus(nextWorkFlowStatus);
+			if(bgWorkFlow.getIsApproved() != null && !bgWorkFlow.getIsApproved()) {
+				entity.setAgendaReturned(true);
+				entity.setAgendaApproval(false);
+				
+				
+			}else {
+				entity.setAgendaReturned(false);
+				if(count == (workflows.size() -1)) {
+					entity.setAgendaApproval(true);
+				}
+			}
+			
+			
+		 // If work flow type id is of draft mom type
+		}else if(workflowType.intValue() == 3){
+			
+			entity.setDraftMomStatus(nextWorkFlowStatus);
+			if(bgWorkFlow.getIsApproved() != null && !bgWorkFlow.getIsApproved()) {
+				entity.setDraftMomReturned(true);
+				entity.setDraftMomApproval(false);
+				
+		
+			}else {
+				entity.setDraftMomReturned(false);
+				if(count == (workflows.size() -1)) {
+					entity.setDraftMomApproval(true);
+				}
+			}
+			
+			
+		// if work flow type id is of  final mom type
+		}else if(workflowType.intValue() == 4){
+			
+			entity.setFinalMomStatus(nextWorkFlowStatus);
+			if(bgWorkFlow.getIsApproved() != null && !bgWorkFlow.getIsApproved()) {
+				entity.setFinalMomReturned(true);
+				entity.setFinalMomApproval(false);
+				
+				
+			}else {
+				entity.setFinalMomReturned(false);
+				if(count == (workflows.size() -1)) {
+					entity.setFinalMomApproval(true);
+				}
+			}
+			
+			
+			
+		}else {
+			throw new ValidationException("Invalid WorkFlow Type");
+		}
+	}
+	
+	/***
+	 * To fetch next work flow status
+	 * @param bgWorkFlow
+	 * @param returnedWorkFlowStatus
+	 * @param workflow
+	 * @return
+	 */
+	private String getNextWorkFlowStatus(BgWorkFlow bgWorkFlow, String returnedWorkFlowStatus,
+			WorkFlow workflow) {
+		String nextWorkFlowStatus = "";
+		if(bgWorkFlow.getIsApproved() != null && !bgWorkFlow.getIsApproved()) {
+			if(bgWorkFlow.getReturnedWorkFlowSeq() != null) {
+				if(!"".equals(returnedWorkFlowStatus)) {
+					nextWorkFlowStatus = returnedWorkFlowStatus;
+				}
+			}
+		}else {
+			nextWorkFlowStatus = workflow.getCode();
+		}
+		return nextWorkFlowStatus;
+	}
+	
+	
+	/***
+	 * To fetch returned work flow status
+	 * @param bgWorkFlow
+	 * @param returnedWorkFlowStatus
+	 * @param workflow
+	 * @return
+	 */
+	private String getReturnedWorkFlowStatus(BgWorkFlow bgWorkFlow, String returnedWorkFlowStatus,
+			WorkFlow workflow) {
+		
+		String statusCode = returnedWorkFlowStatus;
+		if("".equals(statusCode)) {
+			if(bgWorkFlow.getIsApproved() != null && !bgWorkFlow.getIsApproved()) {
+				if(bgWorkFlow.getReturnedWorkFlowSeq() != null && workflow.getSeq().equals(bgWorkFlow.getReturnedWorkFlowSeq() - 1)) {
+					statusCode = workflow.getCode();
+				}
+			}
+		}
+		return statusCode;
+	}
+	
+	/***
+	 * To check first step return from work flow
+	 * @param bgWorkFlow
+	 * @param returnedWorkFlowStatus
+	 * @return
+	 */
+	private String checkForFirstStepReturn(BgWorkFlow bgWorkFlow, String returnedWorkFlowStatus) {
+		
+		String statusCode = returnedWorkFlowStatus;
+		if(bgWorkFlow.getReturnedWorkFlowSeq() != null && (bgWorkFlow.getReturnedWorkFlowSeq() - 1) == 0) {
+			statusCode = "000";
+		}
+		return statusCode;	
+		
+	}
+
+
+/***
+ * To create meeting master record
+ * @param meeting
+ * @param companyId
+ * @param userId
+ * @return
+ */
+	private Meeting createMeetingMasterRecord(Meeting meeting, Integer companyId, Integer userId) {
+		
+		if(meeting.getId() != null) {
+			throw new ValidationException("Meeting Id : " + meeting.getId() + " cant be create again.");
+		}
+		
+		BgMeetingMasterEntity meetingMasterEntity = new BgMeetingMasterEntity();
+		
+		CommonUtils.copyProperties(meetingMasterEntity, meeting);
+		
+		meetingMasterEntity.setCommitteeMasterEntity(getCommitteeEntity(meeting.getMeetingTypeId()));
+		meetingMasterEntity.setCompanyId(companyId);
+		meetingMasterEntity.setActive(true);
+		meetingMasterEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		meetingMasterEntity.setCreatedUserId(userId);
+		
+		
+		meetingMasterEntity.setMeetingApproval(false);
+		meetingMasterEntity.setAgendaApproval(false);
+		meetingMasterEntity.setDraftMomApproval(false);
+		meetingMasterEntity.setFinalMomApproval(false);
+		
+		
+		
+		meetingMasterEntity.setMeetingReturned(false);
+		meetingMasterEntity.setAgendaReturned(false);
+		meetingMasterEntity.setDraftMomReturned(false);
+		meetingMasterEntity.setFinalMomReturned(false);
+		
+		
+		meeting.setMeetingApproval(false);
+		meeting.setAgendaApproval(false);
+		meeting.setDraftMomApproval(false);
+		meeting.setFinalMomApproval(false);
+		
+		
+		
+		meeting.setMeetingReturned(false);
+		meeting.setAgendaReturned(false);
+		meeting.setDraftMomReturned(false);
+		meeting.setFinalMomReturned(false);
+		
+		
+		if(meeting.getSubmitForApproval() != null && meeting.getSubmitForApproval()) {
+			meetingMasterEntity = updateWorkFlowStatusAndId(meeting, meetingMasterEntity);
+			
+			
+		}else {
+			meetingMasterEntity.setMeetingStatus("000");
+			meetingMasterEntity.setAgendaStatus("000");
+			meetingMasterEntity.setDraftMomStatus("000");
+			meetingMasterEntity.setFinalMomStatus("000");
+			
+			
+			meeting.setMeetingStatus("000");
+			meeting.setAgendaStatus("000");
+			meeting.setDraftMomStatus("000");
+			meeting.setFinalMomStatus("000");
+			
+		}
+		
+		Long id = getBgMeetingSubLogic().createMeetingMasterRecord(meetingMasterEntity);
+		
+		meeting.setId(id);
+		meeting.setVersion(1L);
+		
+		return meeting;
+	}
+
+	/***
+	 * To update meeting master record
+	 * @param meeting
+	 * @param companyId
+	 * @param userId
+	 * @return
+	 */
+	private Meeting updateMeetingMasterRecord(Meeting meeting, Integer companyId, Integer userId) {
+		
+		Optional<BgMeetingMasterEntity> bgMeetingMasterEntityOpt = getBgMeetingSubLogic().getMeetingMasterRecod(meeting.getId());
+		
+		if(bgMeetingMasterEntityOpt.isPresent()) {
+			
+			BgMeetingMasterEntity bgMeetingMasterEntity = bgMeetingMasterEntityOpt.get();
+			
+			if(!bgMeetingMasterEntity.getVersion().equals(meeting.getVersion())) {
+				throw new UpdatedByAnotherUserException();
+			}
+			
+			bgMeetingMasterEntity.setCompanyId(companyId);
+			bgMeetingMasterEntity.setCommitteeMasterEntity(getCommitteeEntity(meeting.getMeetingTypeId()));
+			bgMeetingMasterEntity.setTitle(meeting.getTitle());
+			bgMeetingMasterEntity.setDate(meeting.getDate());
+			bgMeetingMasterEntity.setStartTime(meeting.getStartTime());
+			bgMeetingMasterEntity.setEndTime(meeting.getEndTime());
+			bgMeetingMasterEntity.setBlockInviteeCalendar(meeting.getBlockInviteeCalendar());
+			bgMeetingMasterEntity.setFinancialsIncluded(meeting.getFinancialsIncluded());
+			bgMeetingMasterEntity.setPriceSensitiveInformation(meeting.getPriceSensitiveInformation());
+			bgMeetingMasterEntity.setVenue(meeting.getVenue());
+			bgMeetingMasterEntity.setCoOrdinatorUserId(meeting.getCoOrdinatorUserId());
+			bgMeetingMasterEntity.setVersion(meeting.getVersion() + 1);
+			bgMeetingMasterEntity.setLastUpdatedUserId(userId);
+			bgMeetingMasterEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			
+			bgMeetingMasterEntity.setMeetingApproval(false);
+			bgMeetingMasterEntity.setAgendaApproval(false);
+			bgMeetingMasterEntity.setDraftMomApproval(false);
+			bgMeetingMasterEntity.setFinalMomApproval(false);
+			
+			
+			bgMeetingMasterEntity.setMeetingReturned(false);
+			bgMeetingMasterEntity.setAgendaReturned(false);
+			bgMeetingMasterEntity.setDraftMomReturned(false);
+			bgMeetingMasterEntity.setFinalMomReturned(false);
+			
+			
+			meeting.setMeetingApproval(false);
+			meeting.setAgendaApproval(false);
+			meeting.setDraftMomApproval(false);
+			meeting.setFinalMomApproval(false);
+			
+			
+			meeting.setMeetingReturned(false);
+			meeting.setAgendaReturned(false);
+			meeting.setDraftMomReturned(false);
+			meeting.setFinalMomReturned(false);
+			
+			
+			if(meeting.getSubmitForApproval() != null && meeting.getSubmitForApproval()) {
+				bgMeetingMasterEntity = updateWorkFlowStatusAndId(meeting, bgMeetingMasterEntity);
+				
+				
+			}else {
+				bgMeetingMasterEntity.setMeetingStatus("000");
+				bgMeetingMasterEntity.setAgendaStatus("000");
+				bgMeetingMasterEntity.setDraftMomStatus("000");
+				bgMeetingMasterEntity.setFinalMomStatus("000");
+				
+				meeting.setMeetingStatus("000");
+				meeting.setAgendaStatus("000");
+				meeting.setDraftMomStatus("000");
+				meeting.setFinalMomStatus("000");
+			}
+			
+			
+			meeting.setVersion(meeting.getVersion() + 1);
+			
+		}else {
+			throw new RecordNotFoundException("Meeting id :- " + meeting.getId());
+		}
+		
+		return meeting;
+	}
+
+	/***
+	 * To create meeting attendee map records
+	 * @param meeting
+	 * @param userId
+	 * @return
+	 */
+	private Meeting createMeetingAttendeeMapRecords(Meeting meeting, Integer userId) {
+		
+		if(meeting.getAttendeeTypeDetails() != null && meeting.getAttendeeTypeDetails().size() > 0) {
+			
+			
+			//Set<Long> directorIds = new HashSet<>();
+			meeting.getAttendeeTypeDetails().forEach(attendeeTypeDetail ->{
+				
+				
+				
+				if(attendeeTypeDetail.getMembers() != null && attendeeTypeDetail.getMembers().size() > 0) {
+					attendeeTypeDetail.getMembers().forEach(member ->{
+						
+						
+						// Considering duplicate attendees in meeting as of now
+						/*if(directorIds.contains(member.getId())) {
+							throw new ValidationException("Director Id :- " + member.getId() + " present in more than one attendee type details");
+						}else {
+							directorIds.add(member.getId());
+						}*/
+						
+						BgMeetingAttendeeMapEntity bgMeetingAttendeeMapEntity = new BgMeetingAttendeeMapEntity();
+						bgMeetingAttendeeMapEntity.setMeetingId(meeting.getId()); 
+						bgMeetingAttendeeMapEntity.setAttendeeTypeId(attendeeTypeDetail.getId());
+						
+						bgMeetingAttendeeMapEntity.setDirectorMasterEntity(getDirectorEntity(member.getId()));
+						bgMeetingAttendeeMapEntity.setPermanentInvitee(member.getPermanentInvitee());
+						bgMeetingAttendeeMapEntity.setAcceptance(false);
+						bgMeetingAttendeeMapEntity.setActive(true);
+						bgMeetingAttendeeMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+						bgMeetingAttendeeMapEntity.setCreatedUserId(userId);
+						
+						Long id = getBgMeetingSubLogic().createMeetingAttendeeMapRecord(bgMeetingAttendeeMapEntity);
+						
+					});
+				}
+			});
+		}
+		
+		return meeting;
+	}
+		
+	/***
+	 * To update meeting attendee map records
+	 * @param meeting
+	 * @param userId
+	 * @param meetingId
+	 * @return
+	 */
+	private Meeting updateMeetingAttendeeMapRecords(Meeting meeting, Integer userId, Long meetingId) {
+		
+		if(meeting.getAttendeeTypeDetails() != null && meeting.getAttendeeTypeDetails().size() > 0) {
+			
+			Iterable<BgMeetingAttendeeMapEntity> bgMeetingAttendeeMapEntityIt = getBgMeetingSubLogic().getMeetingAttendeeMapRecords(meetingId);
+			
+			Map<Long,Map<Long,BgMeetingAttendeeMapEntity>> attendeeTypeWiseRecord = new HashMap<>();
+			
+			Map<Long,Map<Long,BgMeetingAttendeeMapEntity>> attendeeTypeWiseRecordMap = StreamSupport.stream(bgMeetingAttendeeMapEntityIt.spliterator(), false).reduce(attendeeTypeWiseRecord,(accum,element) ->{
+				
+				Long attendeeTypeId = element.getAttendeeTypeId();
+				Long directorId = element.getDirectorMasterEntity().getId();
+				
+				Map<Long,BgMeetingAttendeeMapEntity> attendeeTypeRecord = accum.get(attendeeTypeId);
+				if(attendeeTypeRecord == null) {
+					attendeeTypeRecord = new HashMap<>();
+				}
+				attendeeTypeRecord.put(directorId, element);
+				
+				accum.put(attendeeTypeId, attendeeTypeRecord);
+				
+				return accum;
+			}, (accum1,accum2) ->{
+				
+				return accum1;
+			});
+			
+			
+			List<BgMeetingAttendeeMapEntity> newRecords = new ArrayList<>();
+			
+			meeting.getAttendeeTypeDetails().forEach(attendeeTypeDetail ->{
+				
+				Long attendeeTypeId = attendeeTypeDetail.getId();
+				
+				if(attendeeTypeDetail.getMembers() != null && attendeeTypeDetail.getMembers().size() > 0) {
+					attendeeTypeDetail.getMembers().forEach(member ->{
+						Long directorId = member.getId();
+						
+						Map<Long,BgMeetingAttendeeMapEntity> attendeeTypeRecord = attendeeTypeWiseRecordMap.get(attendeeTypeId);
+						if(attendeeTypeRecord == null) {
+							
+							BgMeetingAttendeeMapEntity bgMeetingAttendeeMapEntity = new BgMeetingAttendeeMapEntity();
+							bgMeetingAttendeeMapEntity.setMeetingId(meeting.getId());
+							bgMeetingAttendeeMapEntity.setAttendeeTypeId(attendeeTypeDetail.getId());
+							bgMeetingAttendeeMapEntity.setDirectorMasterEntity(getDirectorEntity(directorId));
+							bgMeetingAttendeeMapEntity.setPermanentInvitee(member.getPermanentInvitee());
+							bgMeetingAttendeeMapEntity.setAcceptance(false);
+							bgMeetingAttendeeMapEntity.setActive(true);
+							bgMeetingAttendeeMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+							bgMeetingAttendeeMapEntity.setCreatedUserId(userId);
+							
+							newRecords.add(bgMeetingAttendeeMapEntity);
+							
+						}else {
+							BgMeetingAttendeeMapEntity record = attendeeTypeRecord.get(directorId);
+							
+							if(record == null) {
+								
+								BgMeetingAttendeeMapEntity bgMeetingAttendeeMapEntity = new BgMeetingAttendeeMapEntity();
+								bgMeetingAttendeeMapEntity.setMeetingId(meeting.getId());
+								bgMeetingAttendeeMapEntity.setAttendeeTypeId(attendeeTypeDetail.getId());
+								bgMeetingAttendeeMapEntity.setDirectorMasterEntity(getDirectorEntity(directorId));
+								bgMeetingAttendeeMapEntity.setPermanentInvitee(member.getPermanentInvitee());
+								bgMeetingAttendeeMapEntity.setAcceptance(false);
+								bgMeetingAttendeeMapEntity.setActive(true);
+								bgMeetingAttendeeMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+								bgMeetingAttendeeMapEntity.setCreatedUserId(userId);
+								
+								newRecords.add(bgMeetingAttendeeMapEntity);
+								
+							}else {
+								record.setVersion(record.getVersion() + 1);
+								record.setPermanentInvitee(member.getPermanentInvitee());
+								record.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+								record.setLastUpdatedUserId(userId);
+								
+								attendeeTypeRecord.remove(directorId);
+								attendeeTypeWiseRecordMap.put(attendeeTypeId, attendeeTypeRecord);
+							}
+						}
+					});
+				}
+				
+				
+				
+			});
+			
+			
+			
+			newRecords.forEach(newRecord ->{
+				Long id = getBgMeetingSubLogic().createMeetingAttendeeMapRecord(newRecord);
+			});
+			
+			attendeeTypeWiseRecordMap.forEach((attendeeType,memberMap) ->{
+				memberMap.forEach((directorId,record) ->{
+					record.setVersion(record.getVersion() + 1);
+					record.setActive(false);
+					record.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					record.setLastUpdatedUserId(userId);
+				});
+			});
+		}
+		
+		return meeting;
+	}
+
+	
+	/***
+	 * To create meeting guest map records
+	 * @param meeting
+	 * @param userId
+	 * @return
+	 */
+	private Meeting createMeetingGuestMapRecords(Meeting meeting, Integer userId) {
+		
+		if(meeting.getGuests() != null && meeting.getGuests().size() > 0) {
+			meeting.getGuests().forEach(guest ->{
+				
+				BgMeetingGuestMapEntity bgMeetingGuestMapEntity = createMeetingGuestMapDTO(meeting.getId(), userId, guest);
+				
+				Long id = getBgMeetingSubLogic().createMeetingGuestMapRecord(bgMeetingGuestMapEntity);
+				guest.setId(id);
+				guest.setVersion(1L);
+			});
+		}
+		
+		
+		return meeting;
+	}
+
+	/***
+	 * To update meeting guest map records
+	 * @param meeting
+	 * @param userId
+	 * @param meetingId
+	 * @return
+	 */
+	private Meeting updateMeetingGuestMapRecords(Meeting meeting, Integer userId,Long meetingId) {
+
+		Iterable<BgMeetingGuestMapEntity> bgMeetingGuestMapEntityIt = getBgMeetingSubLogic().getMeetingGuestMapRecords(meetingId);
+
+		Map<Long,BgMeetingGuestMapEntity> guestRecordMap = StreamSupport.stream(bgMeetingGuestMapEntityIt.spliterator(), false).collect(Collectors.toMap(bgMeetingGuestMapEntity -> bgMeetingGuestMapEntity.getId(), bgMeetingGuestMapEntity -> bgMeetingGuestMapEntity));
+		
+		if(meeting.getGuests() != null && meeting.getGuests().size() > 0) {
+			
+			meeting.getGuests().forEach(guest ->{
+				
+				if(guest.getId() == null) {
+					BgMeetingGuestMapEntity bgMeetingGuestMapEntity = createMeetingGuestMapDTO(meeting.getId(), userId, guest);
+					
+					Long id = getBgMeetingSubLogic().createMeetingGuestMapRecord(bgMeetingGuestMapEntity);
+					guest.setId(id);
+					guest.setVersion(1L);
+				}else {
+					
+					BgMeetingGuestMapEntity entityRecord = guestRecordMap.get(guest.getId());
+					
+					if(entityRecord == null) {
+						throw new RecordNotFoundException("Guest Id :- " + guest.getId());
+					}
+					
+					if(!entityRecord.getVersion().equals(guest.getVersion())) {
+						throw new UpdatedByAnotherUserException();
+					}
+					
+					entityRecord.setName(guest.getName());
+					entityRecord.setEmailId(guest.getEmailId());
+					entityRecord.setStartTime(guest.getStartTime());
+					entityRecord.setEndTime(guest.getEndTime());
+					entityRecord.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					entityRecord.setLastUpdatedUserId(userId);
+					entityRecord.setVersion(guest.getVersion() + 1);
+					
+					guest.setVersion(guest.getVersion() + 1);
+					guestRecordMap.remove(guest.getId());
+				}
+				
+			});
+		}
+		
+		
+		guestRecordMap.forEach((id,entity) ->{
+			entity.setVersion(entity.getVersion() + 1);
+			entity.setActive(false);
+			entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			entity.setLastUpdatedUserId(userId);
+		});
+		return meeting;
+	}
+
+	/***
+	 * To create meeting work flow user map records
+	 * @param meeting
+	 * @param userId
+	 * @return
+	 */
+	private Meeting createMeetingWorkflowUserMapRecords(Meeting meeting, Integer userId) {
+
+		if(meeting.getSubmitForApproval() != null && meeting.getSubmitForApproval()) {
+			if(meeting.getMeetingWorkflowSteps() != null && meeting.getMeetingWorkflowSteps().size() > 0) {
+				meeting.getMeetingWorkflowSteps().forEach(workflow ->{
+					BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = getMeetingWorkflowUserMapDTO(meeting.getId(),workflow,userId,1);
+					if(workflow.getSeq() == 1) {
+						bgMeetingWFUserMapEntity.setApprovalDate(CommonUtils.getCurrentDateTime());
+						bgMeetingWFUserMapEntity.setRemarks("Submit for approval");
+					}
+					
+					Long id = getBgMeetingSubLogic().createMeetingWorkFlowUserMapRecord(bgMeetingWFUserMapEntity);
+					workflow.setDocWorkFlowId(id);
+					workflow.setVersion(1L);
+				});
+			}
+			
+			
+			
+			if(meeting.getAgendaWorkflowSteps() != null && meeting.getAgendaWorkflowSteps().size() > 0) {
+				meeting.getAgendaWorkflowSteps().forEach(workflow ->{
+					BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = getMeetingWorkflowUserMapDTO(meeting.getId(),workflow,userId,2);
+					
+					Long id = getBgMeetingSubLogic().createMeetingWorkFlowUserMapRecord(bgMeetingWFUserMapEntity);
+					workflow.setDocWorkFlowId(id);
+					workflow.setVersion(1L);
+				});
+			}
+			
+			
+			if(meeting.getDraftMomWorkflowSteps() != null && meeting.getDraftMomWorkflowSteps().size() > 0) {
+				meeting.getDraftMomWorkflowSteps().forEach(workflow ->{
+					BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = getMeetingWorkflowUserMapDTO(meeting.getId(),workflow,userId,3);
+					
+					Long id = getBgMeetingSubLogic().createMeetingWorkFlowUserMapRecord(bgMeetingWFUserMapEntity);
+					workflow.setDocWorkFlowId(id);
+					workflow.setVersion(1L);
+				});
+			}
+			
+			
+			if(meeting.getFinalMomWorkflowSteps() != null && meeting.getFinalMomWorkflowSteps().size() > 0) {
+				meeting.getFinalMomWorkflowSteps().forEach(workflow ->{
+					BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = getMeetingWorkflowUserMapDTO(meeting.getId(),workflow,userId,4);
+					
+					Long id = getBgMeetingSubLogic().createMeetingWorkFlowUserMapRecord(bgMeetingWFUserMapEntity);
+					workflow.setDocWorkFlowId(id);
+					workflow.setVersion(1L);
+					
+				});
+			}
+		}
+		
+		
+		return meeting;
+	}
+	
+	/***
+	 * To update meeting flow user map records
+	 * @param meeting
+	 * @param userId
+	 * @param meetingId
+	 * @return
+	 */
+	private Meeting updateMeetingWorkflowUserMapRecords(Meeting meeting, Integer userId, Long meetingId) {
+		
+		Iterable<BgMeetingWFUserMapEntity> bgMeetingWFUserMapEntityIt = getBgMeetingSubLogic().getMeetingWorkFlowUserMapRecords(meetingId);
+		
+		Map<Long,BgMeetingWFUserMapEntity> workflowEntityMap = StreamSupport.stream(bgMeetingWFUserMapEntityIt.spliterator(), false).collect(Collectors.toMap(bgMeetingWFUserMapEntity -> bgMeetingWFUserMapEntity.getId(), bgMeetingWFUserMapEntity -> bgMeetingWFUserMapEntity));
+		
+		if(meeting.getSubmitForApproval() != null && meeting.getSubmitForApproval()) {
+			if(meeting.getMeetingWorkflowSteps() != null && meeting.getMeetingWorkflowSteps().size() > 0) {
+				meeting.getMeetingWorkflowSteps().forEach(workflow ->{
+					
+					if(workflow.getDocWorkFlowId() == null) {
+						BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = getMeetingWorkflowUserMapDTO(meeting.getId(),workflow,userId,1);
+						if(workflow.getSeq()==1) {
+							bgMeetingWFUserMapEntity.setApprovalDate(CommonUtils.getCurrentDateTime());
+							bgMeetingWFUserMapEntity.setRemarks("Submit for approval");
+						}
+						Long id = getBgMeetingSubLogic().createMeetingWorkFlowUserMapRecord(bgMeetingWFUserMapEntity);
+						workflow.setDocWorkFlowId(id);
+						workflow.setVersion(1L);
+					}else {
+						updateWorkFlowEntity(userId, workflowEntityMap, workflow);
+						
+					}
+					
+				});
+			}
+			
+			
+			if(meeting.getAgendaWorkflowSteps() != null && meeting.getAgendaWorkflowSteps().size() > 0) {
+				meeting.getAgendaWorkflowSteps().forEach(workflow ->{
+					
+					if(workflow.getDocWorkFlowId() == null) {
+						BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = getMeetingWorkflowUserMapDTO(meeting.getId(),workflow,userId,2);
+						Long id = getBgMeetingSubLogic().createMeetingWorkFlowUserMapRecord(bgMeetingWFUserMapEntity);
+						workflow.setDocWorkFlowId(id);
+						workflow.setVersion(1L);
+					}else {
+						updateWorkFlowEntity(userId, workflowEntityMap, workflow);
+						
+					}
+					
+				});
+			}
+			
+			
+			if(meeting.getDraftMomWorkflowSteps() != null && meeting.getDraftMomWorkflowSteps().size() > 0) {
+				meeting.getDraftMomWorkflowSteps().forEach(workflow ->{
+					
+					if(workflow.getDocWorkFlowId() == null) {
+						BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = getMeetingWorkflowUserMapDTO(meeting.getId(),workflow,userId,3);
+						Long id = getBgMeetingSubLogic().createMeetingWorkFlowUserMapRecord(bgMeetingWFUserMapEntity);
+						workflow.setDocWorkFlowId(id);
+						workflow.setVersion(1L);
+					}else {
+						updateWorkFlowEntity(userId, workflowEntityMap, workflow);
+						
+					}
+					
+				});
+			}
+			
+			
+			if(meeting.getFinalMomWorkflowSteps() != null && meeting.getFinalMomWorkflowSteps().size() > 0) {
+				meeting.getFinalMomWorkflowSteps().forEach(workflow ->{
+					
+					if(workflow.getDocWorkFlowId() == null) {
+						BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = getMeetingWorkflowUserMapDTO(meeting.getId(),workflow,userId,4);
+						Long id = getBgMeetingSubLogic().createMeetingWorkFlowUserMapRecord(bgMeetingWFUserMapEntity);
+						workflow.setDocWorkFlowId(id);
+						workflow.setVersion(1L);
+					}else {
+						updateWorkFlowEntity(userId, workflowEntityMap, workflow);
+						
+					}
+					
+					
+				});
+			}
+			
+			workflowEntityMap.forEach((id,entity) ->{
+				entity.setVersion(entity.getVersion() + 1);
+				entity.setActive(false);
+				entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+				entity.setLastUpdatedUserId(userId);
+			});
+		}
+		
+		return meeting;
+	}
+
+
+/***
+ * To update work flow entity
+ * @param userId
+ * @param workflowEntityMap
+ * @param workflow
+ */
+	private void updateWorkFlowEntity(Integer userId, Map<Long, BgMeetingWFUserMapEntity> workflowEntityMap,
+			WorkFlow workflow) {
+		BgMeetingWFUserMapEntity entityRecord = workflowEntityMap.get(workflow.getDocWorkFlowId());
+		
+		if(entityRecord == null) {
+			throw new RecordNotFoundException("WorkFlow Id :- " + workflow.getId());
+		}
+		
+		if(!entityRecord.getVersion().equals(workflow.getVersion())) {
+			throw new UpdatedByAnotherUserException();
+		}
+		
+		
+		if(entityRecord.getWorkflowType() == 1 && entityRecord.getSeq() == 1) {
+			entityRecord.setApprovalDate(CommonUtils.getCurrentDateTime());
+			entityRecord.setRemarks("Submit for approval");
+		}
+		entityRecord.setWorkflowId(workflow.getWorkflowId());
+		entityRecord.setSeq(workflow.getSeq());
+		entityRecord.setRoleId(workflow.getRoleId());
+		entityRecord.setUserId(workflow.getUserId());
+		
+		entityRecord.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+		entityRecord.setLastUpdatedUserId(userId);
+		entityRecord.setVersion(workflow.getVersion() + 1);
+		
+		workflow.setVersion(workflow.getVersion() + 1);
+		
+		workflowEntityMap.remove(workflow.getDocWorkFlowId());
+	}
+
+/***
+ * To fetch meeting work flow user map
+ * @param meetingId
+ * @param workflow
+ * @param userId
+ * @param workflowType
+ * @return
+ */
+	private BgMeetingWFUserMapEntity getMeetingWorkflowUserMapDTO(Long meetingId, WorkFlow workflow, Integer userId, int workflowType) {
+		
+		BgMeetingWFUserMapEntity bgMeetingWFUserMapEntity = new BgMeetingWFUserMapEntity();
+		bgMeetingWFUserMapEntity.setMeetingId(meetingId);
+		bgMeetingWFUserMapEntity.setWorkflowType(workflowType);
+		bgMeetingWFUserMapEntity.setWorkflowId(workflow.getWorkflowId());
+		bgMeetingWFUserMapEntity.setSeq(workflow.getSeq());
+		bgMeetingWFUserMapEntity.setRoleId(workflow.getRoleId());
+		bgMeetingWFUserMapEntity.setUserId(workflow.getUserId());
+		bgMeetingWFUserMapEntity.setRemarks("");
+		bgMeetingWFUserMapEntity.setActive(true);
+		bgMeetingWFUserMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		bgMeetingWFUserMapEntity.setCreatedUserId(userId);
+		
+		return bgMeetingWFUserMapEntity;
+	}
+
+
+/***
+ * To update work flow status and work flow id
+ * @param meeting
+ * @param meetingMasterEntity
+ * @return
+ */
+	private BgMeetingMasterEntity updateWorkFlowStatusAndId(Meeting meeting, BgMeetingMasterEntity meetingMasterEntity) {
+		meeting.getMeetingWorkflowSteps().forEach(workFlow->{
+			if(workFlow.getSeq() == 1) {
+				meetingMasterEntity.setMeetingStatus(workFlow.getCode());
+				meetingMasterEntity.setMeetingWorkflowId(workFlow.getWorkflowId());
+				
+				meeting.setMeetingStatus(workFlow.getCode());
+				meeting.setMeetingWorkflowId(workFlow.getWorkflowId());
+			}
+		});
+		
+		
+		meeting.getAgendaWorkflowSteps().forEach(workFlow->{
+			if(workFlow.getSeq() == 1) {
+				meetingMasterEntity.setAgendaStatus("000");
+				meetingMasterEntity.setAgendaWorkflowId(workFlow.getWorkflowId());
+				
+				meeting.setAgendaStatus("000");
+				meeting.setAgendaWorkflowId(workFlow.getWorkflowId());
+			}
+		});
+		
+		
+		meeting.getDraftMomWorkflowSteps().forEach(workFlow->{
+			if(workFlow.getSeq() == 1) {
+				meetingMasterEntity.setDraftMomStatus("000");
+				meetingMasterEntity.setDraftMomWorkflowId(workFlow.getWorkflowId());
+				
+				meeting.setDraftMomStatus("000");
+				meeting.setDraftMomWorkflowId(workFlow.getWorkflowId());
+			}
+		});
+		
+		meeting.getFinalMomWorkflowSteps().forEach(workFlow->{
+			if(workFlow.getSeq() == 1) {
+				meetingMasterEntity.setFinalMomStatus("000");
+				meetingMasterEntity.setFinalMomWorkflowId(workFlow.getWorkflowId());
+				
+				meeting.setFinalMomStatus("000");
+				meeting.setFinalMomWorkflowId(workFlow.getWorkflowId());
+			}
+		});
+		
+		return meetingMasterEntity;
+	}
+	
+	/***
+	 * To fetch work flow
+	 * @param WorkFlowMap
+	 * @param entity
+	 * @param userMap
+	 * @return
+	 */
+	private WorkFlow getWorkflow(Map<Integer, WorkFlow> workFlowMap, BgMeetingWFUserMapEntity entity, Map<Integer, String> userMap) {
+		WorkFlow obj = new WorkFlow();
+		obj.setWorkflowId(entity.getWorkflowId());
+		obj.setSeq(entity.getSeq());
+		obj.setRoleId(entity.getRoleId());
+		obj.setUserId(entity.getUserId());
+		obj.setRemarks(entity.getRemarks());
+		obj.setApprovalDate(entity.getApprovalDate());
+		obj.setDocWorkFlowId(entity.getId());
+		obj.setVersion(entity.getVersion());
+		
+		
+		WorkFlow workFlowMaster =workFlowMap.get(entity.getSeq());
+		
+		obj.setId(workFlowMaster.getId());
+		obj.setCanModify(workFlowMaster.getCanModify());
+		obj.setCheckList(workFlowMaster.getCheckList());
+		obj.setCheckListId(workFlowMaster.getCheckListId());
+		obj.setCheckListName(workFlowMaster.getCheckListName());
+		obj.setCode(workFlowMaster.getCode());
+		obj.setWorkflowName(workFlowMaster.getWorkflowName());
+		obj.setWorkflowId(workFlowMaster.getWorkflowId());
+		obj.setViewLabel(workFlowMaster.getViewLabel());
+		obj.setViewSeq(workFlowMaster.getViewSeq());
+		obj.setStepName(workFlowMaster.getStepName());
+		obj.setUserName(userMap.get(entity.getUserId()));
+		obj.setRoleId(workFlowMaster.getRoleId());
+		obj.setRoleName(workFlowMaster.getRoleName());
+		return obj;
+	}
+
+	/***
+	 * To create meeting guest map
+	 * @param meetingId
+	 * @param userId
+	 * @param guest
+	 * @return
+	 */
+	private BgMeetingGuestMapEntity createMeetingGuestMapDTO(Long meetingId, Integer userId, Guest guest) {
+		BgMeetingGuestMapEntity bgMeetingGuestMapEntity = new BgMeetingGuestMapEntity();
+		bgMeetingGuestMapEntity.setMeetingId(meetingId);
+		bgMeetingGuestMapEntity.setName(guest.getName());
+		bgMeetingGuestMapEntity.setEmailId(guest.getEmailId());
+		bgMeetingGuestMapEntity.setStartTime(guest.getStartTime());
+		bgMeetingGuestMapEntity.setEndTime(guest.getEndTime());
+		bgMeetingGuestMapEntity.setActive(true);
+		bgMeetingGuestMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		bgMeetingGuestMapEntity.setCreatedUserId(userId);
+		return bgMeetingGuestMapEntity;
+	}
+
+	/***
+	 * To fetch agenda
+	 * @param entity
+	 * @return
+	 */
+	private Agenda getAgenda(BgMeetingAgendaMapEntity entity) {
+		Agenda agenda=new Agenda();
+		agenda.setId(entity.getId());
+		agenda.setSeq(entity.getSeq());
+		agenda.setEvoting(entity.getEvoting());
+		agenda.setTitle(entity.getTitle());
+		agenda.setRemarks(entity.getRemarks());
+		agenda.setPublish(entity.getPublish());
+		agenda.setPublishDate(entity.getPublishDate());
+		agenda.setPublishTime(entity.getPublishTime());
+		agenda.setInitiateVoting(entity.getInitiateVoting());
+		agenda.setVersion(entity.getVersion());
+		
+		// To fetch agenda documents
+		Iterable<BgAgendaDocumentMapEntity> bgAgendaDocumentMapEntityIt=entity.getDocuments();
+		
+		Optional<BgAgendaDocumentMapEntity> agendaDocEntity = StreamSupport.stream(bgAgendaDocumentMapEntityIt.spliterator(), false).filter(docMap -> docMap.getDocType().equals(agendaMainDocType)).findFirst();
+		if(agendaDocEntity.isPresent()) {
+			DocumentFile agendaDocumentFile = getDocumentFile(agendaDocEntity.get());
+			agenda.setAgendaDoc(agendaDocumentFile);
+		}
+		List<DocumentFile>document=StreamSupport.stream(bgAgendaDocumentMapEntityIt.spliterator(), false).filter(docMap-> agendaAnnexureType.equals(docMap.getDocType())).map(documentEntity ->{
+			
+		DocumentFile documentFile = getDocumentFile(documentEntity);
+		return documentFile;
+		
+		}).collect(Collectors.toList());
+		agenda.setAgendaAnnexure(document);
+		
+		//To fetch agenda voting access list
+		Iterable<BgAgendaVotingMapEntity> bgAgendaVotingMapEntityIt=entity.getVotings();
+		List<VotingAccess>votingAccessList=StreamSupport.stream(bgAgendaVotingMapEntityIt.spliterator(), false).map(votingAccessEntity ->{
+			
+			VotingAccess votingAccess = getVotingAccess(votingAccessEntity);
+		    return votingAccess;
+		
+		}).collect(Collectors.toList());
+		agenda.setVotingAccessList(votingAccessList);
+		
+		
+		return agenda;
+	}
+
+	private Agenda updatedChildAgenda(Agenda agenda, BgMeetingAgendaMapEntity entity) {
+		if(entity.getSubAgendaList() != null && entity.getSubAgendaList().size() > 0) {
+			
+			List<Agenda> subChildList = entity.getSubAgendaList().stream().filter(subEntity -> subEntity.getActive().equals(true)).map(subChildEntity ->{
+				Agenda subAgenda = new  Agenda();
+				subAgenda = getAgenda(subChildEntity);
+				subAgenda = updatedChildAgenda(subAgenda, subChildEntity);
+				return subAgenda;
+			}).collect(Collectors.toList());
+			
+			agenda.setAgendaSubItems(subChildList);
+		}
+		return agenda;
+	}
+	/***
+	 * To fetch document file
+	 * @param documentEntity
+	 * @return
+	 */
+	private DocumentFile getDocumentFile(BgAgendaDocumentMapEntity documentEntity) {
+		DocumentFile documentFile=new DocumentFile();
+		documentFile.setId(documentEntity.getId());
+		documentFile.setDocKey(documentEntity.getDocKey());
+		documentFile.setDocId(documentEntity.getMeetingId());
+		documentFile.setName(documentEntity.getDocName());
+		documentFile.setActive(documentEntity.getActive());
+		documentFile.setVersion(documentEntity.getVersion());
+		return documentFile;
+	}
+
+	/***
+	 * To fetch voting access
+	 * @param votingAccessEntity
+	 * @return
+	 */
+	private VotingAccess getVotingAccess(BgAgendaVotingMapEntity votingAccessEntity) {
+		VotingAccess votingAccess=new VotingAccess();
+		votingAccess.setDirectorId(votingAccessEntity.getDirectorMasterEntity().getId());
+		votingAccess.setId(votingAccessEntity.getId());
+		votingAccess.setVotingAccess(votingAccessEntity.getVotingAccess());
+		votingAccess.setVersion(votingAccessEntity.getVersion());
+		return votingAccess;
+	}
+
+  /***
+   * To fetch guest
+   * @param guestEntity
+   * @return
+   */
+	private Guest getGuest(BgMeetingGuestMapEntity guestEntity) {
+		Guest guest = new Guest();
+		guest.setId(guestEntity.getId());
+		guest.setName(guestEntity.getName());
+		guest.setStartTime(guestEntity.getStartTime());
+		guest.setEndTime(guestEntity.getEndTime());
+		guest.setEmailId(guestEntity.getEmailId());
+		guest.setVersion(guestEntity.getVersion());
+		return guest;
+	}
+	
+    /***
+     * To fetch work flow logic
+     * @param workFlowIds
+     * @return
+     */
+   public Map<Long, Collection<WorkFlowStepDetailEntity>> getWorkFlows(Set<Long> workFlowIds) {
+	Iterable<WorkFlowMasterEntity> workFlowMasterEntityIt = getDocumentTypeSubLogicImpl().getWorkflowDetails(workFlowIds);
+	
+	Map<Long,Collection<WorkFlowStepDetailEntity>> workFlowMap =StreamSupport.stream(workFlowMasterEntityIt.spliterator(), false).collect(Collectors.toMap(workFlow -> workFlow.getId() , workFlow -> workFlow.getSteps() ));
+	
+	return workFlowMap;
+    }
+
+   /***
+	 * To fetch meeting master
+	 * @param bgMeeting
+	 * @return
+	 */
+	private Meeting getMeetingMaster(BgMeetingMasterEntity bgMeeting) {
+		Meeting meeting=new Meeting();
+		meeting.setId(bgMeeting.getId());
+		meeting.setMeetingTypeId(bgMeeting.getCommitteeMasterEntity().getId());
+		meeting.setTitle(bgMeeting.getTitle());
+		meeting.setDate(bgMeeting.getDate());
+		meeting.setStartTime(bgMeeting.getStartTime());
+		meeting.setEndTime(bgMeeting.getEndTime());
+		meeting.setBlockInviteeCalendar(bgMeeting.getBlockInviteeCalendar());
+		meeting.setFinancialsIncluded(bgMeeting.getFinancialsIncluded());
+		meeting.setPriceSensitiveInformation(bgMeeting.getPriceSensitiveInformation());
+		meeting.setVenue(bgMeeting.getVenue());
+		meeting.setCoOrdinatorUserId(bgMeeting.getCoOrdinatorUserId());
+		meeting.setMeetingStatus(bgMeeting.getMeetingStatus());
+		meeting.setAgendaStatus(bgMeeting.getAgendaStatus());
+		meeting.setDraftMomStatus(bgMeeting.getDraftMomStatus());
+		meeting.setFinalMomStatus(bgMeeting.getFinalMomStatus());
+		meeting.setMeetingWorkflowId(bgMeeting.getMeetingWorkflowId());
+		meeting.setAgendaWorkflowId(bgMeeting.getAgendaWorkflowId());
+		meeting.setDraftMomWorkflowId(bgMeeting.getDraftMomWorkflowId());
+		meeting.setFinalMomWorkflowId(bgMeeting.getFinalMomWorkflowId());
+		meeting.setMeetingApproval(bgMeeting.getMeetingApproval());
+		meeting.setAgendaApproval(bgMeeting.getAgendaApproval());
+		meeting.setDraftMomApproval(bgMeeting.getDraftMomApproval());
+		meeting.setFinalMomApproval(bgMeeting.getFinalMomApproval());
+		meeting.setMeetingReturned(bgMeeting.getMeetingReturned());
+		meeting.setAgendaReturned(bgMeeting.getAgendaReturned());
+		meeting.setDraftMomReturned(bgMeeting.getDraftMomReturned());
+		meeting.setFinalMomReturned(bgMeeting.getFinalMomReturned());
+		meeting.setDraftMOMDocName(bgMeeting.getDraftMOMDocName());
+		meeting.setDraftMOMDocKey(bgMeeting.getDraftMOMDocKey());
+		meeting.setFinalMOMDocName(bgMeeting.getFinalMOMDocName());
+		meeting.setFinalMOMDocKey(bgMeeting.getFinalMOMDocKey());
+		meeting.setVersion(bgMeeting.getVersion());
+		meeting.setCoOrdinatorMailId(bgMeeting.getCoOrdinatorMailId());
+		meeting.setCoOrdinatorPhoneNo(bgMeeting.getCoOrdinatorPhoneNo());
+		return meeting;
+	}
+	
+	
+	/***
+	 * To update voting access details
+	 * @param meetingId
+	 * @param userId
+	 * @param agendaId
+	 * @param votingAccessList
+	 */
+		private void updateVotingAccessDetails(Long meetingId, Integer userId, Long agendaId,
+				List<VotingAccess> votingAccessList) {
+			if(votingAccessList != null && votingAccessList.size() > 0) {
+				votingAccessList.forEach(votingAccess ->{
+					
+					// Create Voting access
+					if(votingAccess.getId() == null) {
+						
+						BgAgendaVotingMapEntity bgAgendaVotingMapEntity = new BgAgendaVotingMapEntity();
+						bgAgendaVotingMapEntity.setMeetingId(meetingId);
+						bgAgendaVotingMapEntity.setAgendaId(agendaId);
+						bgAgendaVotingMapEntity.setDirectorMasterEntity(getDirectorEntity(votingAccess.getDirectorId()));
+						bgAgendaVotingMapEntity.setVotingAccess(votingAccess.getVotingAccess());
+						bgAgendaVotingMapEntity.setVoted(false);
+						bgAgendaVotingMapEntity.setVotingResult(null);
+						bgAgendaVotingMapEntity.setActive(true);
+						bgAgendaVotingMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+						bgAgendaVotingMapEntity.setCreatedUserId(userId);
+						
+						Long id = getBgMeetingSubLogic().createAgendaVotingMapRecord(bgAgendaVotingMapEntity);
+						votingAccess.setId(id);
+						votingAccess.setVersion(1L);
+						
+						// Update Voting access
+					}else {
+						
+						Optional<BgAgendaVotingMapEntity> entityOpt = getBgMeetingSubLogic().getAgendaVotingMapRecord(votingAccess.getId());
+						
+						
+						if(!entityOpt.isPresent()) {
+							throw new RecordNotFoundException("Voting Id :- " + votingAccess.getId());
+						}
+						
+						BgAgendaVotingMapEntity entity = entityOpt.get();
+						
+						if(!entity.getVersion().equals(votingAccess.getVersion())){
+							throw new UpdatedByAnotherUserException();
+						}
+						
+						
+						
+						entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+						entity.setLastUpdatedUserId(userId);
+						entity.setVersion(entity.getVersion() + 1);
+						entity.setVotingAccess(votingAccess.getVotingAccess());
+						
+						votingAccess.setVersion(votingAccess.getVersion() + 1);
+						
+					}
+				});
+			}
+		}
+   /***
+    * To update work flow logic
+    * @param workFlowMap
+    * @param workFlowSeqDetail
+    */
+    private void updateWorkFlowBeforeAfterSteps(Map<Long, Collection<WorkFlowStepDetailEntity>> workFlowMap,
+		WorkFlowSeqDetail workFlowSeqDetail) {
+	  List<WorkFlowStepDetailEntity> workFlowStepDetails = (List<WorkFlowStepDetailEntity>) workFlowMap.get(workFlowSeqDetail.getWorkFlowId());
+	  if(workFlowStepDetails != null) {
+		 Set<String> statusBeforeSeq = new HashSet<String>();
+		 Set<String> statusAfterSeq = new HashSet<String>();
+		 Map<String,String> stepCodeNameMap = new HashMap<String,String>();
+		 Map<String,String> stepCodeDisplayMap = new HashMap<String,String>();
+		 Map<String,Integer> stepCodeSeqMap = new HashMap<String,Integer>();
+		
+		workFlowStepDetails.forEach(workFlowStep ->{
+			
+			
+			stepCodeNameMap.put(workFlowStep.getCode(), workFlowStep.getName());
+			stepCodeDisplayMap.put(workFlowStep.getCode(), workFlowStep.getViewLabel());
+			stepCodeSeqMap.put(workFlowStep.getCode(), workFlowStep.getSeq());
+			
+			
+			if(workFlowStep.getSeq() >= workFlowSeqDetail.getSeq()) {
+				statusAfterSeq.add(workFlowStep.getCode());
+			}else if(workFlowStep.getSeq() < (workFlowSeqDetail.getSeq() - 1)) {
+				statusBeforeSeq.add(workFlowStep.getCode());
+			}else {
+				workFlowSeqDetail.setStatus(workFlowStep.getCode());
+			}
+		});
+		
+		if(workFlowSeqDetail.getStatus() == null && workFlowSeqDetail.getSeq() == 1) {
+			workFlowSeqDetail.setStatus(CommonConst.draftStatus);
+		}
+		workFlowSeqDetail.setStatusAfterSeq(statusAfterSeq);
+		workFlowSeqDetail.setStatusBeforeSeq(statusBeforeSeq);
+		workFlowSeqDetail.setStepCodeDisplayMap(stepCodeDisplayMap);
+		workFlowSeqDetail.setStepCodeNameMap(stepCodeDisplayMap);
+		workFlowSeqDetail.setStepCodeSeqMap(stepCodeSeqMap);
+	}
+}
+
+/***
+ * To fetch meeting information on meeting summary dashboard
+ */
+    private MeetingInfo getmeetingDashboardDetails(BgMeetingMasterEntity meetingMaster) {
+	 MeetingInfo meeting = new MeetingInfo();
+	 meeting.setId(meetingMaster.getId());
+	 meeting.setModifiedDate(CommonUtils.getUIDisplayDate(meetingMaster.getLastUpdatedDate()));
+	 meeting.setCreatedDate(CommonUtils.getUIDisplayDate(meetingMaster.getCreatedDate()));
+	
+	 
+	 Integer userId=meetingMaster.getCoOrdinatorUserId();
+	 Optional<UserInfoMasterEntity> userOpt=getUserSubLogicImpl().getCoOrdinator(userId);
+	 if(userOpt.isPresent()) {
+		 UserInfoMasterEntity userInfoMasterEntity =userOpt.get();
+		 meeting.setRequestBy(userInfoMasterEntity.getFirstName()+""+userInfoMasterEntity.getLastName());
+	 }
+	 meeting.setTypeId(meetingMaster.getCommitteeMasterEntity().getId());
+	 meeting.setRequestTitle(meetingMaster.getTitle());
+	return meeting;
+   }
+    
+    /***
+     * To fetch mom
+     * @param meetingId
+     * @param bgMeeting
+     * @return
+     */
+   private MOM getMOM(Long meetingId, BgMeetingMasterEntity bgMeeting) {
+	  MOM mom=new MOM();
+	  mom.setDraftMOMDocName(bgMeeting.getDraftMOMDocName());
+	  mom.setFinalMOMDocName(bgMeeting.getFinalMOMDocName());
+
+     Iterable<BgMeetingMOMChecklistMapEntity> bgMeetingMOMChecklistMapEntityIt=getBgMeetingSubLogic().getMeetingMOMCheckListMap(meetingId);
+
+       List<MeetingMOMChecklistMap> momChecklistMapList = StreamSupport.stream(bgMeetingMOMChecklistMapEntityIt.spliterator(), false).map(entity ->{
+	   MeetingMOMChecklistMap checkListMap=new MeetingMOMChecklistMap();
+	   checkListMap.setId(entity.getId());
+	   checkListMap.setMeetingId(meetingId);
+	   checkListMap.setMomChecklistId(entity.getMomCheckListMstrEntity().getId());
+	   checkListMap.setQuestion(entity.getMomCheckListMstrEntity().getQuestion());
+	   checkListMap.setRemarks(entity.getRemarks());
+	   checkListMap.setVersion(entity.getVersion());
+	   
+	   Iterable<MOMChecklistDirectorMapEntity> momChecklistDirectorMapEntityIt=getBgMeetingSubLogic().getCheckListDirector(entity.getMomCheckListMstrEntity().getId());
+	   List<Director> directorList = StreamSupport.stream(momChecklistDirectorMapEntityIt.spliterator(), false).map(directorEntity ->{
+		   Director director=new Director();
+		   director.setId(directorEntity.getDirectorMasterEntity().getId());
+		   director.setName(directorEntity.getDirectorMasterEntity().getName());
+		   director.setImage(null);
+		   
+		    Iterable<BgDirectorCompanyMapEntity> bgDirectorCompanyMapEntityIt =  getbGDirectorSubLogic().getDirectorCompanyMap(directorEntity.getDirectorMasterEntity().getId());
+			 Map<Integer,List<BgDirectorCompanyMapEntity>> desigMapEntity = StreamSupport.stream(bgDirectorCompanyMapEntityIt.spliterator(),false).collect(Collectors.groupingBy(action -> action.getCompanyId()));
+			
+			 desigMapEntity.forEach((compId,desig) -> { 
+			
+		 
+				 String designation = desig.stream().map(desigEntity ->{
+					 
+						return desigEntity.getDirectorDesignationMasterEntity().getName();
+						}).collect(Collectors.joining(" & "));
+				
+				  director.setDesignation(designation);
+			 });
+		 
+
+		   return director;
+	   }).collect(Collectors.toList());
+	   checkListMap.setDirectorList(directorList);
+	   
+	   
+	   
+	return checkListMap;
+	}).collect(Collectors.toList());
+
+mom.setMeetingMOMChecklist(momChecklistMapList);
+	return mom;
+}
+   private List<Director> getDirector(List<MOMChecklistDirectorMapEntity> momChecklistDirectorMapEntityList) {
+ 		List<Director> directorList = momChecklistDirectorMapEntityList.stream().map(directorEntity ->{
+ 			  Director director=new Director();
+ 			  director.setId(directorEntity.getDirectorMasterEntity().getId());
+ 			  director.setName(directorEntity.getDirectorMasterEntity().getName());
+ 			  director.setImage(null);
+ 			  Iterable<BgDirectorCompanyMapEntity> bgDirectorCompanyMapEntityIt =  getbGDirectorSubLogic().getDirectorCompanyMap(directorEntity.getDirectorMasterEntity().getId());
+ 			  Map<Integer,List<BgDirectorCompanyMapEntity>> desigMapEntity = StreamSupport.stream(bgDirectorCompanyMapEntityIt.spliterator(),false).collect(Collectors.groupingBy(action -> action.getCompanyId()));
+ 				
+ 				 desigMapEntity.forEach((compId,desig) -> { 	
+ 				 String designation = desig.stream().map(desigEntity ->{
+ 						 
+ 				return desigEntity.getDirectorDesignationMasterEntity().getName();
+ 							}).collect(Collectors.joining(" & "));
+ 					
+ 					  director.setDesignation(designation);
+ 				 });
+ 			   return director;
+ 		   }).collect(Collectors.toList());
+ 		return directorList;
+ 	}
+
+    /***
+     * To validate user
+     * @param companyId
+     * @param userId
+     */
+	private void validateUser(Integer companyId, Integer userId) {
+		List<RegionalOffice> regionalOffices = getUserLogic().getCompanyHierarchy(userId);
+		getUserValidation().validateUserAccess(companyId, userId,regionalOffices);
+	}
+	/**
+	 * @return the userLogic
+	 */
+	public UserLogic getUserLogic() {
+		return userLogic;
+	}
+
+
+	/**
+	 * @param userLogic the userLogic to set
+	 */
+	public void setUserLogic(UserLogic userLogic) {
+		this.userLogic = userLogic;
+	}
+
+
+
+	/**
+	 * @return the userValidation
+	 */
+	public UserValidation getUserValidation() {
+		return userValidation;
+	}
+
+
+
+	/**
+	 * @param userValidation the userValidation to set
+	 */
+	public void setUserValidation(UserValidation userValidation) {
+		this.userValidation = userValidation;
+	}
+
+
+
+	/**
+	 * @return the bgMeetingSubLogic
+	 */
+	public BGMeetingSubLogic getBgMeetingSubLogic() {
+		return bgMeetingSubLogic;
+	}
+
+
+
+	/**
+	 * @param bgMeetingSubLogic the bgMeetingSubLogic to set
+	 */
+	public void setBgMeetingSubLogic(BGMeetingSubLogic bgMeetingSubLogic) {
+		this.bgMeetingSubLogic = bgMeetingSubLogic;
+	}
+
+
+
+	/**
+	 * @return the privilegeSubLogicImpl
+	 */
+	public PrivilegeSubLogicImpl getPrivilegeSubLogicImpl() {
+		return privilegeSubLogicImpl;
+	}
+
+
+
+	/**
+	 * @param privilegeSubLogicImpl the privilegeSubLogicImpl to set
+	 */
+	public void setPrivilegeSubLogicImpl(PrivilegeSubLogicImpl privilegeSubLogicImpl) {
+		this.privilegeSubLogicImpl = privilegeSubLogicImpl;
+	}
+
+
+
+
+
+
+
+	/**
+	 * @return the dmsLogic
+	 */
+	public DMSLogic getDmsLogic() {
+		return dmsLogic;
+	}
+
+
+
+	/**
+	 * @param dmsLogic the dmsLogic to set
+	 */
+	public void setDmsLogic(DMSLogic dmsLogic) {
+		this.dmsLogic = dmsLogic;
+	}
+
+
+
+	
+
+	/**
+	 * @return the documentLogicImpl
+	 */
+	public DocumentLogicImpl getDocumentLogicImpl() {
+		return documentLogicImpl;
+	}
+
+	/**
+	 * @param documentLogicImpl the documentLogicImpl to set
+	 */
+	public void setDocumentLogicImpl(DocumentLogicImpl documentLogicImpl) {
+		this.documentLogicImpl = documentLogicImpl;
+	}
+
+	/**
+	 * @return the userLogicImpl
+	 */
+	public UserLogicImpl getUserLogicImpl() {
+		return userLogicImpl;
+	}
+
+	/**
+	 * @param userLogicImpl the userLogicImpl to set
+	 */
+	public void setUserLogicImpl(UserLogicImpl userLogicImpl) {
+		this.userLogicImpl = userLogicImpl;
+	}
+
+	/**
+	 * @return the bGDirectorSubLogic
+	 */
+	public BGDirectorSubLogic getbGDirectorSubLogic() {
+		return bGDirectorSubLogic;
+	}
+
+	/**
+	 * @param bGDirectorSubLogic the bGDirectorSubLogic to set
+	 */
+	public void setbGDirectorSubLogic(BGDirectorSubLogic bGDirectorSubLogic) {
+		this.bGDirectorSubLogic = bGDirectorSubLogic;
+	}
+
+	/**
+	 * @return the documentTypeSubLogicImpl
+	 */
+	public DocumentSubLogicImpl getDocumentTypeSubLogicImpl() {
+		return documentTypeSubLogicImpl;
+	}
+
+	/**
+	 * @param documentTypeSubLogicImpl the documentTypeSubLogicImpl to set
+	 */
+	public void setDocumentTypeSubLogicImpl(DocumentSubLogicImpl documentTypeSubLogicImpl) {
+		this.documentTypeSubLogicImpl = documentTypeSubLogicImpl;
+	}
+
+	/**
+	 * @return the userSubLogicImpl
+	 */
+	public UserSubLogicImpl getUserSubLogicImpl() {
+		return userSubLogicImpl;
+	}
+
+	/**
+	 * @param userSubLogicImpl the userSubLogicImpl to set
+	 */
+	public void setUserSubLogicImpl(UserSubLogicImpl userSubLogicImpl) {
+		this.userSubLogicImpl = userSubLogicImpl;
+	}
+
+	/**
+	 * @return the privilegeSubLogic
+	 */
+	public PrivilegeSubLogic getPrivilegeSubLogic() {
+		return privilegeSubLogic;
+	}
+
+	/**
+	 * @param privilegeSubLogic the privilegeSubLogic to set
+	 */
+	public void setPrivilegeSubLogic(PrivilegeSubLogic privilegeSubLogic) {
+		this.privilegeSubLogic = privilegeSubLogic;
+	}
+
+	/**
+	 * @return the boardSubLogic
+	 */
+	public BoardSubLogic getBoardSubLogic() {
+		return boardSubLogic;
+	}
+
+	/**
+	 * @param boardSubLogic the boardSubLogic to set
+	 */
+	public void setBoardSubLogic(BoardSubLogic boardSubLogic) {
+		this.boardSubLogic = boardSubLogic;
+	}
+
+
+
+	
+}

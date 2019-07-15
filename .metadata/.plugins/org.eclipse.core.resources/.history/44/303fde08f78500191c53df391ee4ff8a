@@ -1,0 +1,45 @@
+/**
+ * 
+ */
+package com.mind.poc;
+import java.util.Scanner;
+
+/**
+ * 
+ */
+
+/**
+ * @author MRINAL VATS
+ *
+ */
+public class JioSemi2 {
+
+	public static Scanner sc = new Scanner(System.in);
+	public static void main(String[] args) {
+		int t = sc.nextInt();
+		while(t-- > 0)
+		{
+			int phases = sc.nextInt();
+			int states = sc.nextInt();
+
+			int phasArr[] = new int[phases];
+			int stateArr[] = new int[states];
+
+			int i , j , sumPhases = 0, sumStates = 0;
+			for(i = 0; i < phases; i++)
+			{
+				phasArr[i] = sc.nextInt();
+				sumPhases = sumPhases + phasArr[i];
+			}
+
+			for(j = 0; j < states; j++)
+			{
+				stateArr[j] = sc.nextInt();
+			}
+
+			
+
+		}
+	}
+
+}

@@ -1,0 +1,53 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class MaximumNumberByKSwaps {
+	
+	static StringBuilder swap(StringBuilder str, int i, int j) 
+    { 
+//        StringBuilder sb = new StringBuilder(str); 
+        str.setCharAt(i, str.charAt(j)); 
+        str.setCharAt(j, str.charAt(i)); 
+        return str; 
+    } 
+	
+	public static void findMaximumNum(StringBuilder str, int k, StringBuilder max)
+	{
+		if(k==0)
+			return;
+		
+		int n = str.length();
+		for(int i = 0 ; i < n ; i++)
+		{
+			for(int j = i+1 ; j < n ; j++)
+			{
+				if(str.charAt(i) < str.charAt(j))
+				{
+						str = swap(str, i, j);
+						if((str.toString()).compareTo(max.toString()) > 0)
+						{
+							max = new StringBuilder(str);
+//							System.out.println(max);
+						}
+						findMaximumNum(str, k-1, max);
+						str = swap(str, i, j);//backtrack..
+				}
+			}
+		}
+	}
+	public static void main(String[] args) {
+		StringBuilder str = new StringBuilder("129814999"); 
+		int k = 4;
+		StringBuilder max = new StringBuilder(str);
+		
+		findMaximumNum(str, k, max);
+		System.out.println(max);
+		
+	}
+}

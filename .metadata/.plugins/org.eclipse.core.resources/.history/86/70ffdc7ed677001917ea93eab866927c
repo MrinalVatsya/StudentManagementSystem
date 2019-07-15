@@ -1,0 +1,65 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class RootToLeafPathSum {
+    
+    static void printPathsRecur(TreeNode node, ArrayList<ArrayList<Integer>> allPathList , ArrayList<Integer> path, int sum, int b) 
+    { 
+      if (node == null) 
+      {
+            return;
+      }
+
+        sum = sum + node.val;
+        /* append this node to the path array */
+         path.add(node.val); 
+
+        /* it's a leaf, so print the path that led to here */
+        if (node.left == null && node.right == null) 
+        {
+            if(sum==b)
+            {
+            	ArrayList<Integer> s = new ArrayList<>(path);
+                allPathList.add(s);
+            }
+        }
+     
+            /* otherwise try both subtrees */
+            printPathsRecur(node.left, allPathList, path, sum, b); 
+    
+            printPathsRecur(node.right, allPathList, path, sum, b); 
+            if(path.size() > 0)
+            {
+                path.remove(path.size() - 1);
+            }
+    } 
+        
+        public static ArrayList<ArrayList<Integer>> pathSum(TreeNode a, int b) {
+        	ArrayList<ArrayList<Integer>> allPathList = new ArrayList<ArrayList<Integer>>();
+        	ArrayList<Integer> temp = new ArrayList<Integer>();
+            printPathsRecur(a, allPathList, temp, 0, b);
+            for(int i = 0; i < allPathList.size(); i++)
+            {
+            	ArrayList<Integer> t= allPathList.get(i);
+            	System.out.println(t);
+            }
+            return allPathList;
+        }
+        public static void main(String[] args) {
+			TreeNode t = new TreeNode(1);
+			t.left = new TreeNode(2);
+			t.left.right = new TreeNode(4);
+			t.right = new TreeNode(6);
+			
+			pathSum(t, 7);
+		}
+}

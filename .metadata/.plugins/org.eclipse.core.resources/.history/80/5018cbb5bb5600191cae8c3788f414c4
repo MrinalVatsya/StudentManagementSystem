@@ -1,0 +1,149 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class Abbreviation {
+	
+	private static int dp[][] = new int[1002][1002];
+	
+	static Boolean checkMe(StringBuilder a, int x)
+	{
+		for(int i = x ; i > 0; i--)
+		{
+			char ch = a.charAt(i);
+			if(ch >='A' && ch <='Z')
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	
+	static Boolean abbHelper(StringBuilder a, StringBuilder b, int m, int n)
+	{
+		if(m==0&&n==0)
+		{
+			return true;
+		}
+		
+		if(n==0)
+		{
+			return checkMe(a,m-1);
+		}
+		
+		if(m==0)
+		{
+			return false;
+		}
+
+		if(dp[m][n] != -1)
+		{
+			if(dp[m][n]==1)
+				return true;
+			else
+				return false;
+		}
+		char ch1 = a.charAt(m-1);
+		char ch2 = b.charAt(n-1);
+		Boolean answer = false;
+		if(Character.isLowerCase(ch1))
+		{
+			if(Character.toUpperCase(ch1) == ch2)
+			{
+				answer = abbHelper(a, b, m-1, n-1)||abbHelper(a, b, m-1, n);
+			}
+			else
+			{
+				answer = abbHelper(a, b, m-1, n);
+			}
+		}
+		else
+		{
+			if(ch1==ch2)
+			{
+				answer = abbHelper(a, b, m-1, n-1);
+			}
+			else
+			{
+				answer = false;
+			}
+		}
+		
+		if(answer==true) {
+			dp[m][n] = 1;
+		}
+		else
+		{
+			dp[m][n] = 0;
+		}
+		
+		return ans;
+	}
+	
+
+	// Complete the abbreviation function below.
+	static String abbreviation(String a, String b) {
+
+		int m = a.length();
+		int n = b.length();
+		StringBuilder str1 = new StringBuilder(a);
+		StringBuilder str2 = new StringBuilder(b);
+		Boolean result = false;
+		try {
+		result = abbHelper(str1,str2,m,n);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		System.out.println(result);
+		if(result)
+			return "YES";
+		else
+			return "NO";
+	}
+
+	private static final Scanner scanner = new Scanner(System.in);
+
+	public static void main(String[] args) throws IOException {
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("D://Solution.txt"));
+
+		int q = scanner.nextInt();
+		scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+		for (int qItr = 0; qItr < q; qItr++) {
+			
+			for(int i = 0; i < dp.length; i++)
+			{
+				for(int j = 0; j < dp[i].length; j++)
+				{
+					dp[i][j] = -1;
+				}
+			}
+			
+			String a = scanner.nextLine();
+
+			String b = scanner.nextLine();
+
+			String result = abbreviation(a, b);
+
+			bufferedWriter.write(result);
+			bufferedWriter.newLine();
+		}
+
+		bufferedWriter.close();
+
+		scanner.close();
+	}
+
+}

@@ -1,0 +1,77 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Bfs {
+	
+	private int V;
+	private LinkedList<Integer> adj[];
+	
+	public Bfs(int v) {
+		super();
+		this.V = v;
+		adj = new LinkedList[V];
+		for(int i = 0 ; i < V; i++)
+		{
+			adj[i] = new LinkedList<>();
+		}
+		
+	}
+	
+	void addEdge(int u , int v)
+	{
+		adj[u].add(v);
+	}
+	
+	void bfs(int s)
+	{
+		boolean visited[] = new boolean[V];
+		
+		for(int i = 0 ; i < V; i++)
+			visited[i] = false;
+		
+		LinkedList<Integer>queue = new LinkedList<>();
+		queue.add(s);//adding source
+		visited[s] = true;
+		
+		while(queue.size() != 0)
+		{
+			Integer x = queue.poll();
+			System.out.println(x+ " ");
+			Iterator<Integer> it = adj[x].listIterator();
+			while(it.hasNext())
+			{
+				Integer adj = it.next();
+				queue.add(adj);
+				visited[adj] = true	;
+			}
+		}
+	}
+	
+	public static void main(String args[]) 
+    { 
+        Bfs g = new Bfs(4); 
+  
+        g.addEdge(0, 1); 
+        g.addEdge(0, 2); 
+        g.addEdge(1, 2); 
+        g.addEdge(2, 0); 
+        g.addEdge(2, 3); 
+        g.addEdge(3, 3); 
+  
+        System.out.println("Following is Breadth First Traversal "+ 
+                           "(starting from vertex 2)"); 
+  
+        g.bfs(2); 
+    } 
+
+}

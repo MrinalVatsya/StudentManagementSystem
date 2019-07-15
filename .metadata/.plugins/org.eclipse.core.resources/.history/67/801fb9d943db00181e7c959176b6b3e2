@@ -1,0 +1,50 @@
+/**
+ * 
+ */
+package javademo2;
+
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class TimePOC {
+	public static void main(String[] args) throws ParseException {
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
+		//dateTimeFormatter.withZone(ZoneId.of("Asia/Tokyo"));
+		//dateTimeFormatter.withZone(ZoneOffset.UTC);
+		//		String time = "18:29:30";
+		//		String date = "26-10-2018";
+		//		LocalTime time1 = LocalTime.parse(time, dateTimeFormatter);
+		//		
+		//		System.out.println("Current Time in Japan is :- "+ time1);
+		//		LocalTime time2 = time1.minusMinutes(540L);
+		//		System.out.println("UTC Time is :- "+time2);
+		//
+		//		String dateInDb =  date;
+		//		String timeInDb = time1.toString();
+		//		
+		//		LocalTime convertTime = LocalTime.parse(timeInDb, dateTimeFormatter);
+		//		LocalTime timeInUI = convertTime.plusMinutes(540L);
+		//		System.out.println("Time Displayed On UI :- " + dateTimeFormatter.format(convertTime));
+		//		String timeStoredInUI = timeInUI.toString();
+
+		ZoneId fromTimeZone = ZoneId.of("Asia/Kolkata");
+		ZoneId toTimeZone = ZoneId.of("Asia/Tokyo");
+		LocalDateTime today = LocalDateTime.now();          //Current time
+		System.out.println("Today is :- " + today);
+		//Zoned date time at source timezone
+		ZonedDateTime currentISTime = today.atZone(toTimeZone);      
+
+		//Zoned date time at target timezone
+		ZonedDateTime currentETime = currentISTime.withZoneSameInstant(toTimeZone);
+
+		System.out.println(dateTimeFormatter.format(currentISTime));
+		System.out.println(dateTimeFormatter.format(currentETime));
+	}
+}

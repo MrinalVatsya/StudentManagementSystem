@@ -1,0 +1,83 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class ChanduGraph {
+
+	public static int MOD = 1000000009; 
+	public static void printSolution(int dist[][]) 
+	{ 
+		System.out.println("The following matrix shows the maximum "+ 
+				"distances between every pair of vertices"); 
+		for (int i=0; i<dist.length; ++i) 
+		{ 
+			for (int j=0; j<dist[i].length; ++j) 
+			{ 
+				System.out.print(dist[i][j]+"   "); 
+			} 
+			System.out.println(); 
+		} 
+	} 
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int t = sc.nextInt();
+		while(t-- > 0)
+		{
+			int n = sc.nextInt();
+			int graph[][] = new int[n][n];
+			for(int i = 0; i < n; i++)
+			{
+				for(int j =  0; j < n; j++)
+				{
+					if(i==j)
+						graph[i][j] = 0;
+					else
+						graph[i][j] = Integer.MIN_VALUE;
+				}
+			}
+			sc.nextLine();
+			int x = n-1;
+			while(x-- > 0)
+			{
+				String str = sc.nextLine();
+				String[] strArray = str.split("\\s+");
+				int u = Integer.parseInt(strArray[0])-1;
+				int v = Integer.parseInt(strArray[1])-1;
+				int w = Integer.parseInt(strArray[2]);
+				graph[u][v] = w;
+			}
+			int dist[][] = new int[n][n];
+			for(int i = 0; i < n; i++)
+				for(int j = 0; j < n; j++)
+					dist[i][j] = graph[i][j];
+
+			int ans = 0;
+			for(int k = 0; k < n; k++)
+			{
+				for(int i = 0; i < n; i++)
+				{
+					for(int j = 0; j < n; j++)
+					{
+						if(j > i)
+						{
+								dist[i][j] = Math.max(dist[i][k], dist[k][j]);
+								ans = ans + dist[i][j];
+						}
+					}
+				}
+			}
+			ans = ans%MOD;
+			System.out.println(ans);
+			printSolution(dist);
+
+		}
+	}
+
+}

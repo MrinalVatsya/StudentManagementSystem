@@ -1,0 +1,46 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class WaysToDecode {
+
+	public int numDecodings(String a) {
+
+		int size = a.length();
+		return numDecodingsUtil(a, 0, size);
+	}
+
+	private int numDecodingsUtil(String a, int i,  int size) {
+
+		int count = 0;
+		if(i==a.length())
+		{
+			return count;
+		}
+		
+		count = numDecodingsUtil(a, i+1, size);
+			if(i <= size-2)
+			{
+				String st = a.substring(i, i+2);
+				if(Integer.valueOf(st) >= 10 && Integer.valueOf(st) <= 26 )
+				{
+					count = count + numDecodingsUtil(a, i+2, size) + 1 ;
+				}
+			}
+			
+			return count;
+	}
+
+	public static void main(String[] args) {
+		String st = "12";
+
+		WaysToDecode wt = new WaysToDecode();
+		int ways = wt.numDecodings(st);
+		System.out.println(ways);
+	}
+}

@@ -1,0 +1,43 @@
+package javademo;//iterative inorder traversal
+import java.util.*;
+class node
+{
+	int data;
+	node left, right;
+	node(int data)
+	{
+		this.data = data;
+		left = right = null;
+	}
+}
+public class BinaryTree2 {
+	node root;
+	void inorder()
+	{
+		if(root==null)
+			return;
+		Stack<node> s = new Stack<>();
+		s.push(root);
+		while(!s.isEmpty())
+		{
+			while(root!=null)
+			{
+				root = root.left;
+				s.push(root);
+			}
+			node x = s.pop();
+			System.out.println(root.data+" ");
+			root = x.right;
+		}
+	}
+	public static void main(String[] args) {
+		BinaryTree2 x = new BinaryTree2();
+		x.root = new node(1);
+		x.root.left = new node(2);
+		x.root.right = new node(3);
+		x.root.left.left = new node(4);
+		x.root.left.right = new node(5);
+		 System.out.print("Inorder traversal of tree is : ");
+		 x.inorder();
+	}
+}

@@ -1,0 +1,28 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class EcoFullStack {
+	public static void main(String[] args) {
+		String str = "";
+		
+		Integer len = str.length();
+		Integer i = 0;
+		StringBuilder sb = new StringBuilder();
+		while(i<len) {
+			char ct = str.charAt(i);
+			if(ct=='a'||ct=='A'||ct=='b'||ct=='B'||ct=='c'||ct=='C'||ct=='d'||ct=='D'||ct=='e'||ct=='E') {
+				sb.append(ct);
+			}
+			i++;
+		}
+		String originalString = sb.toString();
+		String reverseString = sb.reverse().toString(); 
+		String 
+	}
+}

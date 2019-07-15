@@ -1,0 +1,23 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Base64;
+import java.util.Base64.Encoder;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class PasswordTest {
+	public static void main(String[] args) {
+		String plainTextPassword = "abc@1234";
+		String encoded = new BCryptPasswordEncoder().encode(plainTextPassword);
+		Encoder bx = Base64.getEncoder();
+		bx.encode(encoded.getBytes())
+		System.out.println(encoded);
+	}
+}

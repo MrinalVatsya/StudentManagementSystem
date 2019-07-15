@@ -1,0 +1,26 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class RecoverBinaryTree {
+	
+	public ArrayList<Integer> recoverTree(TreeNode a) {
+		
+		TreeNode prev = null, curr = null , last = null;
+		if(a!= null)
+		{
+			recoverTree(a.left);
+			
+			recoverTree(a.right);
+		}
+		
+    }
+
+}

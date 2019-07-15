@@ -1,0 +1,7 @@
+1536561764092	Rename method 'usingdeletewithiterableclassSubLogic'
+1536564617240	Rename type 'StudentMarks'
+1536573941726	Rename field 'roleNo'
+1536573965070	Rename method 'getRoleNo'
+1536573983284	Rename method 'setRoleNo'
+1536643717012	Delete element
+1536747571155	Extract method 'getStudentDetails'

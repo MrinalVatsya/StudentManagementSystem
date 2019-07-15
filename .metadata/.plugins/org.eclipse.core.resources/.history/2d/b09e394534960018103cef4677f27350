@@ -1,0 +1,12 @@
+package javademo;
+import java.util.*;
+public class program2 {
+	public static void main(String args[])
+	{
+	int[] arr = new int[4];
+	for(int i = 0;i< 4;i++)
+		arr[i] = i+1;
+	for(Integer x : arr)//New for loop in java
+		System.out.print(x+" ");
+	}
+}

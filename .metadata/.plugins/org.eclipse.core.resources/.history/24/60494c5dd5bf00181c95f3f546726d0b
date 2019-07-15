@@ -1,0 +1,361 @@
+/**
+ * 
+ */
+package com.mind.legalOne.admin.logic.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.mind.legalOne.admin.common.CommonUtils;
+import com.mind.legalOne.admin.dto.AlertTypeMaster;
+import com.mind.legalOne.admin.dto.DocTypeAlertDetail;
+import com.mind.legalOne.admin.dto.DocTypeAlertMap;
+import com.mind.legalOne.admin.entity.AlertTypeMasterEntity;
+import com.mind.legalOne.admin.entity.DocTypeAlertDetailEntity;
+import com.mind.legalOne.admin.entity.DocTypeAlertMapEntity;
+import com.mind.legalOne.admin.exception.RecordNotFoundException;
+import com.mind.legalOne.admin.exception.UpdatedByAnotherUserException;
+import com.mind.legalOne.admin.logic.AdminLogic;
+import com.mind.legalOne.admin.logic.AdminSubLogic;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+@Service
+@Transactional
+public class AdminLogicImpl implements AdminLogic{
+
+	@Autowired
+	AdminSubLogic adminSubLogicObject;
+
+	@Override
+	public AlertTypeMaster getAlertType(Integer userId, Integer roleId, Long id) {
+
+		Optional<AlertTypeMasterEntity> alertTypeMasterEntity = adminSubLogicObject.getAlertTypeMasterRecord(id);
+		if(alertTypeMasterEntity.isPresent())
+		{
+			AlertTypeMasterEntity entity = alertTypeMasterEntity.get();
+			AlertTypeMaster alertTypeObj = new AlertTypeMaster();
+			alertTypeObj.setId(entity.getId());
+			alertTypeObj.setName(entity.getName());
+			alertTypeObj.setVersion(entity.getVersion());
+			alertTypeObj.setType(entity.getOperation());
+			return alertTypeObj;
+		}
+		return null;
+	}
+
+	@Override
+	public List<AlertTypeMaster> getAlertTypes(Integer userId, Integer roleId) {
+
+		Iterable<AlertTypeMasterEntity> alertlist = adminSubLogicObject.getAlertTypeMasterRecords();
+		List<AlertTypeMaster> alertTypeList = StreamSupport.stream(alertlist.spliterator(), false).map(alertmasterentity->{
+			AlertTypeMaster alertTypeMaster = new AlertTypeMaster();
+			alertTypeMaster.setId(alertmasterentity.getId());
+			alertTypeMaster.setName(alertmasterentity.getName());
+			alertTypeMaster.setVersion(alertmasterentity.getVersion());
+			alertTypeMaster.setType(alertmasterentity.getOperation());
+			return alertTypeMaster;
+		}).collect(Collectors.toList());
+
+		return alertTypeList;
+	}
+
+	@Override
+	public AlertTypeMaster createAlertType(Integer userId, Integer roleId, AlertTypeMaster alertTypeMaster) {
+
+		AlertTypeMasterEntity alertTypeMasterEntity = new AlertTypeMasterEntity();
+		alertTypeMasterEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		alertTypeMasterEntity.setCreatedUserId(userId);
+		alertTypeMasterEntity.setName(alertTypeMaster.getName());
+		alertTypeMasterEntity.setOperation(alertTypeMaster.getType());
+		alertTypeMasterEntity.setActive(true);
+
+		Long id = adminSubLogicObject.createAlertTypeMasterRecord(alertTypeMasterEntity);
+		alertTypeMaster.setId(id);
+		alertTypeMaster.setVersion(alertTypeMasterEntity.getVersion());
+		return alertTypeMaster;
+	}
+
+	@Override
+	public AlertTypeMaster updateAlertType(Long alertTypeId, AlertTypeMaster alertTypeMaster, Integer userId,
+			Integer roleId) {
+		Optional<AlertTypeMasterEntity> entityOpt = adminSubLogicObject.updateAlertTypeMasterRecord(alertTypeId);
+		if(!entityOpt.isPresent()) {
+			throw new RecordNotFoundException("Alert Type Id: "+ alertTypeId);
+		}
+		AlertTypeMasterEntity entity = entityOpt.get();
+		if(!entity.getVersion().equals(alertTypeMaster.getVersion())) {
+			throw new UpdatedByAnotherUserException();
+		}
+		entity.setActive(true);
+		entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+		entity.setLastUpdatedUserId(userId);
+		entity.setName(alertTypeMaster.getName());
+		entity.setVersion(alertTypeMaster.getVersion()+1L);
+		entity.setOperation(alertTypeMaster.getType());
+
+		alertTypeMaster.setVersion(alertTypeMaster.getVersion()+1L);
+		alertTypeMaster.setId(alertTypeId);
+		return alertTypeMaster;
+	}
+
+	private DocTypeAlertMap addAlertDocMapData(DocTypeAlertMapEntity docTypeAlertMapEntity)//common function..
+	{
+		DocTypeAlertMap docTypeAlert = new DocTypeAlertMap();
+		docTypeAlert.setCompanyId(docTypeAlertMapEntity.getCompanyId());
+		docTypeAlert.setDocTypeId(docTypeAlertMapEntity.getDocTypeId());
+		docTypeAlert.setExecutionRule(docTypeAlertMapEntity.getExecutionRule());
+		docTypeAlert.setId(docTypeAlertMapEntity.getId());
+		docTypeAlert.setVersion(docTypeAlertMapEntity.getVersion());
+		docTypeAlert.setDocTypeAlertDetail(docTypeAlertMapEntity.getDocTypeAlertDetails().stream().map(entity -> {
+			DocTypeAlertDetail dto = new DocTypeAlertDetail();
+			dto.setAlertTypeId(entity.getAlertTypeId());
+			dto.setDocTypeId(entity.getDocTypeId());
+			dto.setDocTypeMetaDataId(entity.getDocTypeMetaDataId());
+			dto.setId(entity.getId());
+			dto.setValue(entity.getValue());
+			dto.setVersion(entity.getVersion());
+			return dto;
+		}).collect(Collectors.toList()));
+		return docTypeAlert;
+	}
+
+	@Override
+	public DocTypeAlertMap getDocTypeAlertMap(Integer userId, Integer roleId, Long id) {
+
+		Optional<DocTypeAlertMapEntity> docTypeAlertMapEntity = adminSubLogicObject.getDocTypeAlertMapRecord(id);
+		if(docTypeAlertMapEntity.isPresent())
+		{
+			DocTypeAlertMapEntity entity = docTypeAlertMapEntity.get();
+			return addAlertDocMapData(entity);
+		}
+		return null;
+	}
+
+	@Override
+	public List<DocTypeAlertMap> getDocTypeAlertMaps(Integer userId, Integer roleId) {
+
+		Iterable<DocTypeAlertMapEntity> alertmaplist = adminSubLogicObject.getDocTypeAlertMapRecords();
+		List<DocTypeAlertMap> alertTypeMap = StreamSupport.stream(alertmaplist.spliterator(), false).map(alertMapEntity->{
+			return addAlertDocMapData(alertMapEntity);
+		}).collect(Collectors.toList());
+		return alertTypeMap;
+	}
+
+	@Override
+	public DocTypeAlertMap createDocTypeAlertMap(Integer userId, Integer roleId,
+			DocTypeAlertMap alertDocMapCategory) {
+
+		DocTypeAlertMapEntity alertDocMapEntity = new DocTypeAlertMapEntity();
+		alertDocMapEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		alertDocMapEntity.setCreatedUserId(userId);
+		alertDocMapEntity.setExecutionRule(alertDocMapCategory.getExecutionRule());
+		alertDocMapEntity.setDocTypeId(alertDocMapCategory.getDocTypeId());
+		alertDocMapEntity.setActive(true);
+		alertDocMapEntity.setCompanyId(alertDocMapCategory.getCompanyId());
+
+		Long id = adminSubLogicObject.createDocTypeAlertMapRecord(alertDocMapEntity);
+		alertDocMapCategory.setId(id);
+		alertDocMapCategory.setVersion(alertDocMapEntity.getVersion());
+
+		List<DocTypeAlertDetail> docTypeAlertDetails = alertDocMapCategory.getDocTypeAlertDetail();
+
+		docTypeAlertDetails.forEach(detail -> {
+			DocTypeAlertDetailEntity entity = new DocTypeAlertDetailEntity();
+			entity.setActive(true);
+			entity.setAlertTypeId(detail.getAlertTypeId());
+			entity.setCreatedDate(CommonUtils.getCurrentDateTime());
+			entity.setCreatedUserId(userId);
+			entity.setDocTypeId(alertDocMapCategory.getDocTypeId());
+			entity.setDocTypeMetaDataId(detail.getDocTypeMetaDataId());
+			entity.setValue(detail.getValue());
+
+			Long detailId = adminSubLogicObject.createDocTypeAlertDetailRecord(entity);
+			detail.setId(detailId);
+			detail.setVersion(entity.getVersion());
+		});
+
+		return alertDocMapCategory;
+
+	}
+
+	@Override
+	public DocTypeAlertMap updateDocTypeAlertMap(Long alertid, DocTypeAlertMap alertDocMap, Integer userId,
+			Integer roleId) {
+		Optional<DocTypeAlertMapEntity> entityOpt = adminSubLogicObject.updateDocTypeAlertMapRecord(alertid);
+		if(!entityOpt.isPresent()) {
+			throw new RecordNotFoundException("Doc Type Alert Map Id : "+alertid);
+		}
+		DocTypeAlertMapEntity entity = entityOpt.get();
+		if(!entity.getVersion().equals(alertDocMap.getVersion())) {
+			throw new UpdatedByAnotherUserException();
+		}
+		
+		List<Long> idList = new ArrayList<>();
+
+		entity.setCompanyId(alertDocMap.getCompanyId());
+		entity.setDocTypeId(alertDocMap.getDocTypeId());
+		entity.setExecutionRule(alertDocMap.getExecutionRule());
+		entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+		entity.setLastUpdatedUserId(userId);
+		entity.setVersion(alertDocMap.getVersion()+1L);
+		entity.setActive(true);
+
+
+		alertDocMap.setId(alertid);
+		alertDocMap.setVersion(alertDocMap.getVersion()+1L);
+
+		entity.getDocTypeAlertDetails().stream().map(mapper->{
+			idList.add(mapper.getId());
+			return mapper;
+		}).collect(Collectors.toList());
+
+		if(alertDocMap.getDocTypeAlertDetail() != null && alertDocMap.getDocTypeAlertDetail().size() > 0)
+		{
+			alertDocMap.getDocTypeAlertDetail().stream().forEach(detail->{
+				if(detail.getId()==null)//post..
+				{
+					DocTypeAlertDetailEntity detailEntity = new DocTypeAlertDetailEntity();
+					detailEntity.setActive(true);
+					detailEntity.setAlertTypeId(detail.getAlertTypeId());
+					detailEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+					detailEntity.setCreatedUserId(userId);
+					detailEntity.setDocTypeId(alertDocMap.getDocTypeId());
+					detailEntity.setDocTypeMetaDataId(detail.getDocTypeMetaDataId());
+					detailEntity.setValue(detail.getValue());
+
+					Long detailId = adminSubLogicObject.createDocTypeAlertDetailRecord(detailEntity);
+					detail.setId(detailId);
+					detail.setVersion(entity.getVersion());
+				}
+				else//put...
+				{
+					Optional<DocTypeAlertDetailEntity> opt = adminSubLogicObject.getDocTypeAlertDetailRecord(detail.getId());
+					if(!opt.isPresent())
+					{
+						throw new RecordNotFoundException("Id: "+detail.getId() );
+					}
+					DocTypeAlertDetailEntity detailEntity = opt.get();
+					if(!detailEntity.getVersion().equals(detail.getVersion())) {
+						throw new UpdatedByAnotherUserException();
+					}
+					detailEntity.setActive(true);
+					detailEntity.setAlertTypeId(detail.getAlertTypeId());
+					detailEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					detailEntity.setLastUpdatedUserId(userId);
+					detailEntity.setDocTypeId(alertDocMap.getDocTypeId());
+					detailEntity.setDocTypeMetaDataId(detail.getDocTypeMetaDataId());
+					detailEntity.setValue(detail.getValue());
+
+					detailEntity.setVersion(detail.getVersion()+1L);
+
+					detail.setVersion(detail.getVersion()+1L);
+					idList.remove(detail.getId());
+				}
+			});
+
+			if(entity.getDocTypeAlertDetails() != null && entity.getDocTypeAlertDetails().size() > 0)
+			{
+				entity.getDocTypeAlertDetails().stream().filter(detEntity -> idList != null && idList.size() > 0).forEach(detEnt -> {
+					detEnt.setActive(false);
+					detEnt.setVersion(detEnt.getVersion()+1L);
+				});
+			}
+		}
+		return alertDocMap;
+	}
+
+	/*private DocTypeAlertDetail addAlertDocTypeDetailData(DocTypeAlertDetailEntity entity)
+	{
+		DocTypeAlertDetail alertDetail = new DocTypeAlertDetail();
+		alertDetail.setAlertTypeId(entity.getAlertTypeId());
+		alertDetail.setDocTypeId(entity.getDocTypeId());
+		alertDetail.setId(entity.getId());
+		alertDetail.setDocTypeMetaDataId(entity.getDocTypeMetaDataId());
+		alertDetail.setValue(entity.getValue());
+		alertDetail.setVersion(entity.getVersion());
+		return alertDetail;
+	}*/
+
+	/*@Override
+	public DocTypeAlertDetail getDocTypeAlertDetail(Integer userId, Integer roleId, Long id) {
+
+		Optional<DocTypeAlertDetailEntity> entityopt = adminSubLogicObject.getDocTypeAlertDetailRecord(id);
+		if(entityopt.isPresent())
+		{
+			DocTypeAlertDetailEntity entity = entityopt.get();
+			return addAlertDocTypeDetailData(entity);
+		}
+		return null;
+	}*/
+
+	/*@Override
+	public List<DocTypeAlertDetail> getDocTypeAlertDetail(Integer userId, Integer roleId) {
+
+		Iterable<DocTypeAlertDetailEntity> alertDetailList = adminSubLogicObject.getDocTypeAlertDetailRecords();
+		List<DocTypeAlertDetail> getAlertDetailList = StreamSupport.stream(alertDetailList.spliterator(), false).map(alertDocTypeDetailEntity->{
+			return addAlertDocTypeDetailData(alertDocTypeDetailEntity);
+		}).collect(Collectors.toList());
+
+		return getAlertDetailList;
+	}*/
+
+	/*@Override
+	public DocTypeAlertDetail createDocTypeAlertDetail(Integer userId, Integer roleId,
+			DocTypeAlertDetail alertDocDetail) {
+
+		DocTypeAlertDetailEntity alertDocTypeDetailEntity = new DocTypeAlertDetailEntity();
+		alertDocTypeDetailEntity.setActive(true);
+		alertDocTypeDetailEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		alertDocTypeDetailEntity.setCreatedUserId(userId);
+		alertDocTypeDetailEntity.setDocTypeId(alertDocDetail.getDocTypeId());
+		alertDocTypeDetailEntity.setDocTypeMetaDataId(alertDocDetail.getDocTypeMetaDataId());
+		alertDocTypeDetailEntity.setAlertTypeId(alertDocDetail.getAlertTypeId());
+		alertDocTypeDetailEntity.setValue(alertDocDetail.getValue());
+
+		Long id = adminSubLogicObject.createDocTypeAlertDetailRecord(alertDocTypeDetailEntity);
+
+		alertDocDetail.setId(id);
+		alertDocDetail.setVersion(alertDocTypeDetailEntity.getVersion());
+
+		return alertDocDetail;
+	}*/
+
+	/*@Override
+	public DocTypeAlertDetail updateDocTypeAlertDetail(Long alertid, DocTypeAlertDetail alertDocDetail,
+			Integer userId, Integer roleId) {
+
+		Optional<DocTypeAlertDetailEntity> entityOpt = adminSubLogicObject.updateDocTypeAlertDetailRecord(alertid);
+		if(!entityOpt.isPresent()) {
+			throw new RecordNotFoundException("Doc Type Alert Detail Id : "+alertid);
+		}
+		DocTypeAlertDetailEntity entity = entityOpt.get();
+
+		if(!entity.getVersion().equals(alertDocDetail.getVersion())) {
+			throw new UpdatedByAnotherUserException();
+		}
+
+		entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+		entity.setLastUpdatedUserId(userId);
+		entity.setActive(true);
+		entity.setAlertTypeId(alertDocDetail.getAlertTypeId());
+		entity.setDocTypeId(alertDocDetail.getDocTypeId());
+		entity.setDocTypeMetaDataId(alertDocDetail.getDocTypeMetaDataId());
+		entity.setValue(alertDocDetail.getValue());
+		entity.setVersion(alertDocDetail.getVersion()+1L);
+
+		alertDocDetail.setId(alertid);
+		alertDocDetail.setVersion(alertDocDetail.getVersion()+1L);
+		return alertDocDetail;
+	}*/
+}

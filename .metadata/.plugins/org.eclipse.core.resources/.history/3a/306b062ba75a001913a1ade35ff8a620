@@ -1,0 +1,122 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+
+public class NitikaAndGame {
+
+	private static int dp[][] ;
+
+	private static int findSplitPoint(int[]arr)
+	{
+		int i , j , n = arr.length;
+		int leftsum = 0;
+		for(i = 0; i < n; i++)
+		{
+			leftsum += arr[i];
+
+			int rightsum = 0;
+			for(j = i+1; j < n; j++)
+				rightsum += arr[i];
+
+			if(leftsum==rightsum)
+				return i+1;
+		}
+	}
+	static int arraySplitting(int[] arr) {
+
+
+
+	}
+
+	private static Boolean arrayHelper(int[] arr, int n, int sum) {
+
+		if(sum==0)
+			return true;
+
+		if(n==0)
+			return false;
+
+		if(dp[n][sum] != -1)
+		{
+			if(dp[n][sum]==1)
+				return true;
+			else
+				return false;
+		}
+
+		if(arr[n-1] > sum)
+		{
+			if(arrayHelper(arr, n-1, sum))//skip this element..
+			{
+				dp[n][sum] = 1;
+				return true;
+			}
+			else
+			{
+				dp[n][sum] = 0;
+				return false;
+			}
+		}
+
+		Boolean ans = false;
+		try {
+			ans = arrayHelper(arr, n-1, sum)||arrayHelper(arr, n-1, sum-arr[n-1]);
+		}
+		catch(Throwable t)
+		{
+			System.out.println(n-1+"----- Sum is :  "+sum);
+		}
+		if(ans)
+		{
+			dp[n][sum] = 1;
+		}
+		else
+		{
+			dp[n][sum] = 0;
+		}
+
+		return ans;
+
+	}
+
+	private static final Scanner scanner = new Scanner(System.in);
+
+	public static void main(String[] args) throws IOException {
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(("D://Solution.txt")));
+
+		int t = Integer.parseInt(scanner.nextLine().trim());
+
+		for (int tItr = 0; tItr < t; tItr++) {
+			int arrCount = Integer.parseInt(scanner.nextLine().trim());
+
+			int[] arr = new int[arrCount];
+
+			String[] arrItems = scanner.nextLine().split(" ");
+
+			for (int arrItr = 0; arrItr < arrCount; arrItr++) {
+				int arrItem = Integer.parseInt(arrItems[arrItr].trim());
+				arr[arrItr] = arrItem;
+			}
+
+			int result = arraySplitting(arr);
+
+			bufferedWriter.write(String.valueOf(result));
+			bufferedWriter.newLine();
+		}
+
+		bufferedWriter.close();
+	}
+}
+

@@ -1,0 +1,68 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class InvertBinaryTree {
+
+
+	private static List<Integer> list = new ArrayList<>();
+	public TreeNode invertTree(TreeNode a) {
+
+		if(a!=null)
+		{
+			invertTree(a.left);
+			invertTree(a.right);
+			//swap left and right child..
+			TreeNode temp = a.left;
+			a.left = a.right;
+			a.right = temp;
+			
+			return a;
+		}
+
+		return null;
+	}
+	
+	
+	public int kthsmallest(TreeNode a, int b) {
+        
+	   inorderTraversal(a);
+	   return list.get(b-1);
+    }
+
+	public void inorderTraversal(TreeNode a) {
+		
+		if(a==null)
+			return;
+		
+		inorderTraversal(a.left);
+		list.add(a.val);
+		inorderTraversal(a.right);
+		
+	}
+
+
+	public static void main(String[] args) {
+		TreeNode t = new TreeNode(1);
+		t.left = new TreeNode(2);
+		t.right = new TreeNode(3);
+		t.left.left = new TreeNode(4);
+		t.left.right = new TreeNode(5);
+		t.right.left = new TreeNode(6);
+		t.right.right = new TreeNode(7);
+		
+		
+		InvertBinaryTree obj = new InvertBinaryTree();
+		System.out.println(obj.invertTree(t));
+	}
+
+}

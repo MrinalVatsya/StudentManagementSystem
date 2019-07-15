@@ -1,0 +1,45 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class LengthLongestSubsequence {
+	
+	 public int longestSubsequenceLength(final List<Integer> a) {
+		 	
+		 int i , j , n = a.size();
+		 
+		 int lis[] = new int[n];
+		 Arrays.fill(lis, 1);
+		 for(i = 1; i < n; i++)
+		 {
+			 for(j = 0; j < i; j++)
+			 {
+				 if(a.get(j) < a.get(i) && lis[i] == lis[j] + 1)
+				 {
+					 lis[j] = lis[i] + 1;
+				 }
+			 }
+		 }
+		 
+		 int lps[] = new int[n];
+		 Arrays.fill(lps, 1);
+		 
+		 for(i = n-2; i > 0; i--)
+		 {
+			 for(j = n-1; j > i; j--)
+			 {
+				 
+			 }
+		 }
+		 
+	    }
+
+}

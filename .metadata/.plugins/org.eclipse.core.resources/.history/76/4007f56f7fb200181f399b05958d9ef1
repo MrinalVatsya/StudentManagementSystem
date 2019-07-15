@@ -1,0 +1,48 @@
+/**
+ * 
+ */
+package com.mind.logic.impl;
+
+import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Resource;
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+
+import com.mind.dao.StudentDAO;
+import com.mind.entity.StudentEntity;
+import com.mind.logic.StudentSubLogic;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+@Service
+@Transactional
+public class StudentSubLogicImpl implements StudentSubLogic {
+
+	@Resource
+	StudentDAO stud;
+	
+	@Override
+	public List<StudentEntity> getStudent_List()
+	{
+		return stud.findAll();
+	}
+	
+	@Override
+	public Optional<StudentEntity> getStudentByid(Long id) {
+		
+		Optional<StudentEntity> result = stud.findById(id);
+		return null;
+	}
+	
+	@Override
+	public void addStudentSubLogic(StudentEntity entity) {
+		// TODO Auto-generated method stub
+		
+		stud.save(entity);
+	}
+}

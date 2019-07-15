@@ -1,0 +1,18 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class EcoFullStack {
+
+	private static Scanner sc = new Scanner(System.in);
+	public static void main(String[] args) {
+		
+	}
+}

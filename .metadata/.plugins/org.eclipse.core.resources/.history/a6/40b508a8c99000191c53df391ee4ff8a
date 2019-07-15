@@ -1,0 +1,12 @@
+package com.mind.poc;
+
+public class BinaryTree2 {
+	
+	public int isSumPossible(Node node)
+	{
+		
+	}
+	
+	public int isSumTree(Node node, int sum)
+
+}

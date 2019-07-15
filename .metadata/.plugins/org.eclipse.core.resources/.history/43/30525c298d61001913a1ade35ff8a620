@@ -1,0 +1,51 @@
+import java.util.Scanner;
+
+/**
+ * 
+ */
+
+/**
+ * @author MRINAL VATS
+ *
+ */
+public class Jio1 {
+	
+	private static Scanner sc = new Scanner(System.in);
+
+	public static void main(String args[] ) throws Exception {
+
+    	//Write code here
+		int i, t = sc.nextInt();
+		for(i = 0; i < t; i++)
+		{
+			long j ,  n  = sc.nextLong();
+			long vill[] = new long[(int) n];
+			long hero[] = new long[(int) n];
+			
+			long villTotalEnergy = 0 ;
+			long heroTotalEnergy = 0 ;
+			
+			for(j = 0; j < n; j++)
+			{
+				vill[(int) j] = sc.nextInt();
+				villTotalEnergy += vill[(int) j];
+			}
+			
+			for(j = 0; j < n; j++)
+			{
+				hero[(int) j] = sc.nextInt();
+				heroTotalEnergy += hero[(int) j];
+			}
+			
+			if(heroTotalEnergy > villTotalEnergy)
+			{
+				System.out.println("WIN");
+			}
+			else
+			{
+				System.out.println("LOSE");
+			}
+		}
+		
+   }
+}

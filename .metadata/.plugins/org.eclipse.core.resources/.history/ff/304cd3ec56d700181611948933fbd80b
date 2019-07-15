@@ -1,0 +1,507 @@
+/**
+ * 
+ */
+package com.mind.legalOne.administration.logic.impl;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.mind.legalOne.admin.common.CommonUtils;
+import com.mind.legalOne.administration.dto.CheckListDetail;
+import com.mind.legalOne.administration.dto.CheckListMaster;
+import com.mind.legalOne.administration.dto.ListItem;
+import com.mind.legalOne.administration.dto.WorkFlowMaster;
+import com.mind.legalOne.administration.dto.WorkFlowStepDetail;
+import com.mind.legalOne.admin.entity.CheckListDetailEntity;
+import com.mind.legalOne.admin.entity.CheckListMasterEntity;
+import com.mind.legalOne.admin.entity.RoleMasterEntity;
+import com.mind.legalOne.admin.entity.WorkFlowMasterEntity;
+import com.mind.legalOne.admin.entity.WorkFlowStepDetailEntity;
+import com.mind.legalOne.admin.exception.RecordNotFoundException;
+import com.mind.legalOne.admin.exception.UpdatedByAnotherUserException;
+import com.mind.legalOne.administration.logic.WorkFlowSubLogic;
+import com.mind.legalOne.administration.logic.WorkFlowLogic;
+
+/**
+ * @author maneeshkpandey
+ *
+ */
+@Transactional
+@Service
+public class WorkFlowLogicImpl extends Validation implements WorkFlowLogic{
+
+
+
+	@Autowired
+	WorkFlowSubLogic workFlowSubLogic;
+
+	@Override
+	public List<ListItem> getProcessingType(Integer userId, Integer roleId) {
+		List<ListItem> processingTypeList = new ArrayList<>();
+		ListItem seq=new ListItem(), par=new ListItem();
+		seq.setKey("Seq"); seq.setValue("Sequential");
+		par.setKey("Par"); par.setValue("Parallel");
+
+		processingTypeList.add(seq);
+		processingTypeList.add(par);
+
+		return processingTypeList;
+	}
+
+	@Override
+	public List<ListItem> getCheckList(Long moduleId, Integer userId, Integer roleId) {
+		Iterable<CheckListMasterEntity> checkListMasterIt = getWorkFlowSubLogic().getCheckListRecord(moduleId);
+		List<ListItem> checkList = StreamSupport.stream(checkListMasterIt.spliterator(), false).map(entity -> {
+			ListItem listItem = new ListItem();
+			listItem.setKey(String.valueOf(entity.getId()));
+			listItem.setValue(entity.getName());
+			return listItem;
+		}).collect(Collectors.toList());
+		return checkList;
+	}
+
+	@Override
+	public List<WorkFlowMaster> getWorkflows(Integer companyId, Long moduleId, Long docTypeId, Integer userId,
+			Integer roleId) {
+		Iterable<WorkFlowMasterEntity> workFlowMasterEntityIt = getWorkFlowSubLogic().getWorkFlowMasterRecords(companyId, moduleId, docTypeId);
+		List<WorkFlowMaster> workflows = StreamSupport.stream(workFlowMasterEntityIt.spliterator(), false).map(entity -> {
+			WorkFlowMaster workflow = new WorkFlowMaster();
+			fillWorkflowDetailForGet(workflow, entity);
+			return workflow;
+		}).collect(Collectors.toList());
+		return workflows;
+	}
+
+	@Override
+	public WorkFlowMaster getWorkflow(Integer companyId, Long moduleId, Long workflowId, Integer userId,
+			Integer roleId) {
+		Optional<WorkFlowMasterEntity> workflowEntityOpt = getWorkFlowSubLogic().getWorkFlowMasterRecord(companyId, moduleId, workflowId);
+		if(workflowEntityOpt.isPresent()) {
+			WorkFlowMaster workflowDetail = new WorkFlowMaster();
+			WorkFlowMasterEntity workflowEntity = workflowEntityOpt.get();
+			fillWorkflowDetailForGet(workflowDetail, workflowEntity);
+
+			List<WorkFlowStepDetail> workflowSteps = getWorkFlowSteps(workflowId);
+			workflowDetail.setWorkflowSteps(workflowSteps);
+			return workflowDetail;
+		}
+		else {
+			throw new RecordNotFoundException("Company Id:- "+companyId+", Module Id:-"+moduleId+"; Workflow Id:- "+workflowId);
+		}
+
+	}
+
+	private List<WorkFlowStepDetail> getWorkFlowSteps(Long workflowId) {
+		Iterable<WorkFlowStepDetailEntity> workFlowStepDetailEntityIt = getWorkFlowSubLogic().getWorkFlowStepDetailEntityRecord(workflowId);
+		List<WorkFlowStepDetail> workflowSteps =  StreamSupport.stream(workFlowStepDetailEntityIt.spliterator(), false).map(entity -> {
+			WorkFlowStepDetail workflowStep = new WorkFlowStepDetail();
+			workflowStep.setCanModify(entity.getCanModify());
+			if(null == entity.getCheckListMaster())
+				workflowStep.setCheckListId(null);
+			else
+				workflowStep.setCheckListId(entity.getCheckListMaster().getId());
+			workflowStep.setCode(entity.getCode());
+			workflowStep.setId(entity.getId());
+			workflowStep.setRoleId(entity.getRoleMaster().getId());
+			workflowStep.setSeq(entity.getSeq());
+			workflowStep.setName(entity.getName());
+			workflowStep.setViewLabel(entity.getViewLabel());
+			workflowStep.setViewSeq(entity.getViewSeq());
+			workflowStep.setWorkflowId(entity.getWorkflowId());
+			workflowStep.setVersion(entity.getVersion());
+
+			return workflowStep;
+		}).collect(Collectors.toList());
+		return workflowSteps;
+	}
+
+	/**
+	 * @param workflowMaster
+	 * @param workflowEntity
+	 */
+	private void fillWorkflowDetailForGet(WorkFlowMaster workflowMaster, WorkFlowMasterEntity workflowEntity) {
+		workflowMaster.setCompanyId(workflowEntity.getCompanyId());
+		workflowMaster.setDocTypeId(workflowEntity.getDocTypeId());
+		workflowMaster.setModuleId(workflowEntity.getModuleId());
+		workflowMaster.setWorkflowId(workflowEntity.getId());
+		workflowMaster.setSeq(workflowEntity.getTotalSteps());
+		workflowMaster.setWorkflowName(workflowEntity.getName());
+		workflowMaster.setProcessingType(workflowEntity.getProcessingType());
+		workflowMaster.setVersion(workflowEntity.getVersion());
+	}
+
+	@Override
+	public WorkFlowMaster createWorkflow(Integer companyId, Long moduleId, WorkFlowMaster workflowMaster,
+			Integer userId, Integer roleId) {
+		WorkFlowMasterEntity workflowMasterEntity = new WorkFlowMasterEntity();
+		validateWorkFlowMaster(workflowMaster,workflowMasterEntity);//validation check..
+		List<WorkFlowStepDetailEntity> workflowStepDetailEntityList = new ArrayList<>();
+
+		fillWorkFlowDetailForUpdate(moduleId, workflowMaster, workflowMasterEntity);
+		workflowMasterEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		workflowMasterEntity.setCreatedUserId(userId);
+
+
+		List<WorkFlowStepDetail> steps = workflowMaster.getWorkflowSteps();
+
+		Long id = getWorkFlowSubLogic().createWorkFlowMasterEntityRecord(workflowMasterEntity);
+
+		workflowMaster.setWorkflowId(id);
+		
+		if(steps != null && steps.size() > 0)
+		{
+		steps.stream().forEach(step -> {
+			WorkFlowStepDetailEntity workFlowStepEntity = new WorkFlowStepDetailEntity();
+			fillWorkFlowStepEntityDetail(moduleId, step, workFlowStepEntity);
+			workFlowStepEntity.setWorkflowId(id);
+			step.setVersion(1L);
+			step.setWorkflowId(id);
+			Long stepId = getWorkFlowSubLogic().createWorkFlowStepDetailEntityRecord(workFlowStepEntity);
+			workFlowStepEntity.setId(stepId);
+			workflowStepDetailEntityList.add(workFlowStepEntity);
+		});
+
+		workflowMasterEntity.setSteps(workflowStepDetailEntityList);
+		}
+
+		return workflowMaster;
+	}
+
+	/**
+	 * @param moduleId
+	 * @param workflowMaster
+	 * @param workflowMasterEntity
+	 */
+	private void fillWorkFlowDetailForUpdate(Long moduleId, WorkFlowMaster workflowMaster,
+			WorkFlowMasterEntity workflowMasterEntity) {
+		workflowMasterEntity.setCompanyId(workflowMaster.getCompanyId());
+		workflowMasterEntity.setDocTypeId(workflowMaster.getDocTypeId());
+		workflowMasterEntity.setModuleId(moduleId);
+		workflowMasterEntity.setName(workflowMaster.getWorkflowName());
+		workflowMasterEntity.setProcessingType(workflowMaster.getProcessingType());
+		workflowMasterEntity.setTotalSteps(workflowMaster.getSeq());
+		workflowMasterEntity.setActive(true);
+	}
+
+	@Override
+	public WorkFlowMaster updateWorkflow(Long workflowId, Integer companyId, Long moduleId,
+			WorkFlowMaster workflowMaster, Integer userId, Integer roleId) {
+
+		Optional<WorkFlowMasterEntity> workFlowMasterEntityOpt = getWorkFlowSubLogic().getWorkFlowMasterRecord(companyId, moduleId, workflowId);
+
+		if(workFlowMasterEntityOpt.isPresent()) {
+			WorkFlowMasterEntity workFlowMasterEntity = workFlowMasterEntityOpt.get();
+
+			if(!workFlowMasterEntity.getVersion().equals(workflowMaster.getVersion())) {
+				throw new UpdatedByAnotherUserException();
+			}
+			validateWorkFlowMaster(workflowMaster,workFlowMasterEntity);//validation check..
+			fillWorkFlowDetailForUpdate(moduleId, workflowMaster, workFlowMasterEntity);
+			workFlowMasterEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			workFlowMasterEntity.setLastUpdatedUserId(userId);
+			workflowMaster.setVersion(workFlowMasterEntity.getVersion()+1L);
+			workFlowMasterEntity.setVersion(workFlowMasterEntity.getVersion()+1L);
+
+
+
+			Iterable<WorkFlowStepDetailEntity> workFlowStepDetailEntityIt =  getWorkFlowSubLogic().getWorkFlowStepDetailEntityRecord(workflowId);
+			Map<Long, WorkFlowStepDetailEntity> mapFromDB = StreamSupport.stream(workFlowStepDetailEntityIt.spliterator(), false).collect(Collectors.toMap(entity -> entity.getId(), entity -> entity));
+			List<WorkFlowStepDetail> steps = workflowMaster.getWorkflowSteps();
+
+			//List<WorkFlowStepDetailEntity> workflowStepDetailEntityList = new ArrayList<>();
+
+			steps.stream().forEach(step -> {
+				WorkFlowStepDetailEntity workFlowStepEntity;
+				if(mapFromDB.containsKey(step.getId())) {
+					workFlowStepEntity = mapFromDB.get(step.getId());
+
+					if(!workFlowStepEntity.getVersion().equals(step.getVersion())) {
+						throw new UpdatedByAnotherUserException();
+					}
+					fillWorkFlowStepEntityDetail(moduleId, step, workFlowStepEntity);
+					//workFlowStepEntity.setWorkflowId(workflowId);
+					workFlowStepEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					workFlowStepEntity.setLastUpdatedUserId(userId);
+					workFlowStepEntity.setVersion(step.getVersion()+1L);
+
+					step.setVersion(step.getVersion()+1L);
+
+
+					mapFromDB.remove(step.getId());
+
+				}
+				else {
+					workFlowStepEntity = new WorkFlowStepDetailEntity();
+					fillWorkFlowStepEntityDetail(moduleId, step, workFlowStepEntity);
+					workFlowStepEntity.setWorkflowId(workflowId);
+
+
+					workFlowStepEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+					workFlowStepEntity.setCreatedUserId(userId);
+
+
+					Long id = getWorkFlowSubLogic().createWorkFlowStepDetailEntityRecord(workFlowStepEntity);
+					step.setId(id);
+					step.setVersion(1L);
+
+				}
+				//workflowStepDetailEntityList.add(workFlowStepEntity);
+			});
+			mapFromDB.forEach((key, value) -> {
+				value.setActive(false);
+				value.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+				value.setLastUpdatedUserId(userId);
+				value.setVersion(value.getVersion()+1L);
+			});
+
+			//workFlowMasterEntity.setSteps(workflowStepDetailEntityList);
+
+			return workflowMaster;
+		}
+		else {
+			throw new RecordNotFoundException("Company Id:- "+companyId+", Module Id:- "+moduleId+", WorkFlow Id:- "+workflowId);
+		}
+	}
+
+	/**
+	 * @param moduleId
+	 * @param step
+	 * @param workFlowStepEntity
+	 */
+	private void fillWorkFlowStepEntityDetail(Long moduleId, WorkFlowStepDetail step,
+			WorkFlowStepDetailEntity workFlowStepEntity) {
+		workFlowStepEntity.setCanModify(step.getCanModify());
+
+		if(null == step.getCheckListId()) {
+			workFlowStepEntity.setCheckListMaster(null);
+		}
+		else {
+			Optional<CheckListMasterEntity> checkListMasterEntityOpt = getWorkFlowSubLogic().getCheckListMasterRecord(step.getCheckListId(), moduleId);
+			if(checkListMasterEntityOpt.isPresent()) {
+				workFlowStepEntity.setCheckListMaster(checkListMasterEntityOpt.get());
+			}
+			else {
+				workFlowStepEntity.setCheckListMaster(null);
+			}
+		}
+		workFlowStepEntity.setCode(step.getCode());
+
+		Optional<RoleMasterEntity> roleMasterEntityOpt = getWorkFlowSubLogic().getRoleMasterRecord(step.getRoleId());
+		if(roleMasterEntityOpt.isPresent()) {
+			workFlowStepEntity.setRoleMaster(roleMasterEntityOpt.get());
+		}
+		else {
+			workFlowStepEntity.setRoleMaster(null);
+		}
+
+		workFlowStepEntity.setSeq(step.getSeq());
+		workFlowStepEntity.setName(step.getName());
+		workFlowStepEntity.setViewLabel(step.getViewLabel());
+		workFlowStepEntity.setViewSeq(step.getViewSeq());
+		workFlowStepEntity.setActive(true);
+	}
+
+	@Override
+	public CheckListMaster getCheckList(Long checkListId, Long moduleId, Integer userId, Integer roleId) {
+		Optional<CheckListMasterEntity> checkListMasterEntityOpt = getWorkFlowSubLogic().getCheckListMasterRecord(checkListId, moduleId);
+		if(checkListMasterEntityOpt.isPresent()) {
+			CheckListMaster checkListMaster = new CheckListMaster();
+			List<CheckListDetail> checkListDetails = new ArrayList<>();
+
+			CheckListMasterEntity checkListMasterEntity = checkListMasterEntityOpt.get();
+			checkListMaster.setId(checkListMasterEntity.getId());
+			checkListMaster.setModuleId(checkListMasterEntity.getModuleId());
+			checkListMaster.setName(checkListMasterEntity.getName());
+			checkListMaster.setVersion(checkListMasterEntity.getVersion());
+
+			Collection<CheckListDetailEntity> checkListDetailEntityList = checkListMasterEntity.getCheckListDetails();
+
+			if(checkListDetailEntityList != null && checkListDetailEntityList.size()>0)
+			{
+				checkListDetailEntityList.forEach(entity -> {
+					CheckListDetail checkListDetail = new CheckListDetail();
+					checkListDetail.setId(entity.getId());
+					checkListDetail.setCheckListId(entity.getCheckListId());
+					checkListDetail.setQuestion(entity.getQuestion());
+					checkListDetail.setSeq(entity.getSeq());
+					checkListDetail.setVersion(entity.getVersion());
+					checkListDetails.add(checkListDetail);
+				});
+			}
+			checkListMaster.setCheckListDetails(checkListDetails);
+			return checkListMaster;
+		}
+		else {
+			throw new RecordNotFoundException("checkList Id:- "+ checkListId+", moduleId:- "+moduleId);
+		}
+
+	}
+
+	@Override
+	public CheckListMaster createCheckList(CheckListMaster checkListMaster, Long moduleId, Integer userId,
+			Integer roleId) {
+		CheckListMasterEntity entity = new CheckListMasterEntity();
+		validateCheckListMaster(checkListMaster,entity);//validation check..
+		entity.setActive(true);
+		entity.setModuleId(checkListMaster.getModuleId());
+		entity.setName(checkListMaster.getName());
+		entity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		entity.setCreatedUserId(userId);
+		Long id = getWorkFlowSubLogic().createCheckListMasterRecord(entity);
+		checkListMaster.setVersion(1L);
+		checkListMaster.setId(id);
+
+		List<CheckListDetail> checkListDetails = checkListMaster.getCheckListDetails();
+		checkListDetails.stream().forEach(checkListdetail -> {
+			CheckListDetailEntity checkListEntity = new CheckListDetailEntity();
+			checkListEntity.setActive(true);
+			checkListEntity.setCheckListId(id);
+			checkListEntity.setQuestion(checkListdetail.getQuestion());
+			checkListEntity.setSeq(checkListdetail.getSeq());
+			checkListEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+			checkListEntity.setCreatedUserId(userId);
+
+			Long checkListDetailId = getWorkFlowSubLogic().createCheckListDetailRecord(checkListEntity);
+
+			checkListdetail.setId(checkListDetailId);
+			checkListdetail.setCheckListId(id);
+			checkListdetail.setVersion(1L);
+		});
+		return checkListMaster;
+	}
+
+	@Override
+	public CheckListMaster updateCheckList(Long checkListId, CheckListMaster checkListMaster, Long moduleId,
+			Integer userId, Integer roleId) {
+		Optional<CheckListMasterEntity> checkListMasterEntityOpt = getWorkFlowSubLogic().getCheckListMasterRecord(checkListId, moduleId);
+		if(checkListMasterEntityOpt.isPresent()) {
+			CheckListMasterEntity entity = checkListMasterEntityOpt.get();
+
+			if(!checkListMaster.getVersion().equals(entity.getVersion())) {
+				throw new UpdatedByAnotherUserException();
+			}
+			validateCheckListMaster(checkListMaster,entity);//validation check..
+			entity.setActive(true);
+			entity.setModuleId(checkListMaster.getModuleId());
+			entity.setName(checkListMaster.getName());
+			entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			entity.setLastUpdatedUserId(userId);
+			entity.setVersion(checkListMaster.getVersion()+1L);
+			checkListMaster.setVersion(checkListMaster.getVersion()+1L);
+
+
+
+			Iterable<CheckListDetailEntity> checkListDetailEntityIt =  getWorkFlowSubLogic().getCheckListDetailEntityRecord(checkListId);
+			Map<Long, CheckListDetailEntity> mapFromDB = StreamSupport.stream(checkListDetailEntityIt.spliterator(), false).collect(Collectors.toMap(checkListEntity -> checkListEntity.getId(), checkListEntity -> checkListEntity));
+			List<CheckListDetail> checkListDetails = checkListMaster.getCheckListDetails();
+
+
+			checkListDetails.stream().forEach(checkListDetail -> {
+				CheckListDetailEntity checkListDetailEntity;
+				if(mapFromDB.containsKey(checkListDetail.getId())) {
+					checkListDetailEntity = mapFromDB.get(checkListDetail.getId());
+					if(!checkListDetailEntity.getVersion().equals(checkListDetail.getVersion())) {
+						throw new UpdatedByAnotherUserException();
+					}
+
+					fillCheckListDetailEntityDetail(checkListId, checkListDetail, checkListDetailEntity);
+					checkListDetailEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					checkListDetailEntity.setLastUpdatedUserId(userId);
+					checkListDetail.setVersion(checkListDetailEntity.getVersion()+1L);
+					checkListDetailEntity.setVersion(checkListDetailEntity.getVersion()+1L);
+
+					mapFromDB.remove(checkListDetail.getId());
+
+				}
+				else {
+					checkListDetailEntity = new CheckListDetailEntity();
+					fillCheckListDetailEntityDetail(checkListId, checkListDetail, checkListDetailEntity);
+					checkListDetailEntity.setCheckListId(checkListId);
+					checkListDetailEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+					checkListDetailEntity.setCreatedUserId(userId);
+					checkListDetail.setVersion(1L);
+					Long id = getWorkFlowSubLogic().createCheckListDetailRecord(checkListDetailEntity);
+					checkListDetail.setId(id);
+
+				}
+				//				checkListDetails.add(checkListDetail);
+			});
+			mapFromDB.forEach((key, value) -> {
+				value.setActive(false);;
+			});
+			//			checkListMaster.setCheckListDetails(checkListDetails);
+			return checkListMaster;
+		}
+		else {
+			throw new RecordNotFoundException("check List ID:- "+checkListId);
+		}
+
+
+	}
+
+	private void fillCheckListDetailEntityDetail(Long checkListId, CheckListDetail checkListDetail,
+			CheckListDetailEntity checkListDetailEntity) {
+		checkListDetailEntity.setActive(true);
+		checkListDetailEntity.setQuestion(checkListDetail.getQuestion());
+		checkListDetailEntity.setSeq(checkListDetail.getSeq());
+	}
+
+	@Override
+	public List<CheckListMaster> getCheckLists(Long moduleId, Integer userId, Integer roleId) {
+		Iterable<CheckListMasterEntity> checkListIt = getWorkFlowSubLogic().getCheckListRecord(moduleId);
+		List<CheckListMaster> checkListMasters = StreamSupport.stream(checkListIt.spliterator(), false).map(checkListMasterEntity -> {
+			CheckListMaster checkListMaster = new CheckListMaster();
+			List<CheckListDetail> checkListDetails = new ArrayList<>();
+
+			checkListMaster.setId(checkListMasterEntity.getId());
+			checkListMaster.setModuleId(checkListMasterEntity.getModuleId());
+			checkListMaster.setName(checkListMasterEntity.getName());
+			checkListMaster.setVersion(checkListMasterEntity.getVersion());
+
+			Collection<CheckListDetailEntity> checkListDetailEntityList = checkListMasterEntity.getCheckListDetails();
+
+			
+			if(checkListDetailEntityList != null && checkListDetailEntityList.size()>0)
+			{
+				checkListDetailEntityList.forEach(checkListDetailEntity -> {
+					CheckListDetail checkListDetail = new CheckListDetail();
+					checkListDetail.setId(checkListDetailEntity.getId());
+					checkListDetail.setQuestion(checkListDetailEntity.getQuestion());
+					checkListDetail.setSeq(checkListDetailEntity.getSeq());
+					checkListDetail.setVersion(checkListDetailEntity.getVersion());
+					checkListDetails.add(checkListDetail);
+				});
+			}
+			checkListMaster.setCheckListDetails(checkListDetails);
+			return checkListMaster;
+
+		}).collect(Collectors.toList());
+		return checkListMasters;
+	}
+
+	/**
+	 * @return the workFlowSubLogic
+	 */
+	public WorkFlowSubLogic getWorkFlowSubLogic() {
+		return workFlowSubLogic;
+	}
+
+	/**
+	 * @param workFlowSubLogic the workFlowSubLogic to set
+	 */
+	public void setWorkFlowSubLogic(WorkFlowSubLogic workFlowSubLogic) {
+		this.workFlowSubLogic = workFlowSubLogic;
+	}
+
+
+}

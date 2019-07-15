@@ -1,0 +1,89 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+//This class represents a directed graph using adjacency list 
+//representation 
+//public class TestClass 
+//{ 
+//	private static int rec(int arr[], int i, int sum)
+//	{
+//		if(i==arr.length)
+//			return sum;
+//		return rec(arr,i+1,sum+arr[i]);
+//		
+//	}	
+//	public static void main(String[] args) {
+//		int arr[] = new int[3];
+//		for(int i = 0 ; i < 3; i++)
+//			arr[i] = 1;
+//		
+//		System.out.println(rec(arr, 0, 0));
+//	}
+//} 
+//This code is contributed by Aakash Hasija 
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.*;
+
+class VertexWeightPair1{
+	int key;
+
+	int vertex;
+
+	public VertexWeightPair1(int key, int vertex) {
+		super();
+		this.key = key;
+		this.vertex = vertex;
+	}
+
+	/**
+	 * @return the key
+	 */
+	public int getKey() {
+		return key;
+	}
+
+	/**
+	 * @param key the key to set
+	 */
+	public void setKey(int key) {
+		this.key = key;
+	}
+
+	/**
+	 * @return the vertex
+	 */
+	public int getVertex() {
+		return vertex;
+	}
+
+	/**
+	 * @param vertex the vertex to set
+	 */
+	public void setVertex(int vertex) {
+		this.vertex = vertex;
+	}
+}
+class MyComparator1 implements Comparator<VertexWeightPair1>{
+
+	@Override
+	public int compare(VertexWeightPair1 o1, VertexWeightPair1 o2) {
+
+		return o1.getKey() - o2.getKey();
+	}
+
+
+}
+public class TestClass {
+
+	// Complete the prims function below.
+	public static void main(String[] args) {
+			
+	}
+}

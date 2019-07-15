@@ -1,0 +1,45 @@
+/**
+ * 
+ */
+package javademo2;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TimeZone;
+
+public class Main {
+
+  public static void main(String[] args) {
+//	  Locale locale = Locale.getDefault();
+//	  Locale.setDefault(Locale.JAPAN);
+//	  System.out.println(locale.getCountry());
+//    Calendar calTokyo = Calendar.getInstance(Locale.JAPAN);
+//  //  System.out.println(calTokyo.getTime());
+//    System.out.println(calTokyo.get(Calendar.HOUR_OF_DAY));
+	  
+	  Locale.setDefault(Locale.JAPAN);
+	  System.out.println(Locale.getDefault());
+	
+//    
+//    ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Asia/Tokyo"));
+    
+    System.out.println(ZonedDateTime.now(ZoneId.of("Asia/Tokyo")));
+
+//    calTokyo.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+//    System.out.println(calTokyo.getTimeZone());
+//
+//    System.out.println("Time in Tokyo: " + calTokyo.get(Calendar.HOUR_OF_DAY) + ":"
+//        + calTokyo.get(Calendar.MINUTE));
+//    
+//    System.out.println(calTokyo.getTimeZone().getDisplayName());
+  }
+}

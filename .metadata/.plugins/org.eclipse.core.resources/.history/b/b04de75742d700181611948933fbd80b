@@ -1,0 +1,104 @@
+/**
+ * 
+ */
+package com.mind.legalOne.common.Exception;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.mind.legalOne.admin.exception.LegalOneRuntimeException;
+import com.mind.legalOne.admin.exception.PrivilegeException;
+import com.mind.legalOne.admin.exception.RecordNotFoundException;
+import com.mind.legalOne.admin.exception.UpdatedByAnotherUserException;
+import com.mind.legalOne.admin.exception.ValidationException;
+
+/**
+ * @author maneeshkpandey
+ *
+ */
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@ControllerAdvice
+public class CommonExceptionHandler extends ResponseEntityExceptionHandler{
+
+	@Autowired
+	private MessageSource messageSource; 
+
+	@ExceptionHandler(UpdatedByAnotherUserException.class)
+	protected ResponseEntity<Object> UpdatedByAnotherUserExceptionHandler(
+			UpdatedByAnotherUserException ex) {
+		CommonError apiError = new CommonError(HttpStatus.CONFLICT);
+		apiError.setErrorMessage("Data updated by another user ! Please reload data again.");
+		return buildResponseEntity(apiError);
+	}
+
+
+	@ExceptionHandler(PrivilegeException.class)
+	protected ResponseEntity<Object> PrivilegeExceptionHandler(
+			PrivilegeException ex) { 
+		CommonError apiError = new CommonError(HttpStatus.UNAUTHORIZED);
+		apiError.setErrorMessage("Logged-in user not authorized for this action !");
+		return buildResponseEntity(apiError);
+	}
+
+	@ExceptionHandler(LegalOneRuntimeException.class)
+	protected ResponseEntity<Object> LegalOneRuntimeExceptionHandler(
+			LegalOneRuntimeException ex) {
+		CommonError apiError = new CommonError(HttpStatus.INTERNAL_SERVER_ERROR);
+		apiError.setErrorMessage("Error occurred while performing operation");
+		return buildResponseEntity(apiError);
+	}
+
+
+	@ExceptionHandler(RecordNotFoundException.class)
+	protected ResponseEntity<Object> RecordNotFoundExceptionHandler(
+			RecordNotFoundException ex) {
+		CommonError apiError = new CommonError(HttpStatus.NOT_FOUND);
+		apiError.setErrorMessage("Record not found for "+ex.getMessage());
+		return buildResponseEntity(apiError);
+	}
+
+
+	@ExceptionHandler(ValidationException.class)
+	protected ResponseEntity<Object> ValidationExceptionHandler(
+			ValidationException ex) {
+
+		String messageId = ex.getMessageId();
+		Object[] labelIds = ex.getLabelCodes();	
+		
+		List<String> labelMessageList = Arrays.stream(((String[]) labelIds))
+				.map(labelId -> messageSource.getMessage(labelId, null, null))
+				.collect(Collectors.toList());
+		
+
+		Object[] objectArray = labelMessageList.toArray();
+		String message = messageSource.getMessage(messageId, objectArray, null);
+		CommonError apiError = new CommonError(HttpStatus.NOT_FOUND);
+		apiError.setErrorMessage(message);
+		return buildResponseEntity(apiError);
+	}
+
+
+	@ExceptionHandler(Exception.class)
+	protected ResponseEntity<Object> ExceptionHandler(
+			Exception ex) {
+		CommonError apiError = new CommonError(HttpStatus.INTERNAL_SERVER_ERROR);
+		apiError.setErrorMessage("Error occurred while performing operation");
+		return buildResponseEntity(apiError);
+	}
+
+	private ResponseEntity<Object> buildResponseEntity(CommonError apiError) {
+		return new ResponseEntity<>(apiError, apiError.getHttpStatus());
+	}
+}

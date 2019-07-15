@@ -1,0 +1,13 @@
+package javademo;
+import java.util.*;
+public class MapStreamPractice {
+		public static void main(String[] args) {
+			List<String> l = new ArrayList<String>();
+			l.add("MRINAL");
+			l.add("VISHAL");
+			l.add("HiTESH");
+			//without lambda expression
+			for(String s: l)
+				System.out.println(s);
+		}
+}

@@ -1,0 +1,42 @@
+buildscript {
+    repositories {
+        maven
+        {  url "https://ci.mindeservices.com/maven/content/groups/mind"}
+    }
+    dependencies {
+        classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:1.0.10"
+    }
+}
+
+
+apply plugin: "com.ewerk.gradle.plugins.querydsl"
+
+apply plugin: 'java-library'
+
+querydsl
+{
+ jpa = true
+ querydslSourcesDir = "src/main/generated"
+ }
+ sourceSets
+ {
+	 main
+ 	{
+ 		java
+ 			{
+ 			srcDir "${projectDir}/src/main/generated"
+ 			}
+ 	}
+ }
+ repositories {
+    mavenCentral()
+    maven {  url "https://ci.mindeservices.com/maven/content/groups/mind" }
+}
+dependencies {
+    compile group : 'org.springframework.boot', name : 'spring-boot-starter-data-jpa' , version : '2.0.0.RELEASE'  
+    compile group : 'org.springframework.boot', name : 'spring-boot-starter-web' , version : '2.0.1.RELEASE'
+    
+   	compile group: 'com.querydsl', name: 'querydsl-apt', version: '4.2.1'
+   	compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.2.1'
+    compile group : 'com.microsoft.sqlserver' , name : 'sqljdbc4' , version : '4.0'
+}

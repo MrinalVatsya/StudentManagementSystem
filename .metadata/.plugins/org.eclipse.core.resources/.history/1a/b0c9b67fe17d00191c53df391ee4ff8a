@@ -1,0 +1,27 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class MinimumPathSum {
+	
+	    public int minPathSum(ArrayList<ArrayList<Integer>> a) {
+	    	
+	    	int m = a.size();
+	    	int n = a.get(0).size();
+	    	
+	    	return minPathSumUtil(m, n, a, 0);
+	    }
+
+		private int minPathSumUtil(int m, int n, ArrayList<ArrayList<Integer>> a, int sum) {
+			
+			
+			Math.min(minPathSumUtil(m-1, n, a, sum), minPathSumUtil(m, n-1, a, sum)); 
+		}
+}

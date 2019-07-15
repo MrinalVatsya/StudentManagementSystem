@@ -1,0 +1,58 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class AkashGCD1 {
+
+	public static int gcd(int a , int b)
+	{
+		if (b == 0) 
+	        return a; 
+	      return gcd(b, a % b); 
+	}
+	
+	public static int funcCalc(int x)
+	{
+		int ans = 0;
+		for(int i = 1; i <= x; i++)
+		{
+			ans = ans + gcd(i,x);
+		}
+		return ans;
+	}
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int i , n = sc.nextInt();
+		int arr[] = new int[n];
+		for(i = 0; i < n; i++)
+		{
+			arr[i] = sc.nextInt();
+		}
+		
+		int queries = sc.nextInt();
+		while(queries > 0)
+		{
+			String str = sc.next();
+			char[] inputArr = str.toCharArray();
+			char x = inputArr[0];
+			char y = inputArr[2];
+			char z = inputArr[4];
+			
+			if(x=='C')
+			{
+				
+			}
+			else//update case..
+			{
+				
+			}
+		}
+	}
+}

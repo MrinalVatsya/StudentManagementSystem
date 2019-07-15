@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete resource &apos;spring-rest-full-0.1-SNAPSHOT&apos;" deleteContents="true" description="Delete resource &apos;spring-rest-full-0.1-SNAPSHOT&apos;" element1="/spring-rest-full-0.1-SNAPSHOT" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1537246785965"/>&#x0A;<refactoring comment="Delete resource &apos;spring-rest-full&apos;" deleteContents="true" description="Delete resource &apos;spring-rest-full&apos;" element1="/spring-rest-full" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1537246880404"/>
+</session>

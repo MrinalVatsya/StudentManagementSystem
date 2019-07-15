@@ -1,0 +1,48 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.List;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class SakshamTCS {
+	
+	public static int distCalc(int x, int y , int a, int b)
+	{
+		return Math.abs(x-a) + Math.abs(y-b);
+	}
+
+	public static int minimizeCost(List<Integer> p , List<Integer> x, List<Integer> y)
+	{
+		int n = p.size();
+		
+		int i , m = x.size();
+		
+		int xMax = Integer.MIN_VALUE;
+		int yMax = Integer.MIN_VALUE;
+		for(i = 0; i < m ; i++)
+		{
+			xMax = Math.max(xMax, x.get(i));
+			yMax = Math.max(yMax, y.get(i)); 
+		}
+		
+		int j , k;
+		for(i = 0; i < n; i++)
+		{
+			int noOfPeople = p.get(i);
+			int a = x.get(i);
+			int b = y.get(i);
+			for(j = 0; j <= xMax; j++)
+			{
+				for(k = 0; k <= yMax; k++)
+				{
+					mat[j][k] = distCalc(x, y, a, b)
+				}
+			}
+		
+	}
+}

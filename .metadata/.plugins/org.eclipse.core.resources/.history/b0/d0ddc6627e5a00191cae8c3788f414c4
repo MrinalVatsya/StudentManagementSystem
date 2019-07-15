@@ -1,0 +1,142 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+public class NitikaAndGame {
+
+  private static int dp[][] ;
+    static int arraySplitting(int[] arr) {
+        /*
+         * Write your code here.
+         */
+        int sum = 0, i , j , n = arr.length;
+
+        for(i = 0; i < n; i++)
+        {
+            sum += arr[i];
+        }
+
+        if(sum%2!=0)
+        {
+            return 0;
+        }
+        else
+        {
+            dp = new int[n+1][sum/2+1];
+            
+            //initialize dp array...
+            for(i = 0; i < dp.length; i++)
+                for(j = 0 ; j < dp[i].length; j++)
+                    dp[i][j] = -1;
+            
+            int ways= 0;
+            while(sum > 1)
+            {
+                if(sum%2==0)
+                {
+                    sum = sum/2;
+                    try {
+                    if(arrayHelper(arr,n,sum))
+                    {
+                        ways += 1;
+                    }
+                    }
+                    catch(Throwable e)
+                    {
+                    	System.out.println(n + "---------"+ "sum : " + sum);
+                    	e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return ways;
+        }
+    }
+
+    private static Boolean arrayHelper(int[] arr, int n, int sum) {
+
+        if(sum==0)
+            return true;
+
+        if(n==0)
+            return false;
+
+        if(dp[n][sum] != -1)
+        {
+            if(dp[n][sum]==1)
+                return true;
+            else
+                return false;
+        }
+        
+        if(arr[n-1] > sum)
+        {
+            if(arrayHelper(arr, n-1, sum))//skip this element..
+            {
+                dp[n][sum] = 1;
+                return true;
+            }
+            else
+            {
+                dp[n][sum] = 0;
+                return false;
+            }
+        }
+        
+        Boolean ans = false;
+        ans = arrayHelper(arr, n-1, sum)||arrayHelper(arr, n-1, sum-arr[n-1])
+        {
+            dp[n][sum] = 1;
+            return true;
+        }
+        else
+        {
+            dp[n][sum] = 0;
+            return false;
+        }
+        
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(("D://Solution.txt")));
+
+        int t = Integer.parseInt(scanner.nextLine().trim());
+
+        for (int tItr = 0; tItr < t; tItr++) {
+            int arrCount = Integer.parseInt(scanner.nextLine().trim());
+
+            int[] arr = new int[arrCount];
+
+            String[] arrItems = scanner.nextLine().split(" ");
+
+            for (int arrItr = 0; arrItr < arrCount; arrItr++) {
+                int arrItem = Integer.parseInt(arrItems[arrItr].trim());
+                arr[arrItr] = arrItem;
+            }
+
+            int result = arraySplitting(arr);
+
+            bufferedWriter.write(String.valueOf(result));
+            bufferedWriter.newLine();
+        }
+
+        bufferedWriter.close();
+    }
+}
+

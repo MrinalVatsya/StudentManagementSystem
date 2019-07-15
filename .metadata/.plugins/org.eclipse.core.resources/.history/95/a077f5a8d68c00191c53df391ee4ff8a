@@ -1,0 +1,28 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Stairs {
+
+	public int climbStairs(int a) {
+		
+		return climbStairsUtil(a);
+    }
+
+	private int climbStairsUtil(int a) {
+		
+		if(a < 0)
+			return 0;
+		
+		if(a==0)
+			return 1;
+		
+		return climbStairsUtil(a-1) + climbStairsUtil(a-2);
+		
+	}
+}

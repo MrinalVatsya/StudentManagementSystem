@@ -1,0 +1,33 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class InterviewBitLinkedList {
+	public ListNode deleteDuplicates(ListNode a) {
+
+		ListNode prev2 = a;
+		ListNode curr = a.next;
+
+		while(prev2 != null && curr != null)
+		{
+			while(prev2 != null && curr != null && prev2.val==curr.val)//skip duplicate nodes..
+			{
+				curr = curr.next;
+			}
+
+			if(prev2!= null)
+				prev2.next = curr;
+			prev2 = curr;
+			if(curr!=null)
+				curr = curr.next;
+		}
+
+		return a;
+	}
+
+}

@@ -1,0 +1,10 @@
+public class test {
+	public static void main(String[] args){
+
+		String s1 = "mrinal";
+		String s2 = new String("mrinal");
+		String s3 = "mrinal";
+		
+		System.out.println((s2 == s1) + " " + s1.equals(s3));
+	}
+}

@@ -1,0 +1,55 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class RecoverBinaryTree {
+
+	public static TreeNode prev = null, curr = null , last = null, first = null, middle = null;
+	public ArrayList<Integer> recoverTree(TreeNode a) {
+
+		recoverTreeUtil(a);
+		ArrayList<Integer> ans = new ArrayList<>();
+		if(first!= null && middle != null)//when swapped nodes are adjacent..
+		{			
+			ans.add(first.val);
+			ans.add(middle.val);
+		}
+		else if(first != null && last != null)
+		{
+			ans.add(first.val);
+			ans.add(last.val);
+		}
+		
+		return ans;
+	}
+
+	private void recoverTreeUtil(TreeNode a) {
+
+		if(a!= null)
+		{
+			recoverTree(a.left);
+			if(prev != null && prev.val > a.val )//first violation..
+			{
+				if(first == null)
+				{
+					first = prev;
+					middle = a;
+				}
+				else
+				{
+					last = a;
+				}
+			}
+			prev = a;
+			recoverTree(a.right);
+		}
+	}
+
+}

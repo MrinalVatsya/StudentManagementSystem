@@ -1,0 +1,44 @@
+package com.mind.poc;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class GraphforBfs {
+
+	private int v;
+	private LinkedList<Integer> adj[];
+	
+	public GraphforBfs(int v)
+	{
+		this.v = v;
+		for(int i = 0 ; i < v ; i++)
+		{
+			adj[i] = new LinkedList<>();
+		}
+	}
+	
+	void addEdge(int u, int v)
+	{
+		adj[u].add(v);
+	}
+	
+	void bfs(int s)
+	{
+		boolean visited[] = new boolean[v];
+		for(int i = 0; i < v ; i++)
+		{
+			visited[i] = false;
+		}
+		
+		visited[s] = true;
+		Queue<Integer> queue = new LinkedList<>();
+		queue.add(s);
+		while(queue.size() != 0)
+		{
+			 s = queue.poll();
+			 System.out.println(s + " ");
+			 Iterator<Integer> i = adj[s].listIterator();
+		}
+	}
+}

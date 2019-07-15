@@ -1,0 +1,83 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class BlackShapes {
+	
+	boolean isSafe(int i , int j , int m, int n)
+	{
+		if(i < 0 || i >= m || j < 0 || j >= n)
+			return false;
+		
+		return true;
+	}
+	
+	public int black(ArrayList<String> a) {
+		
+		int m = a.size();
+		int n = a.get(0).length();
+		int i , j ;
+		int count = 0;
+		for(i = 0; i < m; i++)
+		{
+			for(j = 0; j < n; j++)
+			{
+				if(a.get(i).charAt(j)=='X')
+				{
+					dfs(i,j,a);
+					count++;
+				}
+			}
+		}
+		
+		return count;
+    }
+
+	private void dfs(int x, int y, ArrayList<String> a) {
+	
+		char ch = a.get(x).charAt(y);
+		ch = '0';
+		int m = a.size();
+		int n = a.get(0).length();
+		int r[] = {0,1,-1,0};
+		int c[] = {1,0,0,-1};
+		
+		for(int k = 0; k < 4; k++)
+		{
+			int xi = x + r[k];
+			int yi = y + c[k];
+			
+			if(a.get(xi).charAt(yi)=='X' && isSafe(x, y, m, n))
+			{
+				try {
+				dfs(xi, yi, a);
+				}
+				catch(Exception e)
+				{
+					
+				}
+			}
+			
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		BlackShapes bt = new BlackShapes();
+		
+		ArrayList<String> a = new ArrayList<>();
+		a.add("OOOXOOO");
+		a.add("OOXXOXO");
+		a.add("OXOOOXO");
+		
+		System.out.println(bt.black(a));
+	}
+
+}

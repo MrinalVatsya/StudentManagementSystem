@@ -1,0 +1,787 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+/**
+ * @author hiteshmdabral
+ *
+ */
+public class SeleniumPOC {
+	public static void main(String[] args) throws InterruptedException, IOException {
+		try {			
+			System.setProperty("webdriver.chrome.driver", "C:/SeleniumDrivers/chromedriver.exe");
+			//ChromeOptions options = new ChromeOptions();
+//			options.addArguments("--kiosk");
+			WebDriver driver = new ChromeDriver();
+			driver.get("http://172.29.37.31:4200");
+			WebDriverWait wait = new WebDriverWait(driver, 30);
+
+			String cssOfInputField = "input[name='UserId']";
+
+			WebElement inputFieldQ = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(cssOfInputField)));
+
+			inputFieldQ.sendKeys("Uploader1");
+
+
+			String cssOfInputField1 = "input[name='Password']";
+			WebElement inputFieldQ1 = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(cssOfInputField1)));
+
+			inputFieldQ1.sendKeys("abc@1234");
+
+			WebElement searchButton = driver.findElement(By.id("loginBtn"));
+			driver.manage().window().maximize();
+			searchButton.click();
+			/*********************Take ScreenShot***************************************/
+			File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+			FileUtils.copyFile(scrFile, new File("c:\\tmp\\screenshot.png"));
+			Thread.sleep(5000);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(.,'Contract Management')]")));
+			
+			WebElement yup = driver.findElement(By.xpath("//span[contains(.,'Contract Management')]"));
+			if(yup!=null)
+			{
+				yup.click();
+			}
+			Thread.sleep(5000);
+
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'Add Contract')]")));
+
+			WebElement addContract = driver.findElement(By.xpath("//button[contains(.,'Add Contract')]"));
+			addContract.click();
+
+			Thread.sleep(5000);
+
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'View Executive Summary')]")));
+
+			JavascriptExecutor jse = (JavascriptExecutor) driver;
+
+			driver.findElement(By.id("111")).sendKeys("Mrinal");//purpose/objective label..
+			jse.executeScript("window.scrollBy(0, 51)");
+			jse.executeScript("window.scrollBy(0, 30)");
+			driver.findElement(By.id("113")).sendKeys("Mrinal");//Key Terms label..
+			jse.executeScript("window.scrollBy(0, 51)");
+			WebElement businessTransfer1 = driver.findElement(By.xpath("//span[contains(.,'Business transferred')]"));
+			if(businessTransfer1 != null) {
+				businessTransfer1.click();
+			}
+			jse.executeScript("window.scrollBy(0, 18)");
+			List<WebElement> dateControl = driver.findElements(By.tagName("app-date"));
+
+			for (WebElement webElement : dateControl) {
+				WebElement dateTag = webElement.findElement(By.tagName("input"));
+				if(dateTag != null) {
+					dateTag.sendKeys("05/Dec/2018");
+					jse.executeScript("window.scrollBy(0, 22)");
+				}
+			}
+
+			WebElement statusRadioButton = driver.findElement(By.xpath("//span[contains(.,'Active')]"));
+			if(statusRadioButton != null)
+				statusRadioButton.click();
+			jse.executeScript("window.scrollBy(0, 36)");
+
+			//WebElement fileUploadButton = driver.findElement(By.xpath("//span[contains(.,'No file selected')]"));
+			WebElement fileUploadButton = driver.findElement(By.tagName("app-file"));
+//			if(fileUploadButton.isDisplayed())
+//				System.out.println("haa");
+			List<WebElement> spanTagList = fileUploadButton.findElements(By.tagName("span"));
+			if(spanTagList != null)
+			{
+				for(WebElement wt : spanTagList)
+				{
+					String spanName = wt.getText();
+					if(spanName != null && "No file selected".equals(spanName))
+					{
+						Actions actions1 = new Actions(driver);
+						WebElement st = fileUploadButton.findElement(By.tagName("input"));
+						st.sendKeys("C:\\Users\\mrinalvatsya\\Desktop\\sample.pdf");
+						break;
+					}
+				}
+			}
+			List<WebElement> toggleControl = driver.findElements(By.tagName("app-toggle"));
+
+			for (WebElement webElement : toggleControl) {
+				WebElement labelTag = webElement.findElement(By.tagName("label"));
+				if(labelTag != null) {
+					String labelName = labelTag.getText();
+					if(labelName != null && "Is Attached Document Language Other than English?".equals(labelName)) {
+						WebElement external = webElement.findElement(By.xpath("//button[contains(.,'No')]"));
+
+						if(external != null) {
+							external.click();
+						}
+					}
+				}
+			}
+			jse.executeScript("window.scrollBy(0, 32)");
+
+			List<WebElement> noOfAmendments = driver.findElements(By.tagName("app-text"));
+
+			for(WebElement it : noOfAmendments)
+			{
+				WebElement wb = it .findElement(By.tagName("input"));
+				if(wb != null)
+				{
+					wb.sendKeys("4");
+				}
+			}
+			jse.executeScript("window.scrollBy(0, 22)");
+
+			WebElement externalButton = driver.findElement(By.xpath("//span[contains(.,'External')]"));
+			if(externalButton != null)
+			{
+				externalButton.click();
+			}
+			jse.executeScript("window.scrollBy(0, 19)");
+			List<WebElement> noOfAmendments1 = driver.findElements(By.tagName("app-text"));
+			for(WebElement vu : noOfAmendments1)
+			{
+				WebElement labelTag = vu.findElement(By.tagName("label"));
+				if(labelTag != null)
+				{
+					String labelName = labelTag.getText();
+					if(labelName != null && "External Consultant/ Approver".equals(labelName))
+					{
+						WebElement gu = vu.findElement(By.tagName("input"));
+						if(gu != null)
+						{
+							gu.sendKeys("mrinal");
+						}
+					}
+				}
+			}
+			jse.executeScript("window.scrollBy(0, 52)");
+
+			WebElement nextButton = driver.findElement(By.xpath("//button[contains(.,'Next')]"));
+
+			nextButton.click();
+			Thread.sleep(15000);
+			/******************************Ok Button Exception***********************************/
+			driver.manage().window().maximize();
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[contains(.,'OK')]")));
+			Actions action = new Actions(driver);
+			WebElement we = driver.findElement(By.xpath("//button[contains(.,'OK')]"));
+			action.moveToElement(we).moveToElement(driver.findElement(By.xpath("//button[contains(.,'OK')]"))).click().build().perform();
+//			WebElement okButton = driver.findElement(By.xpath("//button[contains(.,'OK')]"));
+//			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'OK')]")));
+//
+//			okButton.click();
+			
+//			WebElement contractName = driver.findElement(By.tagName("app-document-sub-header"));
+//			if(contractName != null && contractName.isDisplayed())
+//			{
+//				WebElement tu = contractName.findElement(By.tagName("input"));
+//				String contractName1 = tu.getAttribute("value").toString();
+//				System.out.println("Contract Name is :- " + contractName1);
+//			}
+			jse.executeScript("scroll(250, 0)");
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(.,'Non SMG')]")));
+			WebElement group = driver.findElement(By.xpath("//span[contains(.,'Non SMG')]"));
+			Actions actions = new Actions(driver);
+
+			actions.moveToElement(group).click().perform();
+			if(group != null)
+			{
+				group.click();
+			}
+			jse.executeScript("window.scrollBy(0, 18)");
+			List<WebElement> nameList = driver.findElements(By.tagName("app-text"));
+			if(nameList != null)
+			{
+				for(WebElement wt : nameList)
+				{
+					WebElement labelTag = wt.findElement(By.tagName("label"));
+					String labelName = labelTag.getText();
+					if(labelName != null && "Name".equals(labelName))
+					{
+						WebElement tagName = wt.findElement(By.tagName("input"));
+						if(tagName != null)
+						{
+							tagName.sendKeys("mrinal");
+							break;
+						}
+					}
+				}
+			}
+			jse.executeScript("window.scrollBy(0, 22)");
+			WebElement addressElement = driver.findElement(By.id("11617"));
+			if(addressElement != null)
+			{
+				addressElement.sendKeys("Noida Sector-62 , Stellar it park");
+			}
+			jse.executeScript("window.scrollBy(0, 141)");
+			List<WebElement> ZipCodeList = driver.findElements(By.tagName("app-text"));
+			if(ZipCodeList != null)
+			{
+				for(WebElement wt : ZipCodeList)
+				{
+					WebElement labelTag = wt.findElement(By.tagName("label"));
+					String labelName = labelTag.getText();
+					if(labelName != null && "Zip Code".equals(labelName))
+					{
+						WebElement tagName = wt.findElement(By.tagName("input"));
+						if(tagName != null)
+						{
+							tagName.sendKeys("201309");
+							break;
+						}
+					}
+				}
+			}
+			//jse.executeScript("window.scrollBy(0, 60)");
+			driver.manage().window().maximize();
+			jse.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+			
+			
+			//wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[contains(.,'Save')]")));
+			/**********************Save Button Clicking******************/
+			List<WebElement> saveButtonList = driver.findElements(By.xpath("//button[contains(.,'Save')]"));
+			int i = 0;
+			if(saveButtonList != null)
+			{
+				for(WebElement it : saveButtonList)
+				{
+					
+					if(i==3)
+					{
+					WebElement gut = it;
+					//System.out.println(gut.getText());
+					JavascriptExecutor executor = (JavascriptExecutor)driver;
+					executor.executeScript("arguments[0].click();", it);
+					}
+					i++;
+				}
+			}
+			
+			//*****************After Save button click on OK button**********************//
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'OK')]")));
+			WebElement okButton1 = driver.findElement(By.xpath("//button[contains(.,'OK')]"));
+			if(okButton1.isDisplayed())
+				okButton1.click();
+			
+			WebElement contractName = driver.findElement(By.tagName("app-document-sub-header"));
+			String contractName1="";
+			if(contractName != null && contractName.isEnabled())
+			{
+				WebElement tu = contractName.findElement(By.tagName("input"));
+				contractName1 = tu.getAttribute("value").toString();
+				System.out.println("Contract Name is :- " + contractName1);
+			}
+			
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'Submit')]")));
+			WebElement submitButton = driver.findElement(By.xpath("//button[contains(.,'Submit')]"));
+			if(submitButton != null && submitButton.isDisplayed())
+			submitButton.click();
+			
+			//Thread.sleep(5000);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("app-select-workflow")));
+			
+			submitButton =  driver.findElement(By.tagName("app-select-workflow"));
+			if(submitButton != null)
+			{
+				List<WebElement> finalSubmitButtonsList = submitButton.findElements(By.tagName("button"));
+
+				if(finalSubmitButtonsList != null)
+				{
+					for(WebElement it : finalSubmitButtonsList)
+					{
+						String buttonName = it.getText();
+						if(buttonName != null && "Submit".equals(buttonName))
+						{
+							it.click();
+							break;
+						}
+					}
+				}
+			}
+			//final screen....
+			Thread.sleep(1000);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'OK')]")));
+			okButton1 = driver.findElement(By.xpath("//button[contains(.,'OK')]"));
+			if(okButton1.isDisplayed())
+				okButton1.click();
+			driver.close();
+			//***********************Approval to qc1********************************//
+			System.setProperty("webdriver.chrome.driver", "C:/SeleniumDrivers/chromedriver.exe");
+			driver = new ChromeDriver();
+			driver.get("http://172.29.37.31:4200");
+			wait = new WebDriverWait(driver, 30);
+			WebElement userId = driver.findElement(By.name("UserId"));
+			userId.sendKeys("qc1");
+			
+			WebElement password = driver.findElement(By.name("Password"));
+			password.sendKeys("abc@1234");
+			
+			WebElement loginButton = driver.findElement(By.id("loginBtn"));
+			loginButton.click();
+			driver.manage().window().maximize();
+			
+			Thread.sleep(5000);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(.,'Contract Management')]")));
+			WebElement contractQC1 = driver.findElement(By.xpath("//span[contains(.,'Contract Management')]"));
+			contractQC1.click();
+			
+			/****************New Screen*******************/
+			Thread.sleep(5000);
+			//wait.until(ExpectedConditions.visibilityOfElementLocated(locator))
+			List<WebElement> dropDownsList = driver.findElements(By.tagName("select"));
+			if(dropDownsList != null)
+			{
+				for(WebElement dropDown : dropDownsList)
+				{
+					String dropDownName = dropDown.getAttribute("formcontrolname").toString();
+					if(dropDownName != null && dropDownName.length() > 0 )
+					{
+						if("regionId".equals(dropDownName))
+						{
+							Select drpRegion = new Select(dropDown);
+							drpRegion.selectByVisibleText("All Regions");
+							break;
+						}
+					}
+				}
+			}
+			
+			
+			List<WebElement> inputButtonList = driver.findElements(By.tagName("input"));
+			if(inputButtonList != null) {
+				for(WebElement input : inputButtonList)
+				{
+					String placeHolderName = input.getAttribute("placeholder").toString();
+					if("Search...".equals(placeHolderName))
+					{
+						input.sendKeys(contractName1);
+						break;
+					}
+				}
+			}
+			Thread.sleep(5000);
+			contractQC1 = driver.findElement(By.cssSelector("i[class='fa fa-pencil-square-o']"));
+			contractQC1.click();
+			/******************************Approval Screen*******************/
+			Thread.sleep(5000);
+			contractQC1 = driver.findElement(By.id("insideTabs"));
+			List<WebElement> buttonsList = contractQC1.findElements(By.tagName("a"));
+			if(buttonsList != null)
+			{
+				for(WebElement button : buttonsList)
+				{
+					String buttonName = button.getText();
+					if("Approval".equals(buttonName))
+					{
+						button.click();
+					}
+				}
+			}
+			
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'Submit & Exit')]")));
+			submitButton = driver.findElement(By.xpath("//button[contains(.,'Submit & Exit')]"));
+			if(submitButton != null && submitButton.isDisplayed())
+			submitButton.click();
+			
+			driver.close();
+			
+			
+			/***********************Approval From ContentChecker1************************/
+			
+			System.setProperty("webdriver.chrome.driver", "C:/SeleniumDrivers/chromedriver.exe");
+			driver = new ChromeDriver();
+			driver.get("http://172.29.37.31:4200");
+			wait = new WebDriverWait(driver, 30);
+			userId = driver.findElement(By.name("UserId"));
+			userId.sendKeys("ContentChecker1");
+			
+			password = driver.findElement(By.name("Password"));
+			password.sendKeys("abc@1234");
+			
+			loginButton = driver.findElement(By.id("loginBtn"));
+			loginButton.click();
+			driver.manage().window().maximize();
+			
+			Thread.sleep(5000);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(.,'Contract Management')]")));
+			WebElement contentChecker = driver.findElement(By.xpath("//span[contains(.,'Contract Management')]"));
+			contentChecker.click();
+			
+			/*********************New Screen************************/
+			Thread.sleep(5000);
+			dropDownsList = driver.findElements(By.tagName("select"));
+			if(dropDownsList != null)
+			{
+				for(WebElement dropDown : dropDownsList)
+				{
+					String dropDownName = dropDown.getAttribute("formcontrolname").toString();
+					if(dropDownName != null && dropDownName.length() > 0 )
+					{
+						if("regionId".equals(dropDownName))
+						{
+							Select drpRegion = new Select(dropDown);
+							drpRegion.selectByVisibleText("All Regions");
+							break;
+						}
+					}
+				}
+			}
+			
+			inputButtonList = driver.findElements(By.tagName("input"));
+			if(inputButtonList != null) {
+				for(WebElement input : inputButtonList)
+				{
+					String placeHolderName = input.getAttribute("placeholder").toString();
+					if("Search...".equals(placeHolderName))
+					{
+						input.sendKeys(contractName1);
+						break;
+					}
+				}
+			}
+			Thread.sleep(5000);
+			contentChecker = driver.findElement(By.cssSelector("i[class='fa fa-pencil-square-o']"));
+			contentChecker.click();
+			
+			/******************************Approval Screen*******************/
+			Thread.sleep(5000);
+			contentChecker = driver.findElement(By.id("insideTabs"));
+			buttonsList = contentChecker.findElements(By.tagName("a"));
+			if(buttonsList != null)
+			{
+				for(WebElement button : buttonsList)
+				{
+					String buttonName = button.getText();
+					if("Approval".equals(buttonName))
+					{
+						button.click();
+					}
+				}
+			}
+			
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'Submit & Exit')]")));
+			submitButton = driver.findElement(By.xpath("//button[contains(.,'Submit & Exit')]"));
+			if(submitButton != null && submitButton.isDisplayed())
+			submitButton.click();
+			
+			driver.close();
+			
+			/***********************Approval From ContentChecker1************************/
+			
+			/***********************Approval From COO************************/
+			System.setProperty("webdriver.chrome.driver", "C:/SeleniumDrivers/chromedriver.exe");
+			driver = new ChromeDriver();
+			driver.get("http://172.29.37.31:4200");
+			wait = new WebDriverWait(driver, 30);
+			userId = driver.findElement(By.name("UserId"));
+			userId.sendKeys("COO1");
+			
+			password = driver.findElement(By.name("Password"));
+			password.sendKeys("abc@1234");
+			
+			loginButton = driver.findElement(By.id("loginBtn"));
+			loginButton.click();
+			driver.manage().window().maximize();
+			
+			Thread.sleep(5000);
+			List<WebElement> buttonCircleList = driver.findElements(By.className("buttonCircle"));
+			if(buttonCircleList != null)
+			{
+				for(WebElement wb : buttonCircleList)
+				{
+					String buttonName = wb.getText();
+					//System.out.println(buttonName);
+					if(buttonName.contains("Contract Management"))
+					{
+						wb.click();
+						break;
+					}
+				}
+			}
+			
+			Thread.sleep(5000);
+			WebElement actionButton = driver.findElement(By.xpath("//span[contains(.,'For your')]"));
+			actionButton.click();
+			
+			/*********************New Screen************************/
+			Thread.sleep(5000);
+			dropDownsList = driver.findElements(By.tagName("select"));
+			if(dropDownsList != null)
+			{
+				for(WebElement dropDown : dropDownsList)
+				{
+					String dropDownName = dropDown.getAttribute("formcontrolname").toString();
+					if(dropDownName != null && dropDownName.length() > 0 )
+					{
+						if("regionId".equals(dropDownName))
+						{
+							Select drpRegion = new Select(dropDown);
+							drpRegion.selectByVisibleText("All Regions");
+							break;
+						}
+					}
+				}
+			}
+			
+			inputButtonList = driver.findElements(By.tagName("input"));
+			if(inputButtonList != null) {
+				for(WebElement input : inputButtonList)
+				{
+					String placeHolderName = input.getAttribute("placeholder").toString();
+					if("Search...".equals(placeHolderName))
+					{
+						input.sendKeys(contractName1);
+						break;
+					}
+				}
+			}
+			Thread.sleep(5000);
+			contentChecker = driver.findElement(By.cssSelector("i[class='fa fa-pencil-square-o']"));
+			contentChecker.click();
+			
+			/******************************Approval Screen*******************/
+			Thread.sleep(5000);
+			contentChecker = driver.findElement(By.id("insideTabs"));
+			buttonsList = contentChecker.findElements(By.tagName("a"));
+			if(buttonsList != null)
+			{
+				for(WebElement button : buttonsList)
+				{
+					String buttonName = button.getText();
+					if("Approval".equals(buttonName))
+					{
+						button.click();
+					}
+				}
+			}
+			
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'Submit & Exit')]")));
+			submitButton = driver.findElement(By.xpath("//button[contains(.,'Submit & Exit')]"));
+			if(submitButton != null && submitButton.isDisplayed())
+			submitButton.click();
+			
+			driver.close();
+			
+			/***********************Approval From RCO************************/
+			System.setProperty("webdriver.chrome.driver", "C:/SeleniumDrivers/chromedriver.exe");
+			driver = new ChromeDriver();
+			driver.get("http://172.29.37.31:4200");
+			wait = new WebDriverWait(driver, 30);
+			userId = driver.findElement(By.name("UserId"));
+			userId.sendKeys("RCO1");
+			
+			password = driver.findElement(By.name("Password"));
+			password.sendKeys("abc@1234");
+			
+			loginButton = driver.findElement(By.id("loginBtn"));
+			loginButton.click();
+			driver.manage().window().maximize();
+			
+			Thread.sleep(5000);
+			buttonCircleList = driver.findElements(By.className("buttonCircle"));
+			if(buttonCircleList != null)
+			{
+				for(WebElement wb : buttonCircleList)
+				{
+					String buttonName = wb.getText();
+					//System.out.println(buttonName);
+					if(buttonName.contains("Contract Management"))
+					{
+						wb.click();
+						break;
+					}
+				}
+			}
+			
+			Thread.sleep(5000);
+			actionButton = driver.findElement(By.xpath("//span[contains(.,'For your')]"));
+			actionButton.click();
+			
+			/*********************New Screen************************/
+			Thread.sleep(5000);
+			dropDownsList = driver.findElements(By.tagName("select"));
+			if(dropDownsList != null)
+			{
+				for(WebElement dropDown : dropDownsList)
+				{
+					String dropDownName = dropDown.getAttribute("formcontrolname").toString();
+					if(dropDownName != null && dropDownName.length() > 0 )
+					{
+						if("regionId".equals(dropDownName))
+						{
+							Select drpRegion = new Select(dropDown);
+							drpRegion.selectByVisibleText("All Regions");
+							break;
+						}
+					}
+				}
+			}
+			
+			inputButtonList = driver.findElements(By.tagName("input"));
+			if(inputButtonList != null) {
+				for(WebElement input : inputButtonList)
+				{
+					String placeHolderName = input.getAttribute("placeholder").toString();
+					if("Search...".equals(placeHolderName))
+					{
+						input.sendKeys(contractName1);
+						break;
+					}
+				}
+			}
+			Thread.sleep(5000);
+			contentChecker = driver.findElement(By.cssSelector("i[class='fa fa-pencil-square-o']"));
+			contentChecker.click();
+			
+			/******************************Approval Screen*******************/
+			Thread.sleep(5000);
+			contentChecker = driver.findElement(By.id("insideTabs"));
+			buttonsList = contentChecker.findElements(By.tagName("a"));
+			if(buttonsList != null)
+			{
+				for(WebElement button : buttonsList)
+				{
+					String buttonName = button.getText();
+					if("Approval".equals(buttonName))
+					{
+						button.click();
+					}
+				}
+			}
+			
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'Submit & Exit')]")));
+			submitButton = driver.findElement(By.xpath("//button[contains(.,'Submit & Exit')]"));
+			if(submitButton != null && submitButton.isDisplayed())
+			submitButton.click();
+			
+			driver.close();
+			
+			/***********************Approval From GCO************************/
+			System.setProperty("webdriver.chrome.driver", "C:/SeleniumDrivers/chromedriver.exe");
+			driver = new ChromeDriver();
+			driver.get("http://172.29.37.31:4200");
+			wait = new WebDriverWait(driver, 30);
+			userId = driver.findElement(By.name("UserId"));
+			userId.sendKeys("GCO1");
+			
+			password = driver.findElement(By.name("Password"));
+			password.sendKeys("abc@1234");
+			
+			loginButton = driver.findElement(By.id("loginBtn"));
+			loginButton.click();
+			driver.manage().window().maximize();
+			
+			Thread.sleep(5000);
+			buttonCircleList = driver.findElements(By.className("buttonCircle"));
+			if(buttonCircleList != null)
+			{
+				for(WebElement wb : buttonCircleList)
+				{
+					String buttonName = wb.getText();
+					//System.out.println(buttonName);
+					if(buttonName.contains("Contract Management"))
+					{
+						wb.click();
+						break;
+					}
+				}
+			}
+			
+			Thread.sleep(5000);
+			actionButton = driver.findElement(By.xpath("//span[contains(.,'For your')]"));
+			actionButton.click();
+			
+			/*********************New Screen************************/
+			Thread.sleep(5000);
+			dropDownsList = driver.findElements(By.tagName("select"));
+			if(dropDownsList != null)
+			{
+				for(WebElement dropDown : dropDownsList)
+				{
+					String dropDownName = dropDown.getAttribute("formcontrolname").toString();
+					if(dropDownName != null && dropDownName.length() > 0 )
+					{
+						if("regionId".equals(dropDownName))
+						{
+							Select drpRegion = new Select(dropDown);
+							drpRegion.selectByVisibleText("All Regions");
+							break;
+						}
+					}
+				}
+			}
+			
+			inputButtonList = driver.findElements(By.tagName("input"));
+			if(inputButtonList != null) {
+				for(WebElement input : inputButtonList)
+				{
+					String placeHolderName = input.getAttribute("placeholder").toString();
+					if("Search...".equals(placeHolderName))
+					{
+						input.sendKeys(contractName1);
+						break;
+					}
+				}
+			}
+			Thread.sleep(5000);
+			contentChecker = driver.findElement(By.cssSelector("i[class='fa fa-pencil-square-o']"));
+			contentChecker.click();
+			
+			/******************************Approval Screen*******************/
+			Thread.sleep(5000);
+			contentChecker = driver.findElement(By.id("insideTabs"));
+			buttonsList = contentChecker.findElements(By.tagName("a"));
+			if(buttonsList != null)
+			{
+				for(WebElement button : buttonsList)
+				{
+					String buttonName = button.getText();
+					if("Approval".equals(buttonName))
+					{
+						button.click();
+					}
+				}
+			}
+			
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(.,'Submit & Exit')]")));
+			submitButton = driver.findElement(By.xpath("//button[contains(.,'Submit & Exit')]"));
+			if(submitButton != null && submitButton.isDisplayed())
+			submitButton.click();
+			
+			Thread.sleep(5000);
+			WebElement finalOkbutton = driver.findElement(By.xpath("//button[contains(.,'OK')]")); 
+			finalOkbutton.click();
+			
+			Thread.sleep(1000);
+			
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div[class='PUBLISH']")));
+			contentChecker = driver.findElement(By.cssSelector("div[class='PUBLISH']"));
+			contentChecker.click();
+			/************************Final Publish Screen******************************/
+			Thread.sleep(5000);
+			scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+			FileUtils.copyFile(scrFile, new File("c:\\tmp\\PublishContract.png"));
+			driver.close();
+			
+		}
+		catch(NoClassDefFoundError ex) {
+			System.out.println("error: " + ex.getStackTrace());
+		}
+	}
+}

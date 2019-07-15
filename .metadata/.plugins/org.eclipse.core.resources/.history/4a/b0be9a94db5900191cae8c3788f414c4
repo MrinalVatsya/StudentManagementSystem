@@ -1,0 +1,66 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+public class GameDP {
+	
+	
+
+    static int arraySplitting(int[] arr) {
+       
+    	int i = 0, sum = 0;
+    	int n = arr.length;
+    	for(i = 0; i < n; i++)
+    	{
+    		sum++;
+    	}
+    	
+    	if(sum%2!=0)
+    		return 0;
+    	
+    	if(sum%2==0)
+    	{
+    		isPossible(arr,sum/2,n);
+    	}
+    		
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int t = Integer.parseInt(scanner.nextLine().trim());
+
+        for (int tItr = 0; tItr < t; tItr++) {
+            int arrCount = Integer.parseInt(scanner.nextLine().trim());
+
+            int[] arr = new int[arrCount];
+
+            String[] arrItems = scanner.nextLine().split(" ");
+
+            for (int arrItr = 0; arrItr < arrCount; arrItr++) {
+                int arrItem = Integer.parseInt(arrItems[arrItr].trim());
+                arr[arrItr] = arrItem;
+            }
+
+            int result = arraySplitting(arr);
+
+            bufferedWriter.write(String.valueOf(result));
+            bufferedWriter.newLine();
+        }
+
+        bufferedWriter.close();
+    }
+}

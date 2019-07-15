@@ -1,0 +1,32 @@
+package javademo;
+import java.util.*;
+public class program2 {
+	public static void main(String args[])
+	{
+	/*int[] arr = new int[4];
+	for(int i = 0;i< 4;i++)
+		arr[i] = i+1;
+	for(Integer x : arr)//New for loop in java
+		System.out.print(x+" ");*/
+		int i;
+		List<String> m = new ArrayList<String>(5);
+		m.add("mrinal");
+		m.add("legal1");
+		m.add("team");
+		//searching in list
+		
+			//System.out.println("First Occurence of text is : "+ m.indexOf("mrinal"));
+			
+			//creating linked list in java
+			LinkedList<Integer> l = new LinkedList<Integer>();
+			l.add(1);
+			l.add(2);
+			l.add(3);
+			l.add(4);
+			l.add(5);
+			System.out.println("My Linked List is : "+ l);
+			l.remove(0);
+			l.remove(2);
+			System.out.println("After Deletion My Linked List is : "+ l);
+	}
+}

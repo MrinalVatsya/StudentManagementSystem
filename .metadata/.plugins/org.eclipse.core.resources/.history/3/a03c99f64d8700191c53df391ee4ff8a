@@ -1,0 +1,15 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class BlackShapes {
+	
+	public int black(ArrayList<String> A) {
+    }
+
+}

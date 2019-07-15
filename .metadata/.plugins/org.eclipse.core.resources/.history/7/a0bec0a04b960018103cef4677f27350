@@ -1,0 +1,15 @@
+package javademo;//Demo of hashset
+import java.util.*;
+public class program4 {
+ public static void main(String args[]) {
+	HashSet<String> h = new HashSet<String>();
+	h.add("mrinal");
+	h.add("is");
+	h.add("member");
+	h.add("of");
+	h.add("legal1");
+	h.add("team");
+	h.add("team");
+	System.out.println("Contents of hash set : " + h);
+}
+}

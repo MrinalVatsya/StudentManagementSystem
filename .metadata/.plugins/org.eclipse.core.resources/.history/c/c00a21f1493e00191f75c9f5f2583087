@@ -1,0 +1,17 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.LinkedList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Bfs {
+	
+	private int V;
+	private LinkedList<Integer> adj[];
+
+}

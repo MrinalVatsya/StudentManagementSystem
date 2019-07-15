@@ -1,0 +1,25 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Add1ToNumber {
+	
+	 public ArrayList<Integer> plusOne(ArrayList<Integer> a) {
+
+		 	int n = a.size();
+		 	int i = 0;
+		 	for(i = 0; i < a.size(); i++)
+		 	{
+		 		StringBuilder st = new StringBuilder();
+		 		Integer int = a.get(i);
+		 	}
+	    }
+
+}

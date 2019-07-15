@@ -1,0 +1,64 @@
+/**
+ * 
+ */
+package lib;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Base64.Encoder;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
+/**
+ * @author MRINAL VATS
+ *
+ */
+public class AESEncryption {
+
+	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+		
+	Encoder encoder = Base64.getEncoder();
+    final String ALGO = "AES";
+    String password = "1234567890123456";
+  //  String plain = "fskajhdfosjksaiodsajdoendklnassao";
+
+    Key key = new SecretKeySpec(password.getBytes(), ALGO);
+    String keyForJS = encoder.encodeToString(password.getBytes());
+    
+    String inputFile = "C://Users//OP JHA//Desktop//sample.pdf";
+    FileInputStream inputStream = new FileInputStream(inputFile);
+    byte[] inputBytes = new byte[(int) inputFile.length()];
+    inputStream.read(inputBytes);
+    
+    inputStream.close();
+
+    Cipher c = Cipher.getInstance(ALGO);
+    try {
+    c.init(Cipher.ENCRYPT_MODE, key);
+    }
+    catch(Exception e)
+    {
+    	e.printStackTrace();
+    }
+    byte[] encVal = c.doFinal(inputBytes);
+    String encryptedValue = encoder.encodeToString(encVal);
+    System.out.println("Encrypted Value is : " + encryptedValue);
+    
+    //for javascript side..
+//    var key = CryptoJS.enc.Base64.parse(keyForJS);
+//    
+//    var decryptedData = CryptoJS.AES.decrypt(encryptedValue, key, {
+//        mode: CryptoJS.mode.ECB,
+//        padding: CryptoJS.pad.Pkcs7
+//    });
+//    var decryptedText = decryptedData.toString(CryptoJS.enc.Utf8);
+//    alert(decryptedText);
+	}
+}

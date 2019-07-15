@@ -1,0 +1,11 @@
+package javademo;
+import java.time.LocalDate;
+import java.util.*;
+public class Dateapi {
+	public static void main(String[] args) {
+		LocalDate l = LocalDate.now();
+		System.out.println(l);
+		LocalDate tomorrow = LocalDate.now().plusDays(1);
+		System.out.println(tomorrow);
+	}
+}

@@ -1,0 +1,20 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class TestPOC {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in).useDelimiter("/n");
+		int x = sc.nextInt();
+		String str = sc.next();
+		System.out.println(sc);
+	}
+}

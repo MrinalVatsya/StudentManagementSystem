@@ -1,0 +1,27 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class LengthLongestSubsequence {
+	
+	 public int longestSubsequenceLength(final List<Integer> a) {
+		 
+	
+		 
+	    }
+	 
+	 public static void main(String[] args) {
+		
+		 LengthLongestSubsequence obj = new LengthLongestSubsequence();
+		 obj.longestSubsequenceLength(Arrays.asList(8,6,3,4,2,1));
+	}
+
+}

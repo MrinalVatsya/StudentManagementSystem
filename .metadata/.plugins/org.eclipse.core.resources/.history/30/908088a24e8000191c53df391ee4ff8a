@@ -1,0 +1,16 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class InvertBinaryTree {
+
+	    public TreeNode invertTree(TreeNode a) {
+	    	
+	    	
+	    }
+}

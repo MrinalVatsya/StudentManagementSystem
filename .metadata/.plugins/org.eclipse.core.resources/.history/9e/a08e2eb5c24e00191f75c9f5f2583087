@@ -1,0 +1,10 @@
+package com.mind.poc;
+
+public class MST {
+
+	
+	void printMST(int parent[], int n, int graph[][]) 
+    {
+		
+    }
+}

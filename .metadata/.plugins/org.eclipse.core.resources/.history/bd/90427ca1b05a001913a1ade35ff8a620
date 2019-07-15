@@ -1,0 +1,80 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+
+public class NitikaAndGame {
+
+	private static int dp[][] ;
+
+	static int arraySplitting(int[] arr) {
+
+		int n = arr.length;
+		return arrayHelper(arr, 0, n);
+	}
+
+	private static int arrayHelper(int[] arr, int start, int end) {
+
+			int leftSum = 0; 
+			int ways = 0;
+		    for (int i = 0 ; i < end ; i++) 
+		        leftSum += arr[i]; 
+		  
+		    // again traverse array and compute right sum 
+		    // and also check left_sum equal to right 
+		    // sum or not 
+		    int rightSum = 0; 
+		    for (int i=end-1; i >= 0; i--) 
+		    { 
+		        // add current element to right_sum 
+		        rightSum += arr[i]; 
+		  
+		        // exclude current element to the left_sum 
+		        leftSum -=  arr[i] ; 
+		  
+		        if (rightSum == leftSum) 
+		            return i; 
+		    } 
+		  
+	}
+
+	private static final Scanner scanner = new Scanner(System.in);
+
+	public static void main(String[] args) throws IOException {
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(("D://Solution.txt")));
+
+		int t = Integer.parseInt(scanner.nextLine().trim());
+
+		for (int tItr = 0; tItr < t; tItr++) {
+			int arrCount = Integer.parseInt(scanner.nextLine().trim());
+
+			int[] arr = new int[arrCount];
+
+			String[] arrItems = scanner.nextLine().split(" ");
+
+			for (int arrItr = 0; arrItr < arrCount; arrItr++) {
+				int arrItem = Integer.parseInt(arrItems[arrItr].trim());
+				arr[arrItr] = arrItem;
+			}
+
+			int result = arraySplitting(arr);
+
+			bufferedWriter.write(String.valueOf(result));
+			bufferedWriter.newLine();
+		}
+
+		bufferedWriter.close();
+	}
+}
+

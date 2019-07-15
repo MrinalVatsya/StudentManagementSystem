@@ -1,0 +1,82 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+import java.io.IOException;
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class AkashGCD1 {
+
+	public static int dp[] = new int[50000];
+	public static int gcd(int a , int b)
+	{
+		if (b == 0) 
+			return a; 
+		return gcd(b, a % b); 
+	}
+
+	public static long funcCalc(int x)
+	{
+		long ans = 0;
+		for(int i = 1; i <= x; i++)
+		{
+			ans = ans + gcd(i,x);
+		}
+		return ans;
+	}
+	public static void main(String[] args) throws IOException {
+		Scanner sc = new Scanner(System.in);
+		long mod = 1000000007;
+		int i , n = sc.nextInt();
+		int arr[] = new int[n];
+		for(i = 0; i < n; i++)
+		{
+			arr[i] = sc.nextInt();
+		}
+
+		int queries = sc.nextInt();
+		sc.nextLine();
+		int flag = 0;
+		while(queries-- > 0)
+		{
+			String str = sc.nextLine();
+			char[] inputArr = str.toCharArray();
+			char x = inputArr[0];
+			char y = inputArr[2];
+			char z = inputArr[4];
+			if(x=='C')
+			{
+				int start = Character.getNumericValue(y);
+				int end = Character.getNumericValue(z);
+				long ans = 0;
+				for(i = start-1; i <= end-1; i++)
+				{
+					ans = ans%mod + funcCalc(arr[i])%mod;
+					ans = ans%mod;
+				}
+
+				if(flag==0)
+				{
+				System.out.println(ans);
+				}
+				else
+				{
+					System.out.println(ans);
+					flag = 0;
+				}
+			}
+			else//update case..
+			{
+				int index = Character.getNumericValue(y) - 1;
+				arr[index] = Character.getNumericValue(z);
+				flag = 1;
+			}
+		}
+		sc.close();
+	}
+}

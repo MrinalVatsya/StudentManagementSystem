@@ -1,0 +1,18 @@
+package javademo;//Demo of queue..
+
+import java.util.*;
+
+public class program3 {
+	public static void main(String args[])
+	{
+	Queue<Integer> q = new LinkedList<Integer>();
+	for(int i = 0; i< 4;i++)//adding elements to queue
+	{
+		q.add(i+1);
+	}
+		System.out.print("My Queue contains : "+q);
+		int x = q.remove();
+		System.out.println();
+		System.out.println("Removed Element is : "+ x);
+	}
+}

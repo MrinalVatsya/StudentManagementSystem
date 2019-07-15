@@ -1,0 +1,20 @@
+package javademo;
+import java.util.*;
+public class program2 {
+	public static void main(String args[])
+	{
+	/*int[] arr = new int[4];
+	for(int i = 0;i< 4;i++)
+		arr[i] = i+1;
+	for(Integer x : arr)//New for loop in java
+		System.out.print(x+" ");*/
+		int i;
+		List<String> m = new List<String>(5);
+		m.add("mrinal");
+		m.add("legal1");
+		m.add("team");
+		//searching in list
+		
+			System.out.println("First Occurence of text is : "+ m.indexOf("mrinal"));
+	}
+}

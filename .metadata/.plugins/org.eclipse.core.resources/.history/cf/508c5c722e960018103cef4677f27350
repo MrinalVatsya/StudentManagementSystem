@@ -1,0 +1,13 @@
+package javademo;
+import java.util.*;
+public class program1 {
+	public static void main(String args[])
+	{
+		int i;
+	ArrayList<Integer> arr = new ArrayList<Integer>(4);
+	for(i=0;i<4;i++)
+		arr.add(i+1);
+	for(i=0;i<4;i++)
+		System.out.println(arr.get(i));//get() function ...
+	}
+}

@@ -1,0 +1,71 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class RecoverBinaryTree {
+	TreeNode first, middle, last , prev;
+	public ArrayList<Integer> recoverTree(TreeNode a) {
+
+		recoverTreeUtil(a);
+		ArrayList<Integer> ans = new ArrayList<>();
+		if(last==null)//when swapped nodes are adjacent..
+		{
+			int temp = first.val;
+			first.val = middle.val;
+			middle.val = temp;
+		}
+		else
+		{
+			int temp = first.val;
+			first.val = last.val;
+			last.val = temp;
+		}
+		return ans;
+	}
+
+	private void recoverTreeUtil(TreeNode a) {
+
+		if(a!= null)
+		{
+			recoverTreeUtil(a.left);
+			if(prev != null && prev.val > a.val )//first violation..
+			{
+				if(first == null)
+				{
+					first = prev;
+					middle = a;
+				}
+				else
+				{
+					last = a;
+				}
+			}
+			prev = a;
+			recoverTreeUtil(a.right);
+		}
+	}
+	public static void main(String[] args) {
+		TreeNode root = new TreeNode(92);
+		root.left = new TreeNode(82); 
+		root.right = new TreeNode(85); 
+		root.left.left = new TreeNode(81); 
+		root.left.right = new TreeNode(83);
+		root.right.right = new TreeNode(88);
+		root.right.right.left = new TreeNode(86);
+		root.right.right.right = new TreeNode(91);
+		root.right.right.left.right = new TreeNode(87);
+		root.right.right.right.left = new TreeNode(89);
+		root.right.right.right.right = new TreeNode(84);
+		
+		RecoverBinaryTree obj = new RecoverBinaryTree();
+		obj.recoverTree(root);
+	}
+
+}

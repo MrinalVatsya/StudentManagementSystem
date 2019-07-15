@@ -1,0 +1,16 @@
+package com.mind.poc;
+
+public class MST {
+
+	
+	private static final int V=5; 
+	
+	void printMST(int graph[][]) 
+    {
+		int parent[] = new int[V];
+		
+		int key[] = new int[V];
+		
+		Boolean mstSet[] = new Boolean[V];
+    }
+}

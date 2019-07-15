@@ -1,0 +1,59 @@
+package javademo;
+import java.util.*;
+import java.util.stream.Collectors;
+
+interface hello
+{
+	void add(Integer x , Integer y);
+}
+public class MapStreamPractice {
+	
+	class Book {
+		private String name;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+		
+	}
+		public static void main(String[] args) {
+			
+			List<Book> bookList = new ArrayList<>();
+			List<String> l = new ArrayList<>();
+			l.add("MRINAL");
+			l.add("VISHAL");
+			l.add("HiTESH");
+			//without lambda expression
+			for(String s: l)
+				System.out.println(s.toLowerCase());
+		
+			//after using lambda expression
+			
+			List<String> ans = l.stream().map(e->{
+				System.out.println(e.toUpperCase());
+				return e;
+			}).collect(Collectors.toList());
+			
+			//without using exp.
+			int x = 2, y = 3;
+			hello xi = new hello()
+					{
+					@Override
+					public void add(Integer x, Integer y){
+						int sum = x+y;
+						System.out.println("The Sum Is : " + sum );
+					}
+					};
+			xi.add(x, y);
+			
+			//with using exp..
+			hello mi = (Integer x1,Integer y1)->{
+				int s = x1 + y1;
+				System.out.println("The Sum Is : " + s);};
+			mi.add(x, y);
+		}
+}

@@ -1,0 +1,1004 @@
+
+/**
+ * 
+ */
+package com.mind.legalOne.boardGovernance.controller;
+
+
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.mind.legalOne.admin.common.CommonUtils;
+import com.mind.legalOne.admin.dto.DocumentDetail;
+import com.mind.legalOne.admin.dto.DocumentMetaData;
+import com.mind.legalOne.admin.dto.DocumentStatus;
+import com.mind.legalOne.admin.dto.DocumentTypeDetail;
+import com.mind.legalOne.admin.dto.Event;
+import com.mind.legalOne.admin.dto.UploadedDocument;
+import com.mind.legalOne.admin.dto.WorkFlowStepDocument;
+import com.mind.legalOne.boardGovernance.dto.AgendaDetail;
+import com.mind.legalOne.boardGovernance.dto.Attendee;
+import com.mind.legalOne.boardGovernance.dto.AttendeeType;
+import com.mind.legalOne.boardGovernance.dto.AttendeeTypeDetail;
+import com.mind.legalOne.boardGovernance.dto.BgWorkFlow;
+import com.mind.legalOne.boardGovernance.dto.CommitteeDetail;
+import com.mind.legalOne.boardGovernance.dto.Director;
+import com.mind.legalOne.boardGovernance.dto.DirectorDetail;
+import com.mind.legalOne.boardGovernance.dto.MOM;
+import com.mind.legalOne.boardGovernance.dto.Meeting;
+import com.mind.legalOne.boardGovernance.dto.MeetingDetail;
+import com.mind.legalOne.boardGovernance.dto.MeetingMOMChecklistMap;
+import com.mind.legalOne.boardGovernance.dto.MeetingType;
+import com.mind.legalOne.boardGovernance.dto.MomDetail;
+import com.mind.legalOne.boardGovernance.dto.VotingMember;
+import com.mind.legalOne.boardGovernance.logic.BGCommitteeLogic;
+import com.mind.legalOne.boardGovernance.logic.BGDirectorLogic;
+import com.mind.legalOne.boardGovernance.logic.BGDocumentLogic;
+import com.mind.legalOne.boardGovernance.logic.BGEventLogic;
+import com.mind.legalOne.boardGovernance.logic.BGMeetingLogic;
+
+/**
+ * @author maneeshkpandey
+ *
+ */
+@CrossOrigin(origins = {"http://localhost:4200","http://172.29.46.22:4200","*"})
+@RestController
+@RequestMapping("/boardGov")
+public class BoardGovernanceRestController {
+
+	@Autowired
+	BGDirectorLogic bgDirectorLogic;
+	
+	@Autowired
+	BGCommitteeLogic bgCommitteeLogic;
+	
+	@Autowired
+	BGMeetingLogic bgMeetingLogic;
+	
+	@Autowired
+	BGDocumentLogic documentLogic;
+	
+	@Autowired
+	BGEventLogic eventLogic;
+	
+	
+	
+	
+	/***
+	 * To fetch director list 
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("director")
+	public List<Director> director(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<Director> director = getBgDirectorLogic().getDirector(companyId, userId, roleId);
+		
+		return director;
+	}
+	
+	
+	/***  
+	 * To fetch director detail on basis of director id
+	 * @param companyId
+	 * @param roleId
+	 * @param directorId 
+	 * @param userId
+	 * @return
+	 */
+
+	@RequestMapping("directorDetail")
+	public DirectorDetail directorDetail(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="directorId", required=true) Long directorId, @RequestParam(value="userId", required=true) Integer userId,@RequestParam(value="roleId", required=true) Long roleId) {
+		
+		DirectorDetail directorDetail = getBgDirectorLogic().getDirectorDetail(companyId,directorId,userId,roleId);
+		
+		return directorDetail;
+	}
+	
+	
+	/***
+	 * To fetch list of committee with their respective members and chairman
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("committee")
+	public List<CommitteeDetail> committee(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<CommitteeDetail> committee = getBgCommitteeLogic().getCommittee(companyId, userId, roleId);
+		
+		return committee;
+	}
+	
+	
+	/***
+	 * To fetch meeting detail
+	 * @param companyId
+	 * @param meetingId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("meeting")
+	public Meeting meeting(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="meetingId",required=true) Long meetingId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		Meeting meeting = getBgMeetingLogic().getMeeting(companyId, meetingId, userId, roleId);
+		
+		return meeting;
+	}
+	
+	
+	/***
+	 * To fetch list of meeting attendees
+	 * @param companyId
+	 * @param meetingId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("attendee")
+	public List<Attendee> attendee(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="meetingId",required=true) Long meetingId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<Attendee> attendees = getBgMeetingLogic().getMeetingAttendeeList(companyId, meetingId, roleId, userId);
+		
+		return attendees;
+	}
+	
+	
+	/***
+	 * To fetch list of permanent invitee
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("permanentInvitee")
+	public List<Director> permanentInvitee(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<Director> director = getBgMeetingLogic().getPermanentInvitee(companyId, userId, roleId);
+		
+		return director;
+	}
+	
+	
+	/***
+	 * To fetch agenda
+	 * @param companyId
+	 * @param meetingId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("agenda")
+	public AgendaDetail agenda(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="meetingId",required=true) Long meetingId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		AgendaDetail agendaDetail = getBgMeetingLogic().getAgenda(companyId, meetingId, userId, roleId);
+		
+		return agendaDetail;
+	}
+	
+	
+	/***
+	 * To fetch meeting type list
+	 * @param companyId 
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("meetingType")
+	public List<MeetingType> meetingType(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<MeetingType> meetingTypes = getBgMeetingLogic().getMeetingType(companyId, userId, roleId);
+		
+		return meetingTypes;
+	}
+	
+	
+	/***
+	 * To fetch attendee type list
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("attendeeType")
+	public List<AttendeeType> attendeeType(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<AttendeeType> attendeeTypes = getBgMeetingLogic().getAttendeeType(companyId, userId, roleId);
+		
+		return attendeeTypes;
+	}
+	
+	
+	
+	/***
+	 * To fetch attendee type detail
+	 * @param companyId
+	 * @param roleId
+	 * @param attendeeTypeId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("attendeeTypeDetail")
+	public AttendeeTypeDetail attendeeTypeDetail(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="attendeeTypeId", required=true) Long attendeeTypeId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		AttendeeTypeDetail attendeeTypeDetail = getBgMeetingLogic().getAttendeeTypeDetail(companyId,attendeeTypeId, userId, roleId);
+		
+		return attendeeTypeDetail;
+	}
+	
+	
+	
+   /***
+    * To post meeting
+    * @param companyId
+    * @param meeting
+    * @param userId 
+    * @param roleId
+    * @return
+    */
+	@RequestMapping(value = "meeting/{companyId}", method=RequestMethod.POST)
+	public Meeting meeting(@PathVariable("companyId") Integer companyId,@RequestBody Meeting meeting, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		Meeting createdMeeting = getBgMeetingLogic().createMeeting(meeting,companyId,userId,roleId);
+		
+		return createdMeeting;
+	}
+	
+	
+	
+	/***
+	 * To update meeting
+	 * @param companyId
+	 * @param meetingId
+	 * @param meeting
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "meeting/{companyId}/{meetingId}", method=RequestMethod.PUT)
+	public Meeting meeting(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@RequestBody Meeting meeting, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		Meeting updatedMeeting = getBgMeetingLogic().updateMeeting(meeting,meetingId,companyId,userId,roleId);
+		
+		return updatedMeeting;
+	}
+	
+	
+	/***
+	 * To update work flow
+	 * @param companyId
+	 * @param meetingId
+	 * @param workflowType
+	 * @param bgWorkFlow
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "workflow/{companyId}/{meetingId}/{workflowType}", method=RequestMethod.PUT)
+	public BgWorkFlow workflow(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@PathVariable("workflowType") Integer workflowType,@RequestBody BgWorkFlow bgWorkFlow, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		BgWorkFlow updatedBgWf = getBgMeetingLogic().submitMeetingWorkFlow(bgWorkFlow,companyId,meetingId,workflowType,userId,roleId);
+		
+		return updatedBgWf;
+	}
+	
+	
+	/***
+	 * To update agenda detail
+	 * @param companyId
+	 * @param meetingId
+	 * @param agendaDetail
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "agenda/{companyId}/{meetingId}", method=RequestMethod.PUT)
+	public AgendaDetail agenda(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@RequestBody AgendaDetail agendaDetail, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		AgendaDetail updatedAgendaDetail = getBgMeetingLogic().addMeetingAgenda(agendaDetail,companyId,meetingId,userId,roleId);
+		
+		return updatedAgendaDetail;
+	}
+	
+	@RequestMapping(value = "draftMom/{companyId}/{meetingId}", method=RequestMethod.PUT)
+	public MomDetail draftMom(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@RequestBody MomDetail momDetail, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		MomDetail updatedMomDetail = getBgMeetingLogic().updateDraftMom(momDetail,companyId,meetingId,userId,roleId);
+		
+		return updatedMomDetail;
+	}
+	
+	
+	@RequestMapping(value = "finalMom/{companyId}/{meetingId}", method=RequestMethod.PUT)
+	public MomDetail finalMom(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@RequestBody MomDetail momDetail, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+
+		MomDetail updatedMomDetail = getBgMeetingLogic().updateFinalMom(momDetail,companyId,meetingId,userId,roleId);
+		
+		return updatedMomDetail;
+	}
+	
+	/***
+	 * To update agenda document files on basis of agenda id
+	 * @param uploadfiles
+	 * @param companyId
+	 * @param meetingId
+	 * @param agendaId
+	 * @param documentType
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "file/{companyId}/{meetingId}/{agendaId}/{documentType}", method=RequestMethod.PUT)
+	public List<UploadedDocument> file(@RequestParam("uploadfiles") MultipartFile[] uploadfiles,@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@PathVariable("agendaId") Long agendaId,@PathVariable("documentType") Integer documentType, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		CommonUtils.validateUploadFiles(uploadfiles);
+		
+		List<UploadedDocument> documentFiles = getBgMeetingLogic().uploadMeetingAgendaDocument(uploadfiles,companyId,meetingId,agendaId,documentType,userId,roleId);
+		
+		return documentFiles;
+		
+	}
+	
+	
+	/***
+	 * To update sub agenda document file on basis of sub agenda id
+	 * @param uploadfiles
+	 * @param companyId
+	 * @param meetingId
+	 * @param agendaId
+	 * @param subAgendaId
+	 * @param documentType
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "file/{companyId}/{meetingId}/{agendaId}/{subAgendaId}/{documentType}", method=RequestMethod.PUT)
+	public List<UploadedDocument> file(@RequestParam("uploadfiles") MultipartFile[] uploadfiles,@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@PathVariable("agendaId") Long agendaId,@PathVariable("subAgendaId") Long subAgendaId,@PathVariable("documentType") Integer documentType, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		CommonUtils.validateUploadFiles(uploadfiles);
+		
+		List<UploadedDocument> documentFiles = getBgMeetingLogic().uploadMeetingAgendaSubItemDocument(uploadfiles,companyId,meetingId,agendaId,subAgendaId,documentType,userId,roleId);
+		
+		return documentFiles;
+		
+	}
+	
+	/***
+	 * To upload MOM
+	 * @param uploadfile
+	 * @param companyId
+	 * @param meetingId
+	 * @param momType
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "uploadMom/{companyId}/{meetingId}/{momType}", method=RequestMethod.PUT)
+	public UploadedDocument uploadMom(@RequestParam("uploadfile") MultipartFile uploadfile,@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@PathVariable("momType") Integer momType, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		MultipartFile[] uploadfiles = new MultipartFile[1];
+		uploadfiles[0] = uploadfile;
+		CommonUtils.validateUploadFiles(uploadfiles);
+		
+		UploadedDocument documentFile = getBgMeetingLogic().uploadMom(uploadfile,companyId,meetingId,momType,userId,roleId);
+		
+		return documentFile;
+	}
+	
+	
+	/***
+	 * To fetch document file
+	 * @param companyId
+	 * @param meetingId
+	 * @param agendaId
+	 * @param docMapId
+	 * @param userId
+	 * @param roleId
+	 * @param rs
+	 */
+	@RequestMapping("file/{companyId}/{meetingId}/{agendaId}/{docMapId}")
+	public void file(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@PathVariable("agendaId") Long agendaId,@PathVariable("docMapId") Long docMapId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId, HttpServletResponse rs) {
+		
+		InputStream inputStream = getBgMeetingLogic().getMeetingDocument(companyId,meetingId,agendaId,docMapId,userId,roleId);
+		
+		CommonUtils.writeFileOnResponseOutputStream(rs, inputStream);
+
+	}
+	
+	/***
+	 * To fetch draft or final mom
+	 * @param companyId
+	 * @param meetingId
+	 * @param momType
+	 * @param userId
+	 * @param roleId
+	 * @param rs
+	 */
+	@RequestMapping("fileMom/{companyId}/{meetingId}/{momType}")
+	public void fileMom(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@PathVariable("momType") Integer momType, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId, HttpServletResponse rs) {
+		
+		InputStream inputStream = getBgMeetingLogic().getMomDocument(companyId,meetingId,momType,userId,roleId);
+		
+		CommonUtils.writeFileOnResponseOutputStream(rs, inputStream);
+	}
+	/***
+	 * To fetch voting member
+	 * @param companyId
+	 * @param meetingId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("votingMember")
+	public List<VotingMember> votingAccess(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="meetingId", required=true) Long meetingId,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<VotingMember> votingMembers = getBgMeetingLogic().getMeetingVotingMembers(companyId,meetingId,roleId,userId);
+		
+		return votingMembers;
+	}
+	
+	
+	/***
+	 * To fetch list of pending, returned and approved meetings
+	 * @param companyId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("meetingDashboard")
+	public MeetingDetail meetingSummary(@RequestParam(value="companyId", required=true) Integer companyId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		MeetingDetail meeting = getBgMeetingLogic().getMeetingSummaryDetails(companyId, userId, roleId);
+		return meeting;
+	}
+
+	
+	/***
+	 * To fetch list of pending, returned and approved agendas of a meeting
+	 * @param companyId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("agendaDashboard")
+	public MeetingDetail agendaSummary(@RequestParam(value="companyId", required=true) Integer companyId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		MeetingDetail meeting = getBgMeetingLogic().getAgendaSummaryDetails(companyId, userId, roleId);
+		return meeting;
+	}
+
+
+  /***
+   *  To fetch list of pending, returned and approved draft MOMs of a meeting
+   * @param companyId
+   * @param userId
+   * @param roleId
+   * @return
+   */
+	@RequestMapping("draftMomDashboard")
+	public MeetingDetail draftMomSummary(@RequestParam(value="companyId", required=true) Integer companyId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		MeetingDetail meeting = getBgMeetingLogic().getDraftMOMSummaryDetails(companyId, userId, roleId);
+		return meeting;
+	}
+	
+	/*** 
+	 *  To fetch list of pending, returned and approved final Moms of a meeting
+	 * @param companyId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("finalMomDashboard")
+	public MeetingDetail finalMomSummary(@RequestParam(value="companyId", required=true) Integer companyId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		MeetingDetail meeting = getBgMeetingLogic().getfinalMOMSummaryDetails(companyId, userId, roleId);
+		return meeting;
+	}
+
+	
+	/***
+	 * To fetch meeting list between to dates of calendar
+	 * @param startDate
+	 * @param endDate
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("meetingList")
+	public List<Meeting> meetingList(@RequestParam(value="startDate", required=true)  @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,@RequestParam(value="endDate",required=true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<Meeting> meetingList = getBgMeetingLogic().getMeetingList(startDate, endDate,userId, roleId);
+		System.out.println("mrinal");
+		return meetingList;
+	}
+	
+	/***
+	 * To fetch meeting MOM
+	 * @param companyId
+	 * @param meetingId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	/*@RequestMapping("meetingMOM")
+	public MOM meetingMOM (@RequestParam(value="companyId", required=true) Integer companyId, @RequestParam(value="meetingId", required=true) Long meetingId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		MOM mom = getBgMeetingLogic().getMeetingMOM(companyId, meetingId, userId, roleId);
+		
+		return mom;
+	}*/
+	
+	@RequestMapping("meetingMOM")
+	public List<MeetingMOMChecklistMap> meetingMOM (@RequestParam(value="companyId", required=true) Integer companyId, @RequestParam(value="meetingId", required=true) Long meetingId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		List<MeetingMOMChecklistMap> momCheckList = getBgMeetingLogic().getMeetingMOM(companyId, meetingId, userId, roleId);
+		
+		return momCheckList;
+	}
+	
+	/***
+	 * To add and update MOM
+	 * @param companyId
+	 * @param meetingId
+	 * @param mom
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "updateMOM/{companyId}/{meetingId}", method=RequestMethod.PUT)
+	public List<MeetingMOMChecklistMap> updateMOM(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId,@RequestBody List<MeetingMOMChecklistMap> momCheckList, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		List<MeetingMOMChecklistMap> updatedMOM = getBgMeetingLogic().updateMOM(momCheckList, userId, meetingId);
+		
+		return updatedMOM;
+	}
+	
+	/***
+	 * To delete meeting
+	 * @param companyId
+	 * @param meetingId
+	 * @param meeting
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+    @RequestMapping(value="deleteMeeting/{companyId}/{meetingId}" , method=RequestMethod.DELETE)
+    public  ResponseEntity<String>  deleteMeeting (@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+	
+	getBgMeetingLogic().deleteMeeting(companyId, meetingId,userId);
+	
+	return new ResponseEntity<String>("Data deleted successfully", HttpStatus.OK);
+	
+
+}
+	
+	/***
+	 * To delete agenda
+	 * @param companyId
+	 * @param meetingId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+    @RequestMapping(value="deleteAgenda/{companyId}/{meetingId}" , method=RequestMethod.DELETE)
+    public  ResponseEntity<String>  deleteAgenda(@PathVariable("companyId") Integer companyId,@PathVariable("meetingId") Long meetingId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+	
+	getBgMeetingLogic().deleteAgenda(companyId,meetingId,userId);
+	
+	return new ResponseEntity<String>("Data deleted successfully", HttpStatus.OK);
+	
+
+}
+		
+	
+	/***
+	 * To fetch workflow step document
+	 * @param companyId
+	 * @param unitId
+	 * @param workflowStepName
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("workflowStepDocuments")
+	public List<WorkFlowStepDocument> workflowStepDocuments(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@RequestParam(value="workflowStepName", required=true) String workflowStepName, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		List<WorkFlowStepDocument> documents = getDocumentLogic().getMomWorkflowStepDocuments(companyId,unitId,workflowStepName,userId,roleId);
+		
+		return documents;
+	}
+	
+	/****
+	 * To fetch document type wise status and workflow step wise status
+	 * @param companyId
+	 * @param unitId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("documentTypeStatus")
+	public DocumentStatus documentTypeStatus(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		Set<Long> roleIds = new HashSet<Long>();
+		roleIds.add(roleId);
+		DocumentStatus documentsStatus = getDocumentLogic().getUserWiseMomStatus(companyId, unitId, userId, roleIds);
+		return documentsStatus;
+	}
+	
+	/***
+	 * To fetch applicable document type and user assign to document type
+	 * @param companyId
+	 * @param unitId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("documentType")
+	public List<DocumentTypeDetail> documentType(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId, @RequestParam(value="userId", required=true) Integer userId) {
+		
+		List<DocumentTypeDetail> documentTypes = getDocumentLogic().getMomType(companyId, unitId, userId);
+		
+		return documentTypes;
+	}
+	
+	
+	
+	/***
+	 * To update applicable document type and user assign to document type
+	 * @param companyId
+	 * @param unitId
+	 * @param documentTypes
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "documentType/{companyId}", method=RequestMethod.PUT)
+	public List<DocumentTypeDetail> documentType(@PathVariable("companyId") Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@RequestBody List<DocumentTypeDetail> documentTypes, @RequestParam(value="userId", required=true) Integer userId){
+		
+		List<DocumentTypeDetail> updatedDocumentTypes = getDocumentLogic().updateMomType(companyId, unitId, userId, documentTypes);
+		
+		return updatedDocumentTypes;
+	}
+	
+	
+	/***
+	 * To create meta data for a document
+	 * @param companyId
+	 * @param unitId
+	 * @param docTypeId
+	 * @param documentMetaData
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "documentMetadata/{companyId}/{docTypeId}", method=RequestMethod.POST)
+	public DocumentMetaData documentMetadata(@PathVariable("companyId") Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@PathVariable("docTypeId") Long docTypeId, @RequestBody DocumentMetaData documentMetaData, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		DocumentMetaData updatedDocMetaData = getDocumentLogic().createMomMetaData(userId,companyId,unitId,docTypeId,documentMetaData);
+		
+		return updatedDocMetaData;
+	}
+	
+	
+	/***
+	 * To update meta data of a document
+	 * @param companyId
+	 * @param unitId
+	 * @param docTypeId
+	 * @param docId
+	 * @param documentMetaData
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+
+	@RequestMapping(value = "documentMetadata/{companyId}/{docTypeId}/{docId}", method=RequestMethod.PUT)
+	public DocumentMetaData documentMetadata(@PathVariable("companyId") Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@PathVariable("docTypeId") Long docTypeId,@PathVariable("docId") Long docId, @RequestBody DocumentMetaData documentMetaData, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		DocumentMetaData updatedDocMetaData = getDocumentLogic().updateMomMetaData(userId,companyId,unitId,docTypeId,docId,documentMetaData);
+		
+		return updatedDocMetaData;
+	}
+	
+	
+	
+	/**
+	 * To process workflow of a document
+	 * @param companyId
+	 * @param unitId
+	 * @param docTypeId
+	 * @param docId
+	 * @param documentMetaData
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "workFlow/{companyId}/{docTypeId}/{docId}", method=RequestMethod.PUT)
+	public DocumentMetaData workFlow(@PathVariable("companyId") Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@PathVariable("docTypeId") Long docTypeId,@PathVariable("docId") Long docId, @RequestBody DocumentMetaData documentMetaData, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		DocumentMetaData updatedDocMetaData = getDocumentLogic().submitMomWorkFlow(userId,companyId,unitId,docTypeId,docId,documentMetaData);
+		
+		return updatedDocMetaData;
+	}
+	
+	
+	/***
+	 * To get meta data for a document
+	 * @param companyId
+	 * @param unitId
+	 * @param docTypeId
+	 * @param docId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("documentMetadata")
+	public DocumentMetaData documentMetadata(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@RequestParam(value="docTypeId", required=true) Long docTypeId,@RequestParam(value="docId", required=true) Long docId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		DocumentMetaData DocumentMetaData = getDocumentLogic().getMomMetaData(companyId,unitId,docTypeId,docId,userId,roleId);
+		
+		return DocumentMetaData;
+	}
+	
+	
+	/**
+	 * Detail status of a document type
+	 * @param companyId
+	 * @param unitId
+	 * @param userId
+	 * @param roleId
+	 * @param docTypeId
+	 * @return
+	 */
+	@RequestMapping("document")
+	public DocumentDetail document(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="docTypeId", required=true) Long docTypeId){
+		
+		DocumentDetail momDocument = getDocumentLogic().getUserWiseMomDetails(companyId,unitId,userId,roleId,docTypeId);
+		return momDocument;
+	}
+
+	
+	
+	/****
+	 * To fetch event details
+	 * @param companyId
+	 * @param unitId
+	 * @param startDate
+	 * @param endDate
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("event")
+	public List<Event> event(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@RequestParam(value="startDate", required=true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,@RequestParam(value="endDate", required=true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		List<Event> events = getEventLogic().getMomEvent(companyId,unitId,startDate,endDate,userId,roleId);
+		
+		
+		return events;
+	}
+	
+	
+	/***
+	 * To create an event
+	 * @param event
+	 * @param companyId
+	 * @param unitId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="event/{companyId}", method=RequestMethod.POST)
+	public Event event(@RequestBody Event event,@PathVariable("companyId") Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		Event updatedEvent = getEventLogic().createMomEvent(event,companyId,unitId,userId,roleId);
+		return updatedEvent;
+	}
+	
+	
+	/***
+	 * To update an event
+	 * @param event
+	 * @param companyId
+	 * @param eventId
+	 * @param unitId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="event/{companyId}/{eventId}", method=RequestMethod.PUT)
+	public Event event(@RequestBody Event event,@PathVariable("companyId") Integer companyId,@PathVariable("eventId") Long eventId,@RequestParam(value="unitId", required=true) Integer unitId,@RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		Event updatedEvent = getEventLogic().updateMomEvent(event,companyId,unitId,eventId,userId,roleId);
+		return updatedEvent;
+	}
+	
+	
+	@RequestMapping(value="event/{companyId}/{eventId}", method=RequestMethod.DELETE)
+	public ResponseEntity<String> event(@PathVariable("companyId") Integer companyId,@PathVariable("eventId") Long eventId,@RequestParam(value="unitId", required=true) Integer unitId,@RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId){
+		
+		getEventLogic().deleteMomEvent(companyId,unitId,eventId,userId,roleId);
+		
+		return new ResponseEntity<String>("Data deleted successfully", HttpStatus.OK);
+	}
+	
+
+	
+/*
+	@RequestMapping(value = "file/{companyId}/{docTypeId}", method=RequestMethod.POST)
+	public List<UploadedDocument> file(@RequestParam("uploadfiles") MultipartFile[] uploadfiles,@PathVariable("companyId") Integer companyId,@PathVariable("docTypeId") Long docTypeId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		CommonUtils.validateUploadFiles(uploadfiles);
+
+		List<UploadedDocument> documentFiles = getDocumentLogic().uploadMomDocument(uploadfiles,companyId,docTypeId,userId,roleId);
+		
+		return documentFiles;
+	}
+
+
+	
+	
+	@RequestMapping(value = "file/{companyId}/{docTypeId}/{docId}/{metaDataId}", method=RequestMethod.PUT)
+	public UploadedDocument file(@RequestParam("uploadfiles") MultipartFile[] uploadfiles,@PathVariable("companyId") Integer companyId,@PathVariable("docTypeId") Long docTypeId,@PathVariable("docId") Long docId,@PathVariable("metaDataId") Long metaDataId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		CommonUtils.validateUploadFiles(uploadfiles);
+		
+		UploadedDocument documentFile = getDocumentLogic().uploadMomMetaDataDocument(uploadfiles,companyId,docTypeId,docId,metaDataId,userId,roleId);
+		
+		return documentFile;
+		
+	}
+	
+	@RequestMapping(value = "file/{companyId}/{docTypeId}/{docId}/{metaDataId}/{subMetaDataId}", method=RequestMethod.PUT)
+	public UploadedDocument file(@RequestParam("uploadfiles") MultipartFile[] uploadfiles,@PathVariable("companyId") Integer companyId,@PathVariable("docTypeId") Long docTypeId,@PathVariable("docId") Long docId,@PathVariable("metaDataId") Long metaDataId,@PathVariable("subMetaDataId") Long subMetaDataId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		CommonUtils.validateUploadFiles(uploadfiles);
+		
+		UploadedDocument documentFile = getDocumentLogic().uploadMomSubMetaDataDocument(uploadfiles,companyId,docTypeId,docId,metaDataId,subMetaDataId,userId,roleId);
+		
+		return documentFile;
+		
+	}
+	
+	@RequestMapping(value = "file/{companyId}/{docTypeId}/{docId}", method=RequestMethod.PUT)
+	public List<UploadedDocument> file(@RequestParam("uploadfiles") MultipartFile[] uploadfiles,@PathVariable("companyId") Integer companyId,@PathVariable("docTypeId") Long docTypeId,@PathVariable("docId") Long docId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+		
+		CommonUtils.validateUploadFiles(uploadfiles);
+		
+		List<UploadedDocument> documentFiles = getDocumentLogic().updateMomDocument(uploadfiles,companyId,docTypeId,docId,userId,roleId);
+		
+		return documentFiles;
+	}
+	 
+	@RequestMapping("file/{companyId}/{docTypeId}/{docId}/{docMapId}")
+	public void file(@PathVariable("companyId") Integer companyId,@PathVariable("docTypeId") Long docTypeId,@PathVariable("docId") Long docId,@PathVariable("docMapId") Long docMapId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId, HttpServletResponse rs) {
+		
+		InputStream inputStream = getDocumentLogic().getMomDocument(companyId,docTypeId,docId,docMapId,userId,roleId);
+		
+		CommonUtils.writeFileOnResponseOutputStream(rs, inputStream);
+
+	}
+
+
+	
+	
+	@RequestMapping("file/{companyId}/{docTypeId}/{docId}/{metaDataId}/{docMapId}")
+	public void file(@PathVariable("companyId") Integer companyId,@PathVariable("docTypeId") Long docTypeId,@PathVariable("docId") Long docId,@PathVariable("metaDataId") Long metaDataId,@PathVariable("docMapId") Long docMapId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId, HttpServletResponse rs) {
+		
+		InputStream inputStream = getDocumentLogic().getMomMetaDataDocument(companyId,docTypeId,docId,metaDataId,docMapId,userId,roleId);
+		
+		CommonUtils.writeFileOnResponseOutputStream(rs, inputStream);
+		
+	}
+	
+	@RequestMapping("file/{companyId}/{docTypeId}/{docId}/{metaDataId}/{subMetaDataId}/{docMapId}")
+	public void file(@PathVariable("companyId") Integer companyId,@PathVariable("docTypeId") Long docTypeId,@PathVariable("docId") Long docId,@PathVariable("metaDataId") Long metaDataId,@PathVariable("subMetaDataId") Long subMetaDataId,@PathVariable("docMapId") Long docMapId, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId, HttpServletResponse rs) {
+		
+		InputStream inputStream = getDocumentLogic().getMomSubMetaDataDocument(companyId,docTypeId,docId,metaDataId,subMetaDataId,docMapId,userId,roleId);
+		
+		CommonUtils.writeFileOnResponseOutputStream(rs, inputStream);
+	}
+	
+	
+*/	
+	
+	
+	
+	/**
+	 * @return the bgMeetingLogic 
+	 */
+	public BGMeetingLogic getBgMeetingLogic() {
+		return bgMeetingLogic;
+	}
+
+	/**
+	 * @param bgMeetingLogic the bgMeetingLogic to set
+	 */
+	public void setBgMeetingLogic(BGMeetingLogic bgMeetingLogic) {
+		this.bgMeetingLogic = bgMeetingLogic;
+	}
+
+	/**
+	 * @return the bgDirectorLogic
+	 */
+	public BGDirectorLogic getBgDirectorLogic() {
+		return bgDirectorLogic;
+	}
+
+	/**
+	 * @param bgDirectorLogic the bgDirectorLogic to set
+	 */
+	public void setBgDirectorLogic(BGDirectorLogic bgDirectorLogic) {
+		this.bgDirectorLogic = bgDirectorLogic;
+	}
+
+	/**
+	 * @return the bgCommitteeLogic
+	 */
+	public BGCommitteeLogic getBgCommitteeLogic() {
+		return bgCommitteeLogic;
+	}
+
+	/**
+	 * @param bgCommitteeLogic the bgCommitteeLogic to set
+	 */
+	public void setBgCommitteeLogic(BGCommitteeLogic bgCommitteeLogic) {
+		this.bgCommitteeLogic = bgCommitteeLogic;
+	}
+
+
+	/**
+	 * @return the documentLogic
+	 */
+	public BGDocumentLogic getDocumentLogic() {
+		return documentLogic;
+	}
+
+
+	/**
+	 * @param documentLogic the documentLogic to set
+	 */
+	public void setDocumentLogic(BGDocumentLogic documentLogic) {
+		this.documentLogic = documentLogic;
+	}
+
+
+	/**
+	 * @return the eventLogic
+	 */
+	public BGEventLogic getEventLogic() {
+		return eventLogic;
+	}
+
+
+	/**
+	 * @param eventLogic the eventLogic to set
+	 */
+	public void setEventLogic(BGEventLogic eventLogic) {
+		this.eventLogic = eventLogic;
+	}
+
+
+	
+	
+}

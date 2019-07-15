@@ -1,0 +1,46 @@
+package javademo;
+import java.util.*;
+public class TreeSetExample {
+	public static void main(String[] args) {
+		TreeSet<Integer> t = new TreeSet();
+		t.add(24);
+		t.add(15);
+		t.add(16);
+		t.add(45);
+		
+		System.out.println("Contents of my tree are in sorted ascending order : "+t);//default natural sorting order
+		
+		/*TreeSet t1 = new TreeSet();
+		//adding null value
+		t1.add(null);
+		
+		
+		t1.add("mrinal");
+		t1.add("vishal");
+		t1.add("hitesh");*/
+		
+	//	System.out.println(t1);//null pointer exception
+		 
+		//customized sorting in treeset..
+		TreeSet t2 = new TreeSet(new MyComparator());
+		t2.add(24);
+		t2.add(15);
+		t2.add(16);
+		t2.add(45);
+		System.out.println("Print in descending order "+t2);
+	}
+}
+class MyComparator implements Comparator
+{
+	public int compare(Object obj1, Object obj2)
+	{
+		Integer i1 = (Integer)obj1;
+		Integer i2 = (Integer)obj2;
+		if(i1 < i2)
+			return +1;
+		else if(i1 > i2)
+			return -1;
+		else
+			return 0;
+	}
+}

@@ -1,0 +1,98 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+import jdk.nashorn.internal.runtime.Context.ThrowErrorManager;
+
+public class LCS {
+
+	private static int[] ans= new int[100];
+	
+	private static int j = 0;
+    // Complete the longestCommonSubsequence function below.
+    static int[] longestCommonSubsequence(int[] a, int[] b) {
+
+    	int lcsSize = lcsHelper(a, b, 0,0);
+    	System.out.println(lcsSize);
+    	for(int i = 0; i < ans.length; i++)
+    		System.out.print(ans[i]+"   ");
+    	return ans;
+    }
+
+    private static int lcsHelper(int[] a, int[] b , int m, int n) {
+	
+    	if(m==a.length)
+    		return 0;
+    	if(n==b.length)
+    		return 0;
+    	if(a[m]==b[n])
+    	{
+    		ans[j] = a[m];
+    		j++;
+    		return 1 + lcsHelper(a,b, m+1, n+1);
+    	}
+    	else
+    	{
+    		return Math.max(lcsHelper(a, b, m+1, n), lcsHelper(a,b,  m, n+1));
+    	}
+	}
+
+	private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("D://Solution.txt"));
+
+        String[] nm = scanner.nextLine().split(" ");
+
+        int n = Integer.parseInt(nm[0]);
+
+        int m = Integer.parseInt(nm[1]);
+
+        int[] a = new int[n];
+
+        String[] aItems = scanner.nextLine().split(" ");
+        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+        for (int i = 0; i < n; i++) {
+            int aItem = Integer.parseInt(aItems[i]);
+            a[i] = aItem;
+        }
+
+        int[] b = new int[m];
+
+        String[] bItems = scanner.nextLine().split(" ");
+        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+        for (int i = 0; i < m; i++) {
+            int bItem = Integer.parseInt(bItems[i]);
+            b[i] = bItem;
+        }
+
+        int[] result = longestCommonSubsequence(a, b);
+
+        for (int i = 0; i < result.length; i++) {
+            bufferedWriter.write(String.valueOf(result[i]));
+
+            if (i != result.length - 1) {
+                bufferedWriter.write(" ");
+            }
+        }
+
+        bufferedWriter.newLine();
+
+        bufferedWriter.close();
+
+        scanner.close();
+    }
+}
+

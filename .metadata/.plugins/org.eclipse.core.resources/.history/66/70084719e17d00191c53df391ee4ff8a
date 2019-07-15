@@ -1,0 +1,21 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class MinimumPathSum {
+	
+	    public int minPathSum(ArrayList<ArrayList<Integer>> a) {
+	    	
+	    	int m = a.size();
+	    	int n = a.get(0).size();
+	    	
+	    	minPathSumUtil(m, n, );
+	    }
+}

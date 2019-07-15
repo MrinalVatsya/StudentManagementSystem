@@ -1,0 +1,82 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class SubsetSumDP {
+
+	private static int dp[][];
+	static int isSubsetSum(int set[], 
+			int n, int sum) 
+	{ 
+		// Base Cases 
+		if (sum == 0) 
+		{
+			return 1;
+		}
+		if (n == 0 && sum != 0) 
+			return 0; 
+
+		if(dp[n][sum]!=-1)
+		{
+			return dp[n][sum];
+		}
+
+		int ans = 0;
+
+		if (set[n-1] > sum) 
+		{
+			ans =  isSubsetSum(set, n-1, sum); 
+		}
+		else
+		{
+			ans =  isSubsetSum(set, n-1, sum) +  isSubsetSum(set, n-1, sum-set[n-1]);
+		}
+		return dp[n][sum] = ans;
+
+	} 
+
+	private static Scanner sc = new Scanner(System.in);
+	/* Driver program to test above function */
+	public static void main (String args[]) 
+	{ 
+		int size = sc.nextInt();
+		 int[] set = new int[size];
+		for(int i = 0; i < size; i++)
+		{
+			set[i] = sc.nextInt();
+		}
+		
+		int sum = 1500;
+		
+		int n = set.length; 
+		dp = new int[n+1][sum+1];
+		for(int i = 0; i < dp.length; i++)
+			for(int j = 0; j < dp[i].length ; j++)
+				dp[i][j] = -1;
+		
+		int ways  = isSubsetSum(set, n, sum);
+		
+		for(int i = 0; i < dp.length; i++)
+		{
+			for(int j = 0; j < dp[i].length ; j++)
+			{
+				System.out.print(dp[i][j]+" ");
+			}
+		System.out.println();
+		}
+		
+		System.out.println(ways);
+		
+	} 
+
+
+}

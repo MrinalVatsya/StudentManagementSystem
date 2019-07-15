@@ -1,0 +1,76 @@
+/**
+ * 
+ */
+package com.mind.poc;
+import java.util.Scanner;
+
+/**
+ * 
+ */
+
+/**
+ * @author MRINAL VATS
+ *
+ */
+public class JioSemi2 {
+	
+	public static Scanner sc = new Scanner(System.in);
+	public static void main(String[] args) {
+		int t = sc.nextInt();
+		while(t-- > 0)
+		{
+			int phases = sc.nextInt();
+			int states = sc.nextInt();
+			
+			int phasArr[] = new int[phases];
+			int stateArr[] = new int[states];
+			
+			int i , j ;
+			for(i = 0; i < phases; i++)
+			{
+				phasArr[i] = sc.nextInt();
+			}
+			
+			for(j = 0; j < states; j++)
+			{
+				stateArr[j] = sc.nextInt();
+			}
+			
+			boolean flag = false;
+			for(i = 0; i < phases; i++)
+			{
+				for(j = 0; j < states; j++)
+				{
+					if(stateArr[j]==0)
+					{
+						continue;
+					}
+					
+					if(phasArr[i]==0)
+					{
+						break;
+					}
+					
+					if(phasArr[i] > 0 && stateArr[j] > 0)
+					{
+						phasArr[i]--;
+						stateArr[j]--;
+					}
+								
+				}
+			}
+			
+				if(phasArr[phases-1]==0 && stateArr[states-1]==0)
+				{
+					flag = true;
+				}
+			
+			if(flag==true)
+				System.out.println("YES");
+			else
+				System.out.println("NO");
+			
+		}
+	}
+
+}

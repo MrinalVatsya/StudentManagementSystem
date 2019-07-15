@@ -1,0 +1,36 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class LengthLongestSubsequence {
+	
+	 public int solve(final List<Integer> a) {
+		 
+		 int i ,j , k , len = a.size();
+		 
+		 for(i = 0; i < len-2; i++)
+		 {
+			 for(j = i+1; j < len; j++)
+			 {
+				 int diff = a.get(j) - a.get(i);
+				 for(k = j+1; k < n; k++)
+			 }
+		 }
+		 
+	    }
+	 
+	 public static void main(String[] args) {
+		
+		 LengthLongestSubsequence obj = new LengthLongestSubsequence();
+		 obj.solve(Arrays.asList(8,6,3,4,2,1));
+	}
+
+}

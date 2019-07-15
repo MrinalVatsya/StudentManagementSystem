@@ -1,0 +1,18 @@
+/**
+ * 
+ */
+package javademo2;
+
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		SimpleDateFormat sdfAmerica = new SimpleDateFormat("dd-M-yyyy hh:mm:ss a");
+		TimeZone tzInAmerica = TimeZone.getTimeZone("Asia/Tokyo");
+		sdfAmerica.setTimeZone(tzInAmerica);
+		sdfAmerica.format(calendar.getTime());
+	}
+}

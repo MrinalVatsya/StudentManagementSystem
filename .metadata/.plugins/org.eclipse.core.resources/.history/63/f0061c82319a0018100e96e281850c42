@@ -1,0 +1,22 @@
+package javademo;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+public class Dateapi {
+	public static void main(String[] args) {
+		LocalDate l = LocalDate.now();
+		System.out.println(l);
+		LocalDate tomorrow = LocalDate.now().plusDays(1);
+		System.out.println(tomorrow);
+		
+		int six = LocalTime.parse("06:30").getHour();
+		System.out.println(six);
+		
+		LocalTime sevenThirty = LocalTime.parse("06:30").plus(1, ChronoUnit.HOURS);
+		System.out.println(sevenThirty);
+		
+		LocalDateTime.now();
+	}
+}

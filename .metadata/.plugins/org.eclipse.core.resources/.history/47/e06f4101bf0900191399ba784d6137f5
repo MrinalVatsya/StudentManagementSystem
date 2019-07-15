@@ -1,0 +1,43 @@
+package javademo2;
+
+
+import microsoft.exchange.webservices.data.autodiscover.IAutodiscoverRedirectionUrl;
+import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
+import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
+import microsoft.exchange.webservices.data.core.service.folder.Folder;
+import microsoft.exchange.webservices.data.credential.WebCredentials;
+
+public class EWSJavaAPI {
+
+    public static class RedirectionUrlCallback implements IAutodiscoverRedirectionUrl {
+        public boolean autodiscoverRedirectionUrlValidationCallback(String redirectionUrl) {
+          return redirectionUrl.toLowerCase().startsWith("https://");
+        }
+    }
+
+    public static ExchangeService connectViaExchangeAutodiscover(String email, String password) {
+        ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
+        try {
+
+            service.setCredentials(new WebCredentials(email, password));
+            service.autodiscoverUrl("https://owa.motherson.com/owa/");
+            service.setTraceEnabled(true);
+            Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
+            System.out.println("messages: " + inbox.getTotalCount());
+        }
+        catch (Throwable e){
+            e.printStackTrace();
+        }
+        return service;
+    }
+    public static void main(String[] args) {
+      try {
+          System.out.println("Hello World");
+          ExchangeService service = connectViaExchangeAutodiscover("Mrinal.Vatsya@mind-infotech.com", "omjha@1234");
+
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+    }
+}

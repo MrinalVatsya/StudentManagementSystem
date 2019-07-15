@@ -1,0 +1,187 @@
+package com.mind.poc;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+class MatCordinate{
+    int src;
+
+    int dest;
+
+    int dist;
+
+    int interchange;
+
+    public int getSrc() {
+        return src;
+    }
+
+    public void setSrc(int src) {
+        this.src = src;
+    }
+
+    public int getDest() {
+        return dest;
+    }
+
+    public void setDest(int dest) {
+        this.dest = dest;
+    }
+
+    public int getDist() {
+        return dist;
+    }
+
+    public void setDist(int dist) {
+        this.dist = dist;
+    }
+
+    public int getInterchange() {
+        return interchange;
+    }
+
+    public void setInterchange(int interchange) {
+        this.interchange = interchange;
+    }
+
+    public MatCordinate(int src, int dest, int dist, int interchange) {
+        super();
+        this.src = src;
+        this.dest = dest;
+        this.dist = dist;
+        this.interchange = interchange;
+    }
+
+}
+public class CoinsOnTable {
+
+    private static int r[] = new int[]{0,0,1,-1};
+
+    private static int c[] = new int[] {1,-1,0,0};
+
+    private static boolean isSafe(int i , int j , int m , int n)
+    {
+        if(i < 0 || j >= m || i >= n || j < 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+    static int coinOnTheTable(int m, int k, String[] board) {
+        /*
+         * Write your code here.
+         */
+        int i , j , n = board.length;
+        char mat[][] = new char[n][m];
+        //simple BFS from stating to * cell..
+        for(i = 0; i < n; i++)
+        {
+            for(j = 0; j < m ; j++)
+            {
+                mat[i][j] = board[i].charAt(j);
+            }
+        }
+
+
+        Queue<MatCordinate> queue = new LinkedList<>();
+        queue.add(new MatCordinate(0,0,0,0));
+
+        int dist = 0;
+        MatCordinate qt = null;
+        boolean flag = false;
+        int interchange = 0;
+        int ans = Integer.MAX_VALUE;
+        while(!queue.isEmpty())
+        {
+            qt = queue.poll();
+            int xorig = qt.getSrc();
+            int yorig = qt.getDest();
+            char ch = mat[xorig][yorig];
+            dist = qt.getDist();
+            interchange = qt.getInterchange();
+
+            if(mat[xorig][yorig]=='*'&& dist <= k)//end reached..
+            {
+                flag = true;
+                ans = Math.min(ans, interchange);
+                continue;
+            }
+            if(dist > k)
+            {
+                continue;
+            }
+
+            for(i = 0; i < 4; i++)
+            {
+                int xi = xorig + r[i];
+                int yi = yorig + c[i];
+
+                if(isSafe(xi, yi, m, n))
+                {
+                    if(ch == 'U' && (xi == xorig-1 && yi == yorig))
+                    {
+                        queue.add(new MatCordinate(xi, yi, dist+1, qt.interchange));
+                    }
+                    else if(ch == 'L' && (xi == xorig && yi == yorig-1))
+                    {
+                        queue.add(new MatCordinate(xi, yi, dist+1,  qt.interchange));
+                    }
+                    else if(ch == 'R' && (xi == xorig && yi == yorig+1))
+                    {
+                        queue.add(new MatCordinate(xi, yi, dist+1,  qt.interchange));
+                    }
+                    else if(ch == 'D' && (xi == xorig+1 && yi == yorig))
+                    {
+                        queue.add(new MatCordinate(xi, yi,  dist+1,  qt.interchange));
+                    }
+                    else
+                    {
+                        interchange = qt.getInterchange() + 1;
+                        queue.add(new MatCordinate(xi, yi, dist+1, interchange));
+                    }
+                }
+            }
+
+        }
+
+        if(flag)
+        {
+            return ans;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String[] nmk = scanner.nextLine().split(" ");
+
+        int n = Integer.parseInt(nmk[0].trim());
+
+        int m = Integer.parseInt(nmk[1].trim());
+
+        int k = Integer.parseInt(nmk[2].trim());
+
+        String[] board = new String[n];
+
+        for (int boardItr = 0; boardItr < n; boardItr++) {
+            String boardItem = scanner.nextLine();
+            board[boardItr] = boardItem;
+        }
+
+        int result = coinOnTheTable(m, k, board);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedWriter.close();
+    }
+}

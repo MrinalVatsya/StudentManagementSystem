@@ -1,0 +1,42 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+class WHPath {
+	int distance;
+	List<WarmHole> path;
+
+	WHPath(List<WarmHole> path, int distance) {
+		this.path = path;
+		this.distance = distance;
+	};
+}
+
+class Coordinate {
+	int x;
+	int y;
+
+	Coordinate(int x, int y) {
+		this.x = x;
+		this.y = y;
+	};
+}
+
+class WarmHole {
+	Set<Coordinate> pairs = new HashSet<Coordinate>();
+	WarmHole(Coordinate a, Coordinate b) {
+		pairs.add(a);
+		pairs.add(b);
+	};
+}
+public class SpaceShipProblem {
+
+	public static void main(String[] args) {
+		
+	}
+}

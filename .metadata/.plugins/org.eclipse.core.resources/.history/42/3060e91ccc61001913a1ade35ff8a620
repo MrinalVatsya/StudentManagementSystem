@@ -1,0 +1,111 @@
+package com.mind.poc;
+import java.util.Scanner;
+
+/**
+ * 
+ */
+
+/**
+ * @author MRINAL VATS
+ *
+ */
+public class Jio2 {
+
+	private static Scanner sc = new Scanner(System.in);
+	public static void main(String args[] ) throws Exception {
+
+		int t = sc.nextInt();
+		for(int i = 0; i < t; i++)
+		{
+			long  n  = sc.nextLong();
+			long array[] = new long[(int) n];
+			long negativeCount = 0;
+			for(long j = 0; j < n; j++)
+			{
+				array[(int) j] = sc.nextLong();
+				if(array[(int)j] <= 0)
+				{
+					negativeCount++;
+				}
+			}
+			long maxValue = Integer.MIN_VALUE;
+			//to handle cases of all negative numbers in array..
+			if(negativeCount == n)
+			{
+				for(long j = 0; j < n; j++)
+				{
+					if(array[(int) j] > maxValue && array[(int)j] != 0)
+						maxValue =  array[(int) j];
+				}
+				if(maxValue==Integer.MIN_VALUE)//all 0s..
+				{
+					continue;
+				}
+				else
+				{
+					System.out.println(maxValue);
+					continue;
+				}
+			}
+
+
+
+			long dp[] = new long[(int) (n+1)];
+			dp[0] = array[0] >= 0 ? array[0] : 0;
+			if(n == 1)
+			{
+				if(array[0]==0)
+				{
+					continue;
+				}
+				else
+				{
+					System.out.println(array[0]);
+					continue;
+				}
+			}
+
+			dp[1] = (array[1] > array[0]) ? array[1] : array[0];
+
+			if(n==2){
+				long result = Math.max(array[0], array[1]);
+				if(res != 0)
+					System.out.println(res);
+				continue;
+			}
+			for(long j = 2; j < n; j++){
+				dp[(int) j]  = (dp[(int) (j-1)] > dp[(int) (j-2)]+array[(int) j] ? dp[(int) (j-1)] : dp[(int) (j-2)] + array[(int) j]);
+			}
+
+
+			long maximumSum = dp[(int) (n-1)];
+			for(long k = n - 1 ; k >= 2 ; k--){
+				if(maximumSum > 0)
+				{
+					if((dp[(int) (k-2)] + array[(int) k] > dp[(int) (k-1)]) && (dp[(int) (k-2)] + array[(int) k]) <= maximumSum)
+					{
+						System.out.print(array[(int) k]);
+						maximumSum = maximumSum - array[(int) k];
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+			if(maximumSum > 0){
+				if(maximumSum - array[0] == 0)
+				{
+					System.out.print(array[0]);
+				}
+				else if(maximumSum - array[1] == 0)
+				{
+					System.out.print(array[1]);
+				}
+			}
+
+			System.out.println();
+		}
+
+	}
+}

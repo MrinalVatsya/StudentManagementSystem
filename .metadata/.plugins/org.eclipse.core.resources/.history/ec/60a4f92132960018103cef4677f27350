@@ -1,0 +1,10 @@
+package javademo;
+import java.util.*;
+public class program2 {
+	public static void main(String args[])
+	{
+	int[] arr = new int[4];
+	for(Integer x : arr)//New for loop in java
+		System.out.print(x+" ");
+	}
+}

@@ -1,0 +1,45 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class EcoFullStack {
+
+	private static Scanner sc = new Scanner(System.in);
+	public static void main(String[] args) {
+
+		int t = sc.nextInt();
+		while(t-- > 0)
+		{
+
+			String str = sc.next();
+
+			Integer len = str.length();
+			Integer i = 0;
+			StringBuilder sb = new StringBuilder();
+			while(i<len) {
+				char ct = str.charAt(i);
+				if(ct=='a'||ct=='e'||ct=='i'||ct=='o'||ct=='u') {
+					sb.append(ct);
+				}
+				i++;
+			}
+			String reverseString = sb.reverse().toString(); 
+			if(str.equalsIgnoreCase(reverseString))
+			{
+				System.out.println("YES");
+			}
+			else
+			{
+				System.out.println("NO");
+			}
+
+		}
+	}
+}

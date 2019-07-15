@@ -1,0 +1,1990 @@
+/**
+ * 
+ */
+package com.mind.legalOne.administration.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.mind.legalOne.admin.exception.ValidationException;
+import com.mind.legalOne.administration.dto.AlertCategory;
+import com.mind.legalOne.administration.dto.AlertSubCategory;
+import com.mind.legalOne.administration.dto.AlertTypeMaster;
+import com.mind.legalOne.administration.dto.AppFunction;
+import com.mind.legalOne.administration.dto.AppFunctionAlertMap;
+import com.mind.legalOne.administration.dto.AppFunctionNotificationTmplMap;
+import com.mind.legalOne.administration.dto.CheckListMaster;
+import com.mind.legalOne.administration.dto.Committee;
+import com.mind.legalOne.administration.dto.Company;
+import com.mind.legalOne.administration.dto.CompanyMaster;
+import com.mind.legalOne.administration.dto.CompanyModuleMap;
+import com.mind.legalOne.administration.dto.Director;
+import com.mind.legalOne.administration.dto.DocTypeAlertMap;
+import com.mind.legalOne.administration.dto.DocTypeMetaDataReference;
+import com.mind.legalOne.administration.dto.DocumentTypeMaster;
+import com.mind.legalOne.administration.dto.DocumentTypeMetaData;
+import com.mind.legalOne.administration.dto.LazyListMaster;
+import com.mind.legalOne.administration.dto.ListItem;
+import com.mind.legalOne.administration.dto.ListValueTypeMaster;
+import com.mind.legalOne.administration.dto.MenuMaster;
+import com.mind.legalOne.administration.dto.MenuScreenMap;
+import com.mind.legalOne.administration.dto.MetaDataDetail;
+import com.mind.legalOne.administration.dto.Module;
+import com.mind.legalOne.administration.dto.NotificationTmpl;
+import com.mind.legalOne.administration.dto.NotificationTmplCategory;
+import com.mind.legalOne.administration.dto.NotificationTmplSubCategory;
+import com.mind.legalOne.administration.dto.PartyMaster;
+import com.mind.legalOne.administration.dto.Privilege;
+import com.mind.legalOne.administration.dto.Role;
+import com.mind.legalOne.administration.dto.RoleScreenPrivilegeMap;
+import com.mind.legalOne.administration.dto.ScreenMaster;
+import com.mind.legalOne.administration.dto.ScreenPrivilegeMap;
+import com.mind.legalOne.administration.dto.Section;
+import com.mind.legalOne.administration.dto.UnitMaster;
+import com.mind.legalOne.administration.dto.UserCompanyUnitMap;
+import com.mind.legalOne.administration.dto.UserMaster;
+import com.mind.legalOne.administration.dto.UserRoleMap;
+import com.mind.legalOne.administration.dto.WorkFlowMaster;
+import com.mind.legalOne.administration.logic.AlertNotificationLogic;
+import com.mind.legalOne.administration.logic.CommitteeLogic;
+import com.mind.legalOne.administration.logic.DirectorLogic;
+import com.mind.legalOne.administration.logic.MenuLogic;
+import com.mind.legalOne.administration.logic.MetaDataLogic;
+import com.mind.legalOne.administration.logic.ModuleLogic;
+import com.mind.legalOne.administration.logic.PartyLogic;
+import com.mind.legalOne.administration.logic.UserPrivilegeLogic;
+import com.mind.legalOne.administration.logic.WorkFlowLogic;
+
+/**
+ * @author maneeshkpandey
+ *
+ */
+@CrossOrigin(origins = {"http://localhost:4200","*"})
+@RestController
+@RequestMapping("/administration")
+public class AdministratorRestController {
+
+	@Autowired
+	MetaDataLogic metaDataLogic;
+
+	@Autowired
+	PartyLogic partyLogic;
+
+	@Autowired
+	WorkFlowLogic workFlowLogic;
+
+	@Autowired
+	ModuleLogic moduleLogic;
+
+	@Autowired
+	MenuLogic menuLogic;
+
+	@Autowired
+	CommitteeLogic committeeLogic;
+
+	@Autowired
+	DirectorLogic directorLogic;
+
+	@Autowired
+	AlertNotificationLogic notificationLogic;
+
+	@Autowired
+	UserPrivilegeLogic userPrivilegeLogic;
+
+	@Autowired
+	private MessageSource messageSource;
+
+	@RequestMapping(value = "test", method = RequestMethod.GET)
+	public void test() {
+		
+		Object [] labelCodes = new Object[] {}; 
+		throw new ValidationException("MSG001", labelCodes);
+		
+	//	return ResponseEntity.ok(message);
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("fieldType")
+	public List<ListItem> fieldType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getMetaDataLogic().getFieldList(userId, roleId);
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("dataType")
+	public List<ListItem> dataType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getMetaDataLogic().getDataTypeList(userId, roleId);
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("lazyType")
+	public List<ListItem> lazyListType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getMetaDataLogic().getLazyTypeList(userId, roleId);
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("metaDataListValueType")
+	public List<ListItem> listValueType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getMetaDataLogic().getListValueTypeList(userId, roleId);
+	}
+
+	/**
+	 * @param id
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("metaData")
+	public MetaDataDetail metaData( @RequestParam(value = "metaDataId", required = true) Long id ,@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().getMetaData(userId, roleId, id);
+	}
+
+
+	@RequestMapping("metaDataList")
+	public List<MetaDataDetail> metaDataList(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().getMetaDataList(userId, roleId);
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @param metaDataDetail
+	 * @return
+	 */
+	@RequestMapping(value = "metaData", method=RequestMethod.POST)
+	public MetaDataDetail metaData(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @RequestBody MetaDataDetail metaDataDetail) {
+
+		MetaDataDetail createdMetaData = getMetaDataLogic().createMetaData(userId,roleId,metaDataDetail);
+
+		return createdMetaData;
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @param metaDataId
+	 * @param metaDataDetail
+	 * @return
+	 */
+	@RequestMapping(value = "metaData/{metaDataId}", method=RequestMethod.PUT)
+	public MetaDataDetail metaData(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @PathVariable("metaDataId") Long metaDataId, @RequestBody MetaDataDetail metaDataDetail) {
+
+		MetaDataDetail updatedMetaData = getMetaDataLogic().updateMetaData(userId,roleId,metaDataId,metaDataDetail);
+
+		return updatedMetaData;
+	}
+
+
+
+	@RequestMapping("docType")
+	public List<ListItem> docType(@RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getMetaDataLogic().getDocTypeList(moduleId, userId, roleId);
+	}
+
+
+	@RequestMapping("sectionName")
+	public List<ListItem> sectionName(@RequestParam(value = "docTypeId", required = true) Long docTypeId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getMetaDataLogic().getSectionNameList(docTypeId, userId, roleId);
+	}
+
+
+	@RequestMapping("metaDataType")
+	public List<ListItem> metaDataType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getMetaDataLogic().getMetaDataTypeList(userId, roleId);
+	}
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("displayPosition")
+	public List<ListItem> displayPosition(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getMetaDataLogic().getAllDisplayPositionList(userId, roleId);
+	}
+
+
+
+
+	@RequestMapping("docTypeMetaData")
+	public DocumentTypeMetaData docTypeMetaData( @RequestParam(value = "docTypeMetaDataId", required = true) Long docTypeMetaDataId ,@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().getDocTypeMetaData(userId, roleId, docTypeMetaDataId);
+	}
+
+
+	@RequestMapping(value="docTypeMetaData", method=RequestMethod.POST)
+	public DocumentTypeMetaData docTypeMetaData( @RequestBody DocumentTypeMetaData documentTypeMetaData, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().createDocTypeMetaData(userId, roleId, documentTypeMetaData);
+	}
+
+
+	@RequestMapping(value="docTypeMetaData/{docTypeMetaDataId}", method=RequestMethod.PUT)
+	public DocumentTypeMetaData docTypeMetaData( @RequestBody DocumentTypeMetaData documentTypeMetaData, @PathVariable("docTypeMetaDataId") Long docTypeMetaDataId ,@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().updateDocTypeMetaData(userId, roleId, docTypeMetaDataId, documentTypeMetaData);
+	}
+
+	@RequestMapping("docTypeMetaDataList")
+	public List<DocumentTypeMetaData> docTypeMetaDataList(@RequestParam(value = "docTypeId", required = true) Long docTypeId,@RequestParam(value = "sectionId", required = true) Long sectionId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().getDocTypeMetaDataList(docTypeId, sectionId, userId, roleId);
+	}
+
+
+	/**
+	 * @param docTypeId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("sectionList")
+	public List<Section> section(@RequestParam(value = "docTypeId", required = true) Long docTypeId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().getSections(docTypeId, userId, roleId);
+	}
+
+	@RequestMapping("section")
+	public Section section(@RequestParam(value = "sectionId", required = true) Long sectionId, @RequestParam(value = "docTypeId", required = true) Long docTypeId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().getSection(sectionId, docTypeId, userId, roleId);
+	}
+
+	@RequestMapping(value = "section", method=RequestMethod.POST)
+	public Section section(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @RequestBody Section section) {
+
+		Section createdSection = getMetaDataLogic().createSection(userId,roleId,section);
+
+		return createdSection;
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @param section
+	 * @return
+	 */
+	@RequestMapping(value = "sectionList", method=RequestMethod.POST)
+	public List<Section> section(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @RequestBody List<Section> sectionList) {
+
+		List<Section> createdSection = getMetaDataLogic().createSection(userId,roleId,sectionList);
+
+		return createdSection;
+	}
+
+
+
+	@RequestMapping(value = "section/{docTypeId}/{sectionId}", method=RequestMethod.PUT)
+	public Section section(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @PathVariable("docTypeId") Long docTypeId, @PathVariable("sectionId") Long sectionId, @RequestBody Section section) {
+
+		Section updatedSection = getMetaDataLogic().updateSection(userId,roleId,docTypeId,sectionId,section);
+
+		return updatedSection;
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @param metaDataId
+	 * @param metaDataDetail
+	 * @return
+	 */
+	@RequestMapping(value = "sectionList/{docTypeId}", method=RequestMethod.PUT)
+	public List<Section> section(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @PathVariable("docTypeId") Long docTypeId, @RequestBody List<Section> sectionList) {
+
+		List<Section> updatedSection = getMetaDataLogic().updateSection(userId,roleId,docTypeId,sectionList);
+
+		return updatedSection;
+	}
+
+	/**
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("documentTypeList")
+	public List<DocumentTypeMaster> documentType(@RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().getDocuments(moduleId, userId, roleId);
+	}
+
+
+	/**
+	 * @param moduleId
+	 * @param docTypeId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("documentType")
+	public DocumentTypeMaster documentType(@RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "docTypeId", required = true) Long docTypeId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getMetaDataLogic().getDocument(moduleId, docTypeId, userId, roleId);
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @param documentList
+	 * @return
+	 */
+	@RequestMapping(value = "documentTypeList", method=RequestMethod.POST)
+	public List<DocumentTypeMaster> documentType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @RequestBody List<DocumentTypeMaster> documentList) {
+
+		List<DocumentTypeMaster> createdDocumentType = getMetaDataLogic().createDocumentType(userId,roleId,documentList);
+
+		return createdDocumentType;
+	}
+
+	@RequestMapping(value = "documentType", method=RequestMethod.POST)
+	public DocumentTypeMaster documentType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @RequestBody DocumentTypeMaster documentType) {
+
+		DocumentTypeMaster createdDocumentType = getMetaDataLogic().createDocumentType(userId,roleId,documentType);
+
+		return createdDocumentType;
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @param moduleId
+	 * @param documentTypeList
+	 * @return
+	 */
+	@RequestMapping(value = "documentTypeList/{moduleId}", method=RequestMethod.PUT)
+	public List<DocumentTypeMaster> documentType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @PathVariable("moduleId") Long moduleId, @RequestBody List<DocumentTypeMaster> documentTypeList) {
+
+		List<DocumentTypeMaster> updatedDocumentTypeList = getMetaDataLogic().updateDocumentType(userId,roleId,moduleId,documentTypeList);
+
+		return updatedDocumentTypeList;
+	}
+
+	//******************************* API added for Bulk Update *********************************
+
+	@RequestMapping(value = "documentTypeMetaData/{docTypeId}/{sectionId}", method=RequestMethod.PUT)
+	public List<DocumentTypeMetaData> docTypeMetaData(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId,@PathVariable("docTypeId") Long docTypeId, @PathVariable("sectionId") Long sectionId, @RequestBody List<DocumentTypeMetaData> docTypeMetaData) {
+
+		List<DocumentTypeMetaData> updatedDocTypeMetaDataList = getMetaDataLogic().updateDocTypeMetaData(userId,roleId,docTypeId,sectionId,docTypeMetaData);
+
+		return updatedDocTypeMetaDataList;
+	}
+
+	//********************************************************************************************
+
+
+	@RequestMapping(value = "documentType/{moduleId}/{docTypeId}", method=RequestMethod.PUT)
+	public DocumentTypeMaster documentType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @PathVariable("moduleId") Long moduleId, @PathVariable("docTypeId") Long docTypeId, @RequestBody DocumentTypeMaster documentType) {
+
+		DocumentTypeMaster updatedDocumentType = getMetaDataLogic().updateDocumentType(userId,roleId,moduleId,docTypeId,documentType);
+
+		return updatedDocumentType;
+	}
+
+
+	@RequestMapping("listValue")
+	public List<ListItem> listValue(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @RequestParam(value = "metaDataId", required = true) Long metaDataId){
+
+
+		List<ListItem> listItems = getMetaDataLogic().getMetaDataListValue(metaDataId,userId,roleId);
+
+		return listItems;
+	}
+
+
+	//***** added for docTypeMetaData Reference *********
+
+	@RequestMapping("docTypeMetaDataReference")
+	public List<DocTypeMetaDataReference> docTypeMetaDataReference(@RequestParam(value = "metaDataId", required = true) Long metaDataId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		return getMetaDataLogic().getDocTypeMetaDataReference(metaDataId, userId, roleId);
+	}
+
+
+
+
+
+
+
+
+	//****************************** Party Master APIs ************************************************
+
+
+
+	@RequestMapping("parties")
+	public List<PartyMaster> parties(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getPartyLogic().getParties(userId, roleId);
+	}
+
+	@RequestMapping("party")
+	public PartyMaster party(@RequestParam(value = "partyId", required = true) Long partyId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getPartyLogic().getParty(partyId, userId, roleId);
+	}
+
+	@RequestMapping(value="party",method=RequestMethod.POST)
+	public PartyMaster party(@RequestBody PartyMaster partyMaster, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getPartyLogic().createParty(partyMaster, userId, roleId);
+	}
+
+	@RequestMapping(value="party/{partyId}",method=RequestMethod.PUT)
+	public PartyMaster party(@PathVariable(value="partyId", required=true) Long partyId, @RequestBody PartyMaster partyMaster, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getPartyLogic().updateParty(partyId, partyMaster, userId, roleId);
+	}
+
+
+
+
+
+
+
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("processingType")
+	public List<ListItem> processingType(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getWorkFlowLogic().getProcessingType(userId, roleId);
+	}
+
+	/**
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("checkList")
+	public List<ListItem> checkList(@RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId ){
+		return getWorkFlowLogic().getCheckList(moduleId, userId, roleId);
+	}
+
+
+	/**
+	 * @param companyId
+	 * @param moduleId
+	 * @param docTypeId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("workflows")
+	public List<WorkFlowMaster> workflows(@RequestParam(value = "companyId", required = true) Integer companyId, @RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "docTypeId", required = false) Long docTypeId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		List<WorkFlowMaster> workflows = getWorkFlowLogic().getWorkflows(companyId, moduleId, docTypeId, userId, roleId);
+
+		return workflows;
+	}
+
+	/**
+	 * @param companyId
+	 * @param moduleId
+	 * @param workflowId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("workflow")
+	public WorkFlowMaster workflow(@RequestParam(value = "companyId", required = true) Integer companyId, @RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "workflowId", required = true) Long workflowId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		WorkFlowMaster workflow = getWorkFlowLogic().getWorkflow(companyId, moduleId, workflowId, userId, roleId);
+
+		return workflow;
+	}
+
+	/**
+	 * @param workflowMaster
+	 * @param companyId
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="workflow", method=RequestMethod.POST)
+	public WorkFlowMaster workflow(@RequestBody WorkFlowMaster workflowMaster, @RequestParam(value = "companyId", required = true) Integer companyId, @RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		WorkFlowMaster workflow = getWorkFlowLogic().createWorkflow(companyId, moduleId, workflowMaster, userId, roleId);
+
+		return workflow;
+	}
+
+	/**
+	 * @param workflowMaster
+	 * @param workflowId
+	 * @param companyId
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="workflow/{workflowId}", method=RequestMethod.PUT)
+	public WorkFlowMaster workflow(@RequestBody WorkFlowMaster workflowMaster, @PathVariable("workflowId") Long workflowId,@RequestParam(value = "companyId", required = true) Integer companyId, @RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		WorkFlowMaster workflow = getWorkFlowLogic().updateWorkflow(workflowId, companyId, moduleId, workflowMaster, userId, roleId);
+
+		return workflow;
+	}
+
+	@RequestMapping("checkLists")
+	public List<CheckListMaster> checkLists(@RequestParam(value="moduleId", required=true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		List<CheckListMaster> checkListMasters = getWorkFlowLogic().getCheckLists(moduleId, userId, roleId);
+		return checkListMasters;
+	}
+
+	/**
+	 * @param checkListId
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("checkListInfo")
+	public CheckListMaster checkList(@RequestParam(value="checkListId", required=true) Long checkListId, @RequestParam(value="moduleId", required=true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		CheckListMaster checkListMaster = getWorkFlowLogic().getCheckList(checkListId, moduleId, userId, roleId);
+		return checkListMaster;
+	}
+
+	/**
+	 * @param checkListMaster
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="checkListInfo/{moduleId}", method=RequestMethod.POST)
+	public CheckListMaster checkList(@RequestBody CheckListMaster checkListMaster, @PathVariable(value="moduleId", required=true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		return getWorkFlowLogic().createCheckList(checkListMaster, moduleId, userId, roleId);
+	}
+
+	/**
+	 * @param checkListId
+	 * @param checkListMaster
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="checkListInfo/{moduleId}/{checkListId}", method=RequestMethod.PUT)
+	public CheckListMaster checkList(@PathVariable("checkListId") Long checkListId, @RequestBody CheckListMaster checkListMaster, @PathVariable(value="moduleId", required=true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		return getWorkFlowLogic().updateCheckList(checkListId, checkListMaster, moduleId, userId, roleId);
+	}
+
+
+
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("companyModuleMap")
+	public List<CompanyModuleMap> companyModuleMap(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+
+		List<CompanyModuleMap> maps = getModuleLogic().getCompanyModuleMap(userId, roleId);
+
+		return maps;
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @param companyModuleMap
+	 * @return
+	 */
+	@RequestMapping(value = "companyModuleMap", method=RequestMethod.PUT)
+	public List<CompanyModuleMap> companyModuleMap(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId, @RequestBody List<CompanyModuleMap> companyModuleMap) {
+
+		List<CompanyModuleMap> maps = getModuleLogic().updateCompanyModuleMap(companyModuleMap, userId, roleId);
+
+		return maps;
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("modules")
+	public List<Module> modules(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		List<Module> modules = getModuleLogic().getModule(userId, roleId);
+
+		return modules;
+	}
+
+	/**
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("module")
+	public Module module(@RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		Module module = getModuleLogic().getModule(moduleId, userId, roleId);
+
+		return module;
+	}
+
+	@RequestMapping("moduleList")
+	public List<ListItem> moduleList(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		List<ListItem> moduleList = getModuleLogic().getModuleList(userId, roleId);
+
+		return moduleList;
+	}
+
+	/**
+	 * @param moduleInput
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "module", method = RequestMethod.POST)
+	public Module module(@RequestBody Module moduleInput, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		Module module = getModuleLogic().createModule(moduleInput, userId, roleId);
+
+		return module;
+	}
+
+	/**
+	 * @param moduleId
+	 * @param moduleInput
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "module/{moduleId}", method = RequestMethod.PUT)
+	public Module module(@PathVariable("moduleId") Long moduleId, @RequestBody Module moduleInput, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+
+		Module module = getModuleLogic().updateModule(moduleId, moduleInput, userId, roleId);
+
+		return module;
+	}
+
+
+
+
+	/**
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="screens")
+	public List<ScreenMaster> screens(@RequestParam(value="moduleId", required=true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		List<ScreenMaster> screenMaster = getMenuLogic().getScreen(moduleId, userId, roleId);
+		return screenMaster;
+	}
+
+	/**
+	 * @param screenId
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="screen")
+	public ScreenMaster screen(@RequestParam(value="screenId", required=true) String screenId, @RequestParam(value="moduleId", required=true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		ScreenMaster screenMaster = getMenuLogic().getScreen(screenId, moduleId, userId, roleId);
+		return screenMaster;
+	}
+
+	/**
+	 * @param screenId
+	 * @param moduleId
+	 * @param screenMasterInput
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="screen/{moduleId}/{screenId}", method=RequestMethod.POST)
+	public ScreenMaster screen(@PathVariable(value="screenId", required=true) String screenId, @PathVariable(value="moduleId", required=true) Long moduleId, @RequestBody ScreenMaster screenMasterInput, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		ScreenMaster screenMaster = getMenuLogic().createScreen(screenId, moduleId, screenMasterInput, userId, roleId);
+		return screenMaster;
+	}
+
+	/**
+	 * @param screenId
+	 * @param moduleId
+	 * @param screenMasterInput
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="screen/{moduleId}/{screenId}", method=RequestMethod.PUT)
+	public ScreenMaster updateScreen(@PathVariable(value="screenId", required=true) String screenId, @PathVariable(value="moduleId", required=true) Long moduleId, @RequestBody ScreenMaster screenMasterInput, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		ScreenMaster screenMaster = getMenuLogic().updateScreen(screenId, moduleId, screenMasterInput, userId, roleId);
+		return screenMaster;
+	}
+
+	/**
+	 * @param menuId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("menuScreen")
+	public List<MenuScreenMap> menuScreen(@RequestParam(value="menuId", required=true) Long menuId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		List<MenuScreenMap> menuScreenMaps = getMenuLogic().getMenuScreen(menuId, userId, roleId);
+		return menuScreenMaps;
+	}
+
+	/**
+	 * @param menuScreenId
+	 * @param menuScreenMapInput
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value="menuScreen/{menuId}", method=RequestMethod.PUT)
+	public List<MenuScreenMap> menuScreen(@PathVariable(value="menuId") Long menuId, @RequestBody List<MenuScreenMap> menuScreenMapList, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		List<MenuScreenMap> menuScreenMaps = getMenuLogic().updateMenuScreen(menuId, menuScreenMapList, userId, roleId);
+		return menuScreenMaps;
+	}
+
+	/**
+	 * @param moduleId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("screenList")
+	public List<ListItem> screen(@RequestParam(value="moduleId", required=true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId) {
+		List<ListItem> screen = getMenuLogic().getScreenListItems(moduleId, userId, roleId);
+		return screen;
+	}
+
+	/**
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("menuList")
+	public List<MenuMaster> menu(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		List<MenuMaster> menuMasters = getMenuLogic().getMenuMaster(userId, roleId);
+		return menuMasters;
+	}
+
+	/**
+	 * @param menuId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("menu")
+	public MenuMaster menu(@RequestParam(value = "menuId", required = true) Long menuId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		MenuMaster menuMaster = getMenuLogic().getMenuMaster(menuId, userId, roleId);
+		return menuMaster;
+	}
+
+	@RequestMapping(value="menu", method=RequestMethod.POST)
+	public MenuMaster menu(@RequestBody MenuMaster menuMasterInput, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		MenuMaster menuMaster = getMenuLogic().createMenuMaster(menuMasterInput, userId, roleId);
+		return menuMaster;
+	}
+
+	@RequestMapping(value="menu/{menuId}", method=RequestMethod.PUT)
+	public MenuMaster menu(@PathVariable Long menuId, @RequestBody MenuMaster menuMasterInput, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		MenuMaster menuMaster = getMenuLogic().updateMenuMaster(menuId, menuMasterInput, userId, roleId);
+		return menuMaster;
+	}
+
+
+
+
+
+	/**
+	 * @param docTypeId
+	 */
+	@RequestMapping(value = "committee")
+	public Committee committee(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="committeeId", required=true) Long committeeId,@RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+
+		Committee committee = getCommitteeLogic().committee(companyId, committeeId, roleId, userId);
+
+		return committee;
+	}
+
+
+	/**
+	 */
+	@RequestMapping(value = "committee/{companyId}", method=RequestMethod.POST)
+	public Committee createCommittee(@PathVariable("companyId") Integer companyId,@RequestBody Committee committee, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+
+		Committee createCommittee = getCommitteeLogic().createCommittee(committee, companyId, roleId, userId);
+
+		return createCommittee;
+	}
+
+
+	/***
+	 * To update committee
+	 * @param companyId
+	 * @param committeeId
+	 * @param committee
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "committee/{companyId}/{committeeId}", method=RequestMethod.PUT)
+	public Committee modifyCommittee(@PathVariable("companyId") Integer companyId,@PathVariable("committeeId") Long committeeId,@RequestBody Committee committee, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+
+		Committee createCommittee = getCommitteeLogic().modifyCommittee(committee, companyId, committeeId, roleId, userId);
+
+		return createCommittee;
+	} 
+
+	/***
+	 * To register new director
+	 * @param director
+
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+
+
+	/**
+	 * @param documentTypeMetaData
+	 */
+	@RequestMapping(value = "createDirector", method=RequestMethod.POST)
+	public Director createDirector(@RequestBody Director director, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+
+		Director createDirector = getDirectorLogic().createDirector(director, roleId, userId);
+
+		return createDirector;
+	}
+
+	/***'
+	 * To update director detail
+	 * @param directorId
+	 * @param director
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+
+	@RequestMapping(value = "director/{directorId}", method=RequestMethod.PUT)
+	public Director updateDirector(@PathVariable("directorId") Long directorId,@RequestBody Director director, @RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+
+		Director createDirector = getDirectorLogic().modifyDirector(director, directorId, roleId, userId);
+
+		return createDirector;
+	}
+
+
+
+
+	/***
+	 * To fetch director
+	 * @param directorId
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "director")
+	public Director director(@RequestParam(value="directorId", required=true) Long directorId,@RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+
+		Director director = getDirectorLogic().director(directorId, roleId, userId);
+
+		return director;
+	}
+
+
+	@RequestMapping(value = "committeeList")
+	public List<Committee> committee(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="userId", required=true) Integer userId, @RequestParam(value="roleId", required=true) Long roleId) {
+
+		List<Committee> committee = getCommitteeLogic().committeeList(companyId,roleId, userId);
+
+		return committee;
+	}
+
+
+
+	//******************************* Notification APIs**************************************
+
+	//******************************* Notification Category
+	@RequestMapping("notificationCatgs")
+	public List<NotificationTmplCategory> notificationCategories(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationCategories(userId, roleId);
+	}
+
+	@RequestMapping("notificationCatg")
+	public NotificationTmplCategory notificationCategory(@RequestParam(value = "notificationCatgId", required = true) Long notificationCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationCategory(notificationCatgId, userId, roleId);
+	}
+
+	@RequestMapping(value="notificationCatg",method=RequestMethod.POST)
+	public NotificationTmplCategory notificationCategory(@RequestBody NotificationTmplCategory notificationTmplCategory, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().createNotificationCategory(notificationTmplCategory, userId, roleId);
+	}
+
+	@RequestMapping(value="notificationCatg/{notificationCatgId}",method=RequestMethod.PUT)
+	public NotificationTmplCategory notificationCategory(@PathVariable(value="notificationCatgId", required=true) Long notificationCatgId, @RequestBody NotificationTmplCategory notificationTmplCategory, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().updateNotificationCategory(notificationCatgId, notificationTmplCategory, userId, roleId);
+	}
+
+	//******************************** Notification Sub Category *************
+
+	@RequestMapping("notificationCatgList")
+	public List<ListItem> notificationCategoryList(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationCategoryList(userId, roleId);
+	}
+
+	@RequestMapping("notificationSubCatgs")
+	public List<NotificationTmplSubCategory> notificationSubCategories(@RequestParam(value = "notificationCatgId", required = true) Long notificationCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationSubCategories(notificationCatgId, userId, roleId);
+	}
+
+	@RequestMapping("notificationSubCatg")
+	public NotificationTmplSubCategory notificationSubCategory(@RequestParam(value = "notificationSubCatgId", required = true) Long notificationSubCatgId, @RequestParam(value = "notificationCatgId", required = true) Long notificationCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationSubCategory(notificationSubCatgId, notificationCatgId, userId, roleId);
+	}
+
+	@RequestMapping(value="notificationSubCatg",method=RequestMethod.POST)
+	public NotificationTmplSubCategory notificationSubCategory(@RequestBody NotificationTmplSubCategory notificationTmplSubCategory, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().createNotificationSubCategory(notificationTmplSubCategory, userId, roleId);
+	}
+
+	@RequestMapping(value="notificationSubCatg/{notificationCatgId}/{notificationSubCatgId}",method=RequestMethod.PUT)
+	public NotificationTmplSubCategory notificationSubCategory(@PathVariable(value="notificationCatgId", required=true) Long notificationCatgId, @PathVariable(value="notificationSubCatgId", required=true) Long notificationSubCatgId, @RequestBody NotificationTmplSubCategory notificationTmplSubCategory, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().updateNotificationSubCategory(notificationCatgId, notificationSubCatgId, notificationTmplSubCategory, userId, roleId);
+	}
+
+	//********************************* Notification Master
+
+	@RequestMapping("notificationSubCatgList")
+	public List<ListItem> notificationSubCategoryList(@RequestParam(value = "notificationCatgId", required = true) Long notificationCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationSubCategoryList(notificationCatgId, userId, roleId);
+	}
+
+	@RequestMapping("notificationTmpls")
+	public List<NotificationTmpl> notificationTmpls(@RequestParam(value = "notificationCatgId", required = true) Long notificationCatgId, @RequestParam(value = "notificationSubCatgId", required = true) Long notificationSubCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationTmpls(notificationCatgId, notificationSubCatgId, userId, roleId);
+	}
+
+	@RequestMapping("notificationTmpl")
+	public NotificationTmpl notificationTmpl(@RequestParam(value = "notificationTmplId", required = true) Long notificationTmplId, @RequestParam(value = "notificationCatgId", required = true) Long notificationCatgId, @RequestParam(value = "notificationSubCatgId", required = true) Long notificationSubCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationTmpl(notificationTmplId, notificationCatgId, notificationSubCatgId, userId, roleId);
+	}
+
+	@RequestMapping(value="notificationTmpl",method=RequestMethod.POST)
+	public NotificationTmpl notificationTmpl(@RequestBody NotificationTmpl notificationTmpl, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().createNotificationTmpl(notificationTmpl, userId, roleId);
+	}
+
+	@RequestMapping(value="notificationTmpl/{notificationCatgId}/{notificationSubCatgId}/{notificationTmplId}",method=RequestMethod.PUT)
+	public NotificationTmpl notificationTmpl(@PathVariable(value="notificationCatgId", required=true) Long notificationCatgId, @PathVariable(value="notificationSubCatgId", required=true) Long notificationSubCatgId, @PathVariable(value="notificationTmplId", required=true) Long notificationTmplId, @RequestBody NotificationTmpl notificationTmpl, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().updateNotificationTmpl(notificationTmpl, notificationTmplId, notificationCatgId, notificationSubCatgId, userId, roleId);
+	}
+
+
+	//********************************************************* Alert APIs *****************************************************
+
+
+
+
+
+	//******************************* Alert Category *************************************
+	@RequestMapping("alertCatgs")
+	public List<AlertCategory> alertCategories(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAlertCategories(userId, roleId);
+	}
+
+	@RequestMapping("alertCatg")
+	public AlertCategory alertCategory(@RequestParam(value = "alertCatgId", required = true) Long alertCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAlertCategory(alertCatgId, userId, roleId);
+	}
+
+	@RequestMapping(value="alertCatg",method=RequestMethod.POST)
+	public AlertCategory alertCategory(@RequestBody AlertCategory alertCategory, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().createAlertCategory(alertCategory, userId, roleId);
+	}
+
+	@RequestMapping(value="alertCatg/{alertCatgId}",method=RequestMethod.PUT)
+	public AlertCategory alertCategory(@PathVariable(value="alertCatgId", required=true) Long alertCatgId, @RequestBody AlertCategory alertCategory, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().updateAlertCategory(alertCatgId, alertCategory, userId, roleId);
+	}
+
+	//******************************** Alert Sub Category *************
+
+	@RequestMapping("alertCatgList")
+	public List<ListItem> alertCategoryList(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAlertCategoryList(userId, roleId);
+	}
+
+	@RequestMapping("alertSubCatgs")
+	public List<AlertSubCategory> alertSubCategories(@RequestParam(value = "alertCatgId", required = true) Long alertCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAlertSubCategories(alertCatgId, userId, roleId);
+	}
+
+	@RequestMapping("alertSubCatg")
+	public AlertSubCategory alertSubCategory(@RequestParam(value = "alertSubCatgId", required = true) Long alertSubCatgId, @RequestParam(value = "alertCatgId", required = true) Long alertCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAlertSubCategory(alertSubCatgId, alertCatgId, userId, roleId);
+	}
+
+	@RequestMapping(value="alertSubCatg",method=RequestMethod.POST)
+	public AlertSubCategory alertSubCategory(@RequestBody AlertSubCategory alertSubCategory, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().createAlertSubCategory(alertSubCategory, userId, roleId);
+	}
+
+	@RequestMapping(value="alertSubCatg/{alertCatgId}/{alertSubCatgId}",method=RequestMethod.PUT)
+	public AlertSubCategory alertSubCategory(@PathVariable(value="alertCatgId", required=true) Long alertCatgId, @PathVariable(value="alertSubCatgId", required=true) Long alertSubCatgId, @RequestBody AlertSubCategory alertSubCategory, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().updateAlertSubCategory(alertCatgId, alertSubCatgId, alertSubCategory, userId, roleId);
+	}
+
+
+
+
+
+
+	//********************************* AppFunction Master APIs **************************************************************************************
+
+
+	@RequestMapping("appFunctions")
+	public List<AppFunction> appFunctions(@RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAppFunctions(moduleId, userId, roleId);
+	}
+
+	@RequestMapping("appFunction")
+	public AppFunction appFunction(@RequestParam(value = "appFunctionId", required = true) Long appFunctionId, @RequestParam(value = "moduleId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAppFunction(appFunctionId, moduleId, userId, roleId);
+	}
+
+	@RequestMapping(value="appFunction",method=RequestMethod.POST)
+	public AppFunction appFunction(@RequestBody AppFunction appFunction, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().createAppFunction(appFunction, userId, roleId);
+	}
+
+	@RequestMapping(value="appFunction/{moduleId}/{appFunctionId}",method=RequestMethod.PUT)
+	public AppFunction appFunction(@PathVariable(value="moduleId", required=true) Long moduleId, @PathVariable(value="appFunctionId", required=true) Long appFunctionId, @RequestBody AppFunction appFunction, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().updateAppFunction(moduleId, appFunctionId, appFunction, userId, roleId);
+	}
+
+
+	//-------------------------------- AppFunction Notification Tmpl Map APIs -----------------------
+
+
+
+	@RequestMapping("appFunctionList")
+	public List<ListItem> appFunctionList(@RequestParam(value = "companyId", required = true) Long moduleId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAppFunctionList(moduleId, userId, roleId);
+	}
+
+	@RequestMapping("notificationTmplList")
+	public List<ListItem> notificationTmplList(@RequestParam(value = "notificationCatgId", required = true) Long notificationCatgId, @RequestParam(value = "notificationSubCatgId", required = true) Long notificationSubCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getNotificationTmplList(notificationCatgId, notificationSubCatgId, userId, roleId);
+	}
+
+	@RequestMapping("appFunctionNotificationTmplMaps")
+	public List<AppFunctionNotificationTmplMap> appFunctionNotificationTmplMaps(@RequestParam(value = "companyId", required = true) Integer companyId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAppFunctionNotificationTmplMaps(companyId, userId, roleId);
+	}
+
+	@RequestMapping("appFunctionNotificationTmplMap")
+	public AppFunctionNotificationTmplMap appFunctionNotificationTmplMap(@RequestParam(value = "appFunctionNotificationTmplMapId", required = true) Long appFunctionNotificationTmplMapId, @RequestParam(value = "companyId", required = true) Integer companyId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAppFunctionNotificationTmplMap(appFunctionNotificationTmplMapId, companyId, userId, roleId);
+	}
+
+	@RequestMapping(value="appFunctionNotificationTmplMap",method=RequestMethod.POST)
+	public AppFunctionNotificationTmplMap appFunctionNotificationTmplMap(@RequestBody AppFunctionNotificationTmplMap appFunctionNotificationTmplMap, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().createAppFunctionNotificationTmplMap(appFunctionNotificationTmplMap, userId, roleId);
+	}
+
+	@RequestMapping(value="appFunctionNotificationTmplMap/{companyId}/{appFunctionNotificationTmplMapId}",method=RequestMethod.PUT)
+	public AppFunctionNotificationTmplMap appFunctionNotificationTmplMap(@PathVariable(value="companyId", required=true) Integer companyId, @PathVariable(value="appFunctionNotificationTmplMapId", required=true) Long appFunctionNotificationTmplMapId, @RequestBody AppFunctionNotificationTmplMap appFunctionNotificationTmplMap, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().updateAppFunctionNotificationTmplMap(companyId, appFunctionNotificationTmplMapId, appFunctionNotificationTmplMap, userId, roleId);
+	}
+
+
+	//------------------------------------------ AppFunction Alert Map APIs -----------------------------------------------------------------------
+
+
+
+
+	@RequestMapping("alertSubCatgList")
+	public List<ListItem> alertSubCatgList(@RequestParam(value = "alertCatgId", required = true) Long alertCatgId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAlertSubCategoryList(alertCatgId, userId, roleId);
+	}
+
+	@RequestMapping("appFunctionAlertMaps")
+	public List<AppFunctionAlertMap> appFunctionAlertMaps(@RequestParam(value = "companyId", required = true) Integer companyId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAppFunctionAlertMaps(companyId, userId, roleId);
+	}
+
+	@RequestMapping("appFunctionAlertMap")
+	public AppFunctionAlertMap appFunctionAlertMap(@RequestParam(value = "appFunctionAlertMapId", required = true) Long appFunctionAlertMapId, @RequestParam(value = "companyId", required = true) Integer companyId, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().getAppFunctionAlertMap(appFunctionAlertMapId, companyId, userId, roleId);
+	}
+
+	@RequestMapping(value="appFunctionAlertMap",method=RequestMethod.POST)
+	public AppFunctionAlertMap appFunctionAlertMap(@RequestBody AppFunctionAlertMap appFunctionAlertMap, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().createAppFunctionAlertMap(appFunctionAlertMap, userId, roleId);
+	}
+
+	@RequestMapping(value="appFunctionAlertMap/{companyId}/{appFunctionAlertMapId}",method=RequestMethod.PUT)
+	public AppFunctionAlertMap appFunctionAlertMap(@PathVariable(value="companyId", required=true) Integer companyId, @PathVariable(value="appFunctionAlertMapId", required=true) Long appFunctionAlertMapId, @RequestBody AppFunctionAlertMap appFunctionAlertMap, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId){
+		return getNotificationLogic().updateAppFunctionAlertMap(companyId, appFunctionAlertMapId, appFunctionAlertMap, userId, roleId);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * @param id
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping("alertType")
+	public AlertTypeMaster alertType(@RequestParam(value = "id", required = true) Long id, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId)
+	{
+		AlertTypeMaster alertTypeMaster = getNotificationLogic().getAlertType(userId,roleId,id); 
+		return alertTypeMaster;
+	}
+
+	@RequestMapping("alertTypes")
+	public List<AlertTypeMaster> alertTypes(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId)
+	{
+		List<AlertTypeMaster> alertTypeMasterList = getNotificationLogic().getAlertTypes(userId,roleId);
+		return alertTypeMasterList;
+	}
+
+	@RequestMapping(value = "alertType", method = RequestMethod.POST)
+	public AlertTypeMaster createAlert(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId,@RequestBody AlertTypeMaster alertcategory)
+	{
+		AlertTypeMaster createcategory = getNotificationLogic().createAlertType(userId,roleId,alertcategory);
+		return createcategory;
+	}
+
+	@RequestMapping(value = "alertType/{alertId}" , method = RequestMethod.PUT)
+	public AlertTypeMaster alertType(@PathVariable(value = "alertId", required = true)Long alertId , @RequestBody AlertTypeMaster alertcategory , @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId)
+	{
+		AlertTypeMaster updatedAlert = getNotificationLogic().updateAlertType(alertId, alertcategory, userId, roleId);
+		return updatedAlert;
+	}
+
+	@RequestMapping(value = "alertDocTypeMap")
+	public DocTypeAlertMap alertDocTypeMap(@RequestParam(value = "id", required = true) Long id, @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId)
+	{
+		DocTypeAlertMap docMapCategory = getNotificationLogic().getDocTypeAlertMap(userId, roleId, id);
+		return docMapCategory;
+	}
+
+	@RequestMapping(value = "alertsDocTypeMap")
+	public List<DocTypeAlertMap> alertsDocTypeMap(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId)
+	{
+		List<DocTypeAlertMap> docMapList = getNotificationLogic().getDocTypeAlertMaps(userId, roleId);
+		return docMapList;
+	}
+
+	@RequestMapping(value = "alertsDocTypeMap", method = RequestMethod.POST)
+	public DocTypeAlertMap createAlertDocTypeMap(@RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId,@RequestBody DocTypeAlertMap alertDocMapCategory)
+	{
+		DocTypeAlertMap createAlertDocTypeMapCategory = getNotificationLogic().createDocTypeAlertMap(userId, roleId, alertDocMapCategory);
+		return createAlertDocTypeMapCategory;
+	}
+
+	@RequestMapping(value = "alertsDocTypeMap/{alertid}", method = RequestMethod.PUT)
+	public DocTypeAlertMap updateAlertDocTypeMap(@PathVariable(value = "alertid", required = true)Long alertid , @RequestBody DocTypeAlertMap alertDocMap , @RequestParam(value = "userId", required = true) Integer userId, @RequestParam(value = "roleId", required = true) Integer roleId)
+	{
+		DocTypeAlertMap updatedAlert = getNotificationLogic().updateDocTypeAlertMap(alertid, alertDocMap, userId, roleId);
+		return updatedAlert;
+	}
+
+
+
+	/***
+	 * To fetch role 
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("role")
+	public Role role(@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		Role role = getUserPrivilegeLogic().getRole(roleId, userId);
+		return role;
+	}
+
+	/***
+	 * To add new role in
+	 * @param companyId
+	 * @param role
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "createRole", method=RequestMethod.POST)
+	public Role createRole(@RequestBody Role role, @RequestParam(value="userId", required=true) Integer userId) {
+
+		Role newRole = getUserPrivilegeLogic().createRole(role,userId);
+
+		return newRole;
+	}
+
+	/***
+	 * To modify details of a role 
+	 * @param companyId
+	 * @param roleId
+	 * @param role
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "role/{roleId}", method=RequestMethod.PUT)
+	public Role modifyRole(@PathVariable("roleId")  Long roleId,@RequestBody Role role, @RequestParam(value="userId", required=true) Integer userId) {
+
+		Role updatedRole = getUserPrivilegeLogic().modifyRole(role, roleId, userId);
+
+		return updatedRole;
+	} 
+
+	/***
+	 * to fetch list of roles
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("roleList")
+	public List<Role> roleList(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=false) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<Role> role = getUserPrivilegeLogic().roleList(companyId, roleId, userId);
+		return role;
+	}
+
+	/***
+	 * to fetch user role list
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("userRoleList")
+	public List<UserRoleMap> userRoleList(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<UserRoleMap> userRole = getUserPrivilegeLogic().userRoleList(companyId,userId,roleId);
+		return userRole;
+	}
+
+	/***
+	 * To update user role list
+	 * @param userRole
+	 * @param companyId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "updateUserRoleList",  method=RequestMethod.PUT)
+	public List<UserRoleMap> modifyUserRole(@RequestBody List<UserRoleMap> userRole, @RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+		List<UserRoleMap> updatedRole = getUserPrivilegeLogic().modifyUserRole(userRole,companyId,userId);
+
+		return updatedRole;
+	} 
+
+	/***
+	 * To fetch user company unit map list
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("userCompanyUnitMap")
+	public List<UserCompanyUnitMap> userCompanyUnitMap(@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId,@RequestParam(value="user_Id", required=true) Integer user_Id){
+
+		List<UserCompanyUnitMap> userMap = getUserPrivilegeLogic().userCompanyUnitMapList(userId,user_Id);
+		return userMap;
+	}
+
+	/***
+	 * To update user company unit map list
+	 * @param userMap
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "updateUserCompanyUnitMapList",  method=RequestMethod.PUT)
+	public List<UserCompanyUnitMap> modifyUserCompanyMap(@RequestBody List<UserCompanyUnitMap> userMap, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId,@RequestParam(value="user_Id", required=true) Integer user_Id) {
+
+		List<UserCompanyUnitMap> updatedUserMap = getUserPrivilegeLogic().modifyUserCompanyMap(userMap, userId,user_Id);
+
+		return updatedUserMap;
+	} 
+
+	/***
+	 * To fetch a privilege
+	 * @param privilegeId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("privilege")
+	public Privilege privilege(@RequestParam(value="privilegeId", required=true) Long privilegeId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		Privilege privilege = getUserPrivilegeLogic().getPrivilege(privilegeId, roleId, userId);
+		return privilege;
+	}
+
+	/***
+	 * To create privilege
+	 * @param privilege
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "createPrivilege", method=RequestMethod.POST)
+	public Privilege createPrivilege(@RequestBody Privilege privilege, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+		Privilege newPrivilege = getUserPrivilegeLogic().createPrivilege(privilege, userId);
+		return newPrivilege;
+	}
+
+	/***
+	 * To modify details of a role 
+	 * @param companyId
+	 * @param roleId
+	 * @param role
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "privilege/{privilegeId}", method=RequestMethod.PUT)
+	public Privilege modifyPrivilege(@PathVariable("privilegeId")Long privilegeId,@RequestBody Privilege privilege,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		Privilege updatedPrivilege = getUserPrivilegeLogic().modifyPrivilege(privilege, privilegeId, userId, roleId);
+		return updatedPrivilege;
+	} 
+
+	/***
+	 * To fetch privilege
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("privilegeList")
+	public List<Privilege> privilegeList(@RequestParam(value="roleId", required=false) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<Privilege> privilege = getUserPrivilegeLogic().privilegeList(roleId, userId);
+		return privilege;
+	}
+
+	/***
+	 * To fetch screen privilege list
+	 * @param moduleId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("screenPrivilegeList")
+	public List<ScreenPrivilegeMap> screenPrivilegeList(@RequestParam(value="moduleId", required=true) Long moduleId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<ScreenPrivilegeMap> screenPrivilege = getUserPrivilegeLogic().screenPrivilegeList(moduleId, roleId, userId);
+		return screenPrivilege;
+	}
+
+
+	/***
+	 * To fetch single screen privilege
+	 * @param moduleId
+	 * @param screenPrivilegeId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("screenPrivilege")
+	public ScreenPrivilegeMap screenPrivilege(@RequestParam(value="moduleId", required=true) Long moduleId,@RequestParam(value="screenId", required=true) String screenId,@RequestParam(value="screenPrivilegeId", required=true) Long screenPrivilegeId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		ScreenPrivilegeMap screenPrivilege = getUserPrivilegeLogic().getScreenPrivilege(moduleId, screenId,screenPrivilegeId, roleId, userId);
+		return screenPrivilege;
+	}
+
+	/***
+	 * To add new screen privilege
+	 * @param screenPrivilegeMap
+	 * @param moduleId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	/*	@RequestMapping(value = "screenPrivilege/{moduleId}/{screenId}", method=RequestMethod.POST)
+		public ScreenPrivilegeMap createPrivilege(@RequestBody ScreenPrivilegeMap screenPrivilegeMap,@PathVariable(value="moduleId", required=true) Long moduleId,@PathVariable(value="screenId", required=true) String screenId, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+			ScreenPrivilegeMap newScreenPrivilegeMap = getUserPrivilegeLogic().createScreenPrivilege(screenPrivilegeMap, moduleId, screenId,roleId, userId);
+			return newScreenPrivilegeMap;
+		} */
+	/***
+	 * to update screen privilege
+	 * @param moduleId
+	 * @param screenPrivilegeId
+	 * @param screenPrivilegeMap
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	/*	@RequestMapping(value = "screenPrivilege/{moduleId}/{screenId}/{screenPrivilegeId}", method=RequestMethod.PUT)
+		public ScreenPrivilegeMap modifyScreenPrivilege(@PathVariable(value="moduleId", required=true) Long moduleId,@PathVariable(value="screenId", required=true) String screenId,@PathVariable(value="screenPrivilegeId", required=true)Long screenPrivilegeId,@RequestBody ScreenPrivilegeMap screenPrivilegeMap,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+			ScreenPrivilegeMap updatedScreenPrivilege = getUserPrivilegeLogic().modifyScreenPrivilege(screenPrivilegeMap, moduleId, screenId,screenPrivilegeId, userId, roleId);
+			return updatedScreenPrivilege;
+		} 
+	 */
+	/***
+	 * To add or update screen privileges
+	 * @param moduleId
+	 * @param screenId
+	 * @param screenPrivilegeMap
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "screenPrivileges/{moduleId}/{screenId}", method=RequestMethod.PUT)
+	public List<ScreenPrivilegeMap> modifyScreenPrivileges(@PathVariable(value="moduleId", required=true) Long moduleId,@PathVariable(value="screenId", required=true) String screenId,@RequestBody List<ScreenPrivilegeMap> screenPrivilegeMap,@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		List<ScreenPrivilegeMap> updatedScreenPrivilege = getUserPrivilegeLogic().modifyScreenPrivileges(screenPrivilegeMap, moduleId,screenId, userId, roleId);
+		return updatedScreenPrivilege;
+	} 
+
+	/*	@RequestMapping(value = "createScreenPrivileges/{moduleId}/{screenId}", method=RequestMethod.POST)
+		public List<ScreenPrivilegeMap>  createPrivileges(@RequestBody List<ScreenPrivilegeMap> screenPrivilegeMap,@PathVariable(value="moduleId", required=true) Long moduleId,@PathVariable(value="screenId", required=true) String screenId, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+			List<ScreenPrivilegeMap> newScreenPrivilegeMap = getUserPrivilegeLogic().createScreenPrivileges(screenPrivilegeMap, moduleId,screenId, roleId, userId);
+			return newScreenPrivilegeMap;
+		} */
+
+	/***
+	 * Screen master for dropdown
+	 * @param moduleId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	/*	@RequestMapping("screenList")
+		public List<ListItem> screens(@RequestParam(value="moduleId", required=true) Long moduleId,@RequestParam(value="roleId", required=false) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+			List<ListItem> screens = getUserPrivilegeLogic().getScreenMasterDropdownList(moduleId);
+
+			return screens;
+		}*/
+
+	/***
+	 * Privilege Master list for dropdown
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("privileges")
+	public List<ListItem> privileges(@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<ListItem> privileges = getUserPrivilegeLogic().getPrivilegeMasterDropdownList(userId);
+
+		return privileges;
+	}
+
+	/***
+	 * Module Master list for dropdown
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	/*	@RequestMapping("modules")
+		public List<ListItem> modules(@RequestParam(value="companyId", required=false) Integer companyId,@RequestParam(value="roleId", required=false) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+			List<ListItem> modules = getUserPrivilegeLogic().getModuleListDropdown(companyId, userId);
+
+			return modules;
+		}*/
+
+	/***
+	 * Role Master list for dropdown
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("roles")
+	public List<ListItem> roles(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=false) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<ListItem> roles = getUserPrivilegeLogic().getRoleListDropdown(companyId, userId);
+
+		return roles;
+	}
+	/***
+	 * To fetch list of role screen privilege
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value ="roleScreenPrivilege")
+	public List<RoleScreenPrivilegeMap> roleScreenPrivilege(@RequestParam(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		List<RoleScreenPrivilegeMap> updatedRoleScreenPrivilege = getUserPrivilegeLogic().roleScreenPrivilegesMapList(roleId, userId);
+		return updatedRoleScreenPrivilege;
+	} 
+
+	/***
+	 * To update list of role screen privilege
+	 * @param roleScreenPrivilegeMap
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "roleScreenPrivilege/{roleId}", method=RequestMethod.PUT)
+	public List<RoleScreenPrivilegeMap> modifyRoleScreenPrivilege(@RequestBody List<RoleScreenPrivilegeMap> roleScreenPrivilegeMap,@PathVariable(value="roleId", required=true) Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		List<RoleScreenPrivilegeMap> updatedRoleScreenPrivilege = getUserPrivilegeLogic().modifyRoleScreenPrivilegeMap(roleScreenPrivilegeMap, roleId, userId);
+		return updatedRoleScreenPrivilege;
+	} 
+
+	/***
+	 * To fetch a company
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("company")
+	public CompanyMaster company(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		CompanyMaster company = getUserPrivilegeLogic().getCompany(companyId, roleId, userId);
+		return company;
+	}
+
+	/***
+	 * To add new company
+	 * @param companyId
+	 * @param role
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "createCompany", method=RequestMethod.POST)
+	public CompanyMaster createCompany(@RequestBody CompanyMaster company, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+		CompanyMaster newCompany= getUserPrivilegeLogic().createCompanyMaster(company, roleId, userId);
+
+		return newCompany;
+	}
+
+	/***
+	 * To modify details of a company 
+	 * @param companyId
+	 * @param roleId
+	 * @param role
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "company/{companyId}", method=RequestMethod.PUT)
+	public CompanyMaster modifyCompany(@PathVariable("companyId")Integer companyId,@RequestBody CompanyMaster company,@RequestParam("roleId")  Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		CompanyMaster updatedCompany= getUserPrivilegeLogic().modifyCompany(companyId, company, roleId, userId);
+
+		return updatedCompany;
+	} 
+
+	/***
+	 * To fetch company list
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("companyList")
+	public List<CompanyMaster> companyList(@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<CompanyMaster> companies = getUserPrivilegeLogic().companyList(roleId, userId);
+		return companies;
+	}
+
+	/***
+	 * To fetch a unit
+	 * @param companyId
+	 * @param unitId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("unit")
+	public UnitMaster unit(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="unitId", required=true) Integer unitId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		UnitMaster unit = getUserPrivilegeLogic().getUnit(companyId, unitId, roleId, userId);
+		return unit;
+	}
+
+	/***
+	 * To add new role in
+	 * @param companyId
+	 * @param role
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "createUnit", method=RequestMethod.POST)
+	public UnitMaster createUnit(@RequestBody UnitMaster unit, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+		UnitMaster newUnit= getUserPrivilegeLogic().createUnitMaster(unit, roleId, userId);
+
+		return newUnit;
+	}
+
+	/***
+	 * To modify details of a role 
+	 * @param companyId
+	 * @param roleId
+	 * @param role
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "unit/{unitId}", method=RequestMethod.PUT)
+	public UnitMaster modifyUnit(@PathVariable("unitId")Integer unitId,@RequestBody UnitMaster unit,@RequestParam("roleId")  Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		UnitMaster updatedUnit= getUserPrivilegeLogic().modifyUnit(unitId, unit, roleId, userId);
+
+		return updatedUnit;
+	} 
+
+	/***
+	 * To fetch unit list
+	 * @param companyId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("unitList")
+	public List<UnitMaster> unitList(@RequestParam(value="companyId", required=true) Integer companyId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<UnitMaster> units = getUserPrivilegeLogic().unitList(companyId, roleId, userId);
+		return units;
+	}
+
+
+	/***
+	 * To fetch a user
+	 * @param uId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("user")
+	public UserMaster user(@RequestParam(value="uId", required=true) Integer uId,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		UserMaster user = getUserPrivilegeLogic().getUser(uId, roleId, userId);
+		return user;
+	}
+
+	/***
+	 * To add new user in
+	 * @param companyId
+	 * @param role
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = "createUser", method=RequestMethod.POST)
+	public UserMaster createUser(@RequestBody UserMaster user, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+		UserMaster newUser= getUserPrivilegeLogic().createUserMaster(user, roleId, userId);
+
+		return newUser;
+	}
+
+	/***
+	 * To modify details of a user 
+	 * @param companyId
+	 * @param roleId
+	 * @param role
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "user/{uId}", method=RequestMethod.PUT)
+	public UserMaster modifyUser(@PathVariable("uId")Integer uId,@RequestBody UserMaster user,@RequestParam("roleId")  Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		UserMaster updatedUser= getUserPrivilegeLogic().modifyUser(uId, user, roleId, userId);
+
+		return updatedUser;
+	} 
+
+	/***
+	 * to fetch list of users
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("userList")
+	public List<UserMaster> userList(@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<UserMaster> users = getUserPrivilegeLogic().userList(roleId, userId);
+		return users;
+	}
+
+	/***
+	 * To fetch a value from lazy list master 
+	 * @param companyId
+	 * @param unitId
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("lazyListMaster")
+	public LazyListMaster lazyListValue(@RequestParam(value="id", required=true) Long id,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		LazyListMaster lazyMaster = getMetaDataLogic().getLazyList(id, roleId, userId);
+		return lazyMaster;
+	}
+
+	/***
+	 * To create new value in lazy list master
+	 * @param lazyListMaster
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "lazyListValue", method=RequestMethod.POST)
+	public LazyListMaster createLazyList(@RequestBody LazyListMaster lazyListMaster, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+		LazyListMaster newlazyListValue = getMetaDataLogic().createLazyListMaster(lazyListMaster, roleId, userId);
+		return newlazyListValue;
+	}
+
+	/***
+	 * To update value in lazy list master
+	 * @param id
+	 * @param lazyListMaster
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "lazyListValue/{id}", method=RequestMethod.PUT)
+	public LazyListMaster modifyLazyList(@PathVariable("id")Long id,@RequestBody LazyListMaster lazyListMaster,@RequestParam("roleId")  Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		LazyListMaster updatedLazylist= getMetaDataLogic().modifyLazyList(id, lazyListMaster, roleId, userId);
+
+		return updatedLazylist;
+	} 
+
+	/***
+	 * To fetch lazy master list
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("lazyList")
+	public List<LazyListMaster> LazyMasterList(@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<LazyListMaster> lazylist = getMetaDataLogic().lazyList(roleId, userId);
+		return lazylist;
+	}
+	/***
+	 * To fetch value from list value type master
+	 * @param id
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("listValueType")
+	public ListValueTypeMaster listValueType(@RequestParam(value="id", required=true) Long id,@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		ListValueTypeMaster listValueTypeMaster = getMetaDataLogic().getListValueTypeMaster(id, roleId,userId);
+		return listValueTypeMaster;
+	}
+
+	/***
+	 * To create value in list value type master
+	 * @param listValueTypeMaster
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "listValueType", method=RequestMethod.POST)
+	public ListValueTypeMaster createListTypeValue(@RequestBody ListValueTypeMaster listValueTypeMaster, @RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId) {
+
+		ListValueTypeMaster newListValue = getMetaDataLogic().createListValueMaster(listValueTypeMaster, roleId, userId);
+		return newListValue;
+	}
+
+	/***
+	 * To update value in list value type master
+	 * @param id
+	 * @param listValueTypeMaster
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "listValueType/{id}", method=RequestMethod.PUT)
+	public ListValueTypeMaster modifyListTypeValue(@PathVariable("id")Long id,@RequestBody ListValueTypeMaster listValueTypeMaster,@RequestParam("roleId")  Long roleId, @RequestParam(value="userId", required=true) Integer userId) {
+
+		ListValueTypeMaster updatedListValueType= getMetaDataLogic().modifyListValueType(id, listValueTypeMaster, roleId, userId);
+
+		return updatedListValueType;
+	} 
+
+	/***
+	 * To fetch list of list value type master
+	 * @param roleId
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("listValueMaster")
+	public List<ListValueTypeMaster> ListValueTypeMaster(@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<ListValueTypeMaster> listValue = getMetaDataLogic().listValueTypeMasterList(roleId, userId);
+		return listValue;
+	}
+
+	@RequestMapping("companyUnit")
+	public List<Company> companies(@RequestParam(value="roleId", required=true) Long roleId,@RequestParam(value="userId", required=true) Integer userId){
+
+		List<Company> companyList = getUserPrivilegeLogic().companyUnitList(roleId, userId);
+		return companyList;
+	}
+
+	/**
+	 * @return the metaDataLogic
+	 */
+	public MetaDataLogic getMetaDataLogic() {
+		return metaDataLogic;
+	}
+
+	/**
+	 * @param metaDataLogic the metaDataLogic to set
+	 */
+	public void setMetaDataLogic(MetaDataLogic metaDataLogic) {
+		this.metaDataLogic = metaDataLogic;
+	}
+
+	/**
+	 * @return the partyLogic
+	 */
+	public PartyLogic getPartyLogic() {
+		return partyLogic;
+	}
+
+	/**
+	 * @param partyLogic the partyLogic to set
+	 */
+	public void setPartyLogic(PartyLogic partyLogic) {
+		this.partyLogic = partyLogic;
+	}
+
+
+	/**
+	 * @return the workFlowLogic
+	 */
+	public WorkFlowLogic getWorkFlowLogic() {
+		return workFlowLogic;
+	}
+
+	/**
+	 * @param workFlowLogic the workFlowLogic to set
+	 */
+	public void setWorkFlowLogic(WorkFlowLogic workFlowLogic) {
+		this.workFlowLogic = workFlowLogic;
+	}
+
+	/**
+	 * @return the moduleLogic
+	 */
+	public ModuleLogic getModuleLogic() {
+		return moduleLogic;
+	}
+
+	/**
+	 * @param moduleLogic the moduleLogic to set
+	 */
+	public void setModuleLogic(ModuleLogic moduleLogic) {
+		this.moduleLogic = moduleLogic;
+	}
+
+
+	/**
+	 * @return the menuLogic
+	 */
+	public MenuLogic getMenuLogic() {
+		return menuLogic;
+	}
+
+	/**
+	 * @param menuLogic the menuLogic to set
+	 */
+	public void setMenuLogic(MenuLogic menuLogic) {
+		this.menuLogic = menuLogic;
+	}
+
+
+	/**
+	 * @return the committeeLogic
+	 */
+	public CommitteeLogic getCommitteeLogic() {
+		return committeeLogic;
+	}
+
+	/**
+	 * @param committeeLogic the committeeLogic to set
+	 */
+	public void setCommitteeLogic(CommitteeLogic committeeLogic) {
+		this.committeeLogic = committeeLogic;
+	}
+
+	/**
+	 * @return the directorLogic
+	 */
+	public DirectorLogic getDirectorLogic() {
+		return directorLogic;
+	}
+
+	/**
+	 * @param directorLogic the directorLogic to set
+	 */
+	public void setDirectorLogic(DirectorLogic directorLogic) {
+		this.directorLogic = directorLogic;
+	}
+
+	/**
+	 * @return the notificationLogic
+	 */
+	public AlertNotificationLogic getNotificationLogic() {
+		return notificationLogic;
+	}
+
+	/**
+	 * @param notificationLogic the notificationLogic to set
+	 */
+	public void setNotificationLogic(AlertNotificationLogic notificationLogic) {
+		this.notificationLogic = notificationLogic;
+	}
+
+	/**
+	 * @return the userPrivilegeLogic
+	 */
+	public UserPrivilegeLogic getUserPrivilegeLogic() {
+		return userPrivilegeLogic;
+	}
+
+	/**
+	 * @param userPrivilegeLogic the userPrivilegeLogic to set
+	 */
+	public void setUserPrivilegeLogic(UserPrivilegeLogic userPrivilegeLogic) {
+		this.userPrivilegeLogic = userPrivilegeLogic;
+	}
+}

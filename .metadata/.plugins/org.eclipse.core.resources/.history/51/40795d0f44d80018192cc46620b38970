@@ -1,0 +1,21 @@
+/**
+ * 
+ */
+package javademo2;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		SimpleDateFormat sdfAmerica = new SimpleDateFormat("dd-M-yyyy hh:mm:ss a");
+		TimeZone tzJapan = TimeZone.getTimeZone("Asia/Tokyo");
+
+		sdfAmerica.setTimeZone(tzJapan);
+		Calendar cld = Calendar.getInstance(tzJapan);
+		System.out.println(cld.get(Calendar.HOUR_OF_DAY));
+	}
+}

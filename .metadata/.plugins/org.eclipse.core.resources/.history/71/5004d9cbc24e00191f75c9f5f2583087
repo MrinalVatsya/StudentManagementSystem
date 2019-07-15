@@ -1,0 +1,14 @@
+package com.mind.poc;
+
+public class MST {
+
+	
+	private static final int V=5; 
+	
+	void printMST(int parent[], int n, int graph[][]) 
+    {
+		int parent[] = new int[V];
+		
+		int mstSet[] = new int[V];
+    }
+}

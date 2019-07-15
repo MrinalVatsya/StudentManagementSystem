@@ -1,0 +1,90 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class DiameterUsingBFS {
+	
+	private int V;
+	private LinkedList<Integer> adj[];
+	private int[] diameter;
+	
+	public DiameterUsingBFS(int v) {
+		super();
+		this.V = v;
+		adj = new LinkedList[V];
+		for(int i = 0 ; i < V; i++)
+		{
+			adj[i] = new LinkedList<>();	
+		}
+		
+		diameter = new int[v];
+	}
+	
+	void addEdge(int u , int v)
+	{
+		adj[u].add(v);
+	}
+	
+	int bfs(int s)
+	{
+		boolean visited[] = new boolean[V];
+		
+		for(int i = 0 ; i < V; i++)
+		{
+			visited[i] = false;
+			diameter[i] = 0;
+		}
+		
+		LinkedList<Integer>queue = new LinkedList<>();
+		queue.add(s);//adding source
+		visited[s] = true;
+		
+		while(queue.size() != 0)
+		{
+			Integer x = queue.poll();
+			System.out.println(x+ " ");
+			Iterator<Integer> it = adj[x].listIterator();
+			while(it.hasNext())
+			{
+				Integer adj = it.next();
+				if(!visited[adj])
+				{
+				queue.add(adj);
+				visited[adj] = true	;
+				diameter[adj] = diameter[x] + 1;
+ 				}
+			}
+		}
+		
+		int maxElement = Integer.MIN_VALUE;
+		int maxIndex = -1;
+		for(int i = 0; i < diameter.length; i++)
+		{
+			if(diameter[i] > maxElement)
+			{
+				maxElement = diameter[i];
+				maxIndex = i;
+			}
+		}
+		
+		return maxIndex;
+	}
+	
+	int findDiameter(LinkedList<Integer> adj[], int n) 
+	{ 
+	    int init = bfs(1); 
+	    int val = bfs(init); 
+	    return diameter[val]; 
+	} 
+	  	
+	
+
+}

@@ -1,0 +1,48 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+import java.util.Queue;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class DiameterNArrayTree {
+	
+	ArrayList<ArrayList<Integer>> g;
+	
+	 public int solve(ArrayList<Integer> a) {
+		 
+		 int i = 0;
+		 
+		 int n = a.size();
+		 g = new ArrayList<>(n);
+		 
+		 for(i = 0; i < n; i++)
+		 {
+			 g.add(new ArrayList<>());
+		 }
+		 
+		 for(i = 0; i < a.size(); i++)
+		 {
+			 int x = a.get(i);
+			 if(x!=-1)
+			 {
+				 g.get(i).add(x);
+				 g.get(x).add(i);
+			 }
+		 }
+		 
+		 int x = bfs(0,g,n);
+	    }
+
+	private int bfs(int i, ArrayList<ArrayList<Integer>> g2, int n) {
+		
+		
+		return 0;
+	}
+
+}

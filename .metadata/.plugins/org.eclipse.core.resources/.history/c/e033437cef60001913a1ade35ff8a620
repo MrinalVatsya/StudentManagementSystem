@@ -1,0 +1,100 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class PlayWords {
+
+private static int dp[][] =  new int[3001][3001];
+
+static int playWithWords(String s) {
+    int i, n = s.length();
+    String part1 = "";
+    String part2 = "";
+    int len1 , len2;
+    int subLen1 = 0 , subLen2 , prod , finalAns ;
+    finalAns = 1;
+    for(i = 1; i < n; i++)
+    {
+        initDp();
+        part1 = s.substring(0, i);
+        part2 = s.substring(i);
+        len1 = part1.length();
+        len2 = part2.length();
+        subLen1 = lpsHelper(part1, 0, len1-1);
+        initDp();
+        subLen2 = lpsHelper(part2, 0, len2-1);
+        prod = subLen1*subLen2;
+        finalAns = Math.max(prod, finalAns);
+    }
+    return finalAns;
+}
+
+private static void initDp()
+{
+       for(int i = 0; i < dp.length ; i++) {
+            for(int j = 0; j < dp[i].length ; j++)
+                dp[i][j] = -1;
+        }
+}
+
+private static int lpsHelper(String seq, int i, int j) {
+
+    if(dp[i][j] != -1)
+        return dp[i][j];
+    if(i==j)
+    {
+        return dp[i][j] = 1;
+    }
+    if(i > j)
+    {
+        return dp[i][j] = 0;
+    }
+    if(j == i+1)
+    {
+        if(seq.charAt(i)==seq.charAt(j))
+        {
+            return dp[i][j] = 2;
+        }
+        else
+        {
+            return dp[i][j] = 1;
+        }
+    }
+    
+    int ans = 0;
+    if(seq.charAt(i)==seq.charAt(j))
+    {
+        ans = lpsHelper(seq, i+1, j-1) + 2;
+    }
+    else
+    {
+        ans =  Math.max(lpsHelper(seq, i+1, j), lpsHelper(seq, i, j-1));
+    }
+
+    return dp[i][j] = ans;
+}
+private static final Scanner scanner = new Scanner(System.in);
+
+public static void main(String[] args) throws IOException {
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+    String s = scanner.nextLine();
+
+    int result = playWithWords(s);
+
+    bufferedWriter.write(String.valueOf(result));
+    bufferedWriter.newLine();
+
+    bufferedWriter.close();
+}
+}

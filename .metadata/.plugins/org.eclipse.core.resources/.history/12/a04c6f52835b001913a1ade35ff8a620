@@ -1,0 +1,132 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class LCS {
+
+	private static int dp[][] = new int[102][102];
+	static int[] longestCommonSubsequence(int[] a, int[] b) {
+
+		int m = a.length;
+		int n = b.length;
+		int lcsSize = lcsHelper(a, b, 0,0);
+		System.out.println(lcsSize);
+		int ans[] = new int[lcsSize];
+		int i = 0, j = 0;
+		int x = 0;
+		while(i < m && j < n)
+		{
+				if(a[i]==b[j])
+				{
+					if(x < lcsSize)
+					ans[x] = a[i];
+					i++;
+					j++;
+					x++;
+				}
+				else if(dp[i+1][j] > dp[i][j+1])
+				{
+					i++;
+				}
+				else
+				{
+					j++;
+				}
+		}
+		
+		for(i = 0; i < dp.length; i++)
+		{
+			for(j = 0; j < dp[i].length; j++)
+			{
+				System.out.print(dp[i][j]+ " ");
+			}
+			System.out.println();
+		}
+		
+		return ans;
+	}
+
+	private static int lcsHelper(int[] a, int[] b , int m, int n) {
+
+		if(m==a.length)
+			return 0;
+		if(n==b.length)
+			return 0;
+
+		if(dp[m][n] != -1)
+			return dp[m][n];
+
+		int ans = 0;
+		if(a[m]==b[n])
+		{
+			ans =  1 + lcsHelper(a,b, m+1, n+1);
+		}
+		else
+		{
+			ans =  Math.max(lcsHelper(a, b, m+1, n), lcsHelper(a,b,  m, n+1));
+		}
+		return dp[m][n] = ans;
+	}
+
+	private static final Scanner scanner = new Scanner(System.in);
+
+	public static void main(String[] args) throws IOException {
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("D://Solution.txt"));
+
+		String[] nm = scanner.nextLine().split(" ");
+
+		int n = Integer.parseInt(nm[0]);
+
+		int m = Integer.parseInt(nm[1]);
+
+		int[] a = new int[n];
+
+		String[] aItems = scanner.nextLine().split(" ");
+		scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+		for (int i = 0; i < n; i++) {
+			int aItem = Integer.parseInt(aItems[i]);
+			a[i] = aItem;
+		}
+
+		int[] b = new int[m];
+
+		String[] bItems = scanner.nextLine().split(" ");
+		scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+		for (int i = 0; i < m; i++) {
+			int bItem = Integer.parseInt(bItems[i]);
+			b[i] = bItem;
+		}
+
+		for(int i = 0; i < dp.length; i++)
+			for(int j = 0; j < dp[i].length; j++)
+				dp[i][j] = -1;
+		int[] result = longestCommonSubsequence(a, b);
+
+		for (int i = 0; i < result.length; i++) {
+			bufferedWriter.write(String.valueOf(result[i]));
+
+			if (i != result.length - 1) {
+				bufferedWriter.write(" ");
+			}
+		}
+
+		bufferedWriter.newLine();
+
+		bufferedWriter.close();
+
+		scanner.close();
+	}
+}
+

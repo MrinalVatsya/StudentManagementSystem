@@ -1,0 +1,155 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.*;
+
+public class FibModified {
+	
+	public static String multiply(String num1, String num2) 
+	{ 
+		int n1, n2;
+	    n1 = num1.length();
+	    n2 = num2.length();
+	    if (n1 == 0 || n2 == 0) 
+	    return "0"; 
+	   
+	    // will keep the result number in vector 
+	    // in reverse order 
+	    int result[] = new int[n1+n2+1];
+	    
+	    for(int i = 0 ; i < result.length ; i++)
+	    {
+	    	result[i] = 0;
+	    }
+	   
+	    // Below two indexes are used to find positions 
+	    // in result.  
+	    int i_n1 = 0;  
+	    int i_n2 = 0;
+	    int sum = 0;
+	       
+	    // Go from right to left in num1 
+	    for (int i=n1-1; i>=0; i--) 
+	    { 
+	        int carry = 0; 
+	        int temp_n1 = num1.charAt(i) - '0';
+	   
+	        // To shift position to left after every 
+	        // multiplication of a digit in num2 
+	        i_n2 = 0;  
+	           
+	        // Go from right to left in num2              
+	        for (int j=n2-1; j>=0; j--) 
+	        { 
+	            // Take current digit of second number 
+	        	int temp_n2 = num2.charAt(j) - '0'; 
+	        	
+	   
+	            // Multiply with current digit of first number 
+	            // and add result to previously stored result 
+	            // at current position.  
+	        
+	            sum = (temp_n1)*(temp_n2) + result[i_n1 + i_n2] + carry;
+	       
+	            // Carry for next iteration 
+	            carry = sum/10; 
+	   
+	            // Store result 
+	            result[i_n1 + i_n2] = sum % 10;
+	 	   
+	            i_n2++; 
+	        } 
+	   
+	        // store carry in next cell 
+	        if (carry > 0) 
+	            result[i_n1 + i_n2] += carry;
+	       
+	        // To shift position to left after every 
+	        // multiplication of a digit in num1. 
+	        i_n1++; 
+	    } 
+	   
+	    // ignore '0's from the right 
+	    int i = result.length - 1; 
+	    while (i>=0 && result[i] == 0) 
+	    i--; 
+	   
+	    // If all were '0's - means either both or 
+	    // one of num1 or num2 were '0' 
+	    if (i == -1) 
+	    return "0"; 
+	   
+	    // generate the result String 
+	    String s = ""; 
+	       
+	    while (i >= 0) 
+	        s += String.valueOf(result[i--]); 
+	   
+	    return s; 
+	} 
+
+    // Complete the fibonacciModified function below.
+    static int fib(int t1, int t2, int n) {
+
+//    	long fibArr[] = new long[20];
+//    	long l1 = (long) t1;
+//    	long l2 = (long) t2;
+//    	fibArr[0] = l1;
+//    	fibArr[1] = l2;
+//    	
+//    	String num1 = null ;
+//    	
+//    	    	
+//    	for(int i = 2; i < n; i++)
+//    	{
+//    		num1 = String.valueOf(fibArr[i-1]);
+//    		String mult = multiply(num1,num1);
+//    		Long temp = Long.parseLong(mult);
+//    		fibArr[i] = (long) (fibArr[i-2]  + temp);
+//    	}
+//    	
+//    	return fibArr[n-1];
+    	
+    	 BigInteger[] array = new BigInteger[n];
+         array[0] = BigInteger.valueOf(t1);
+         array[1] = BigInteger.valueOf(t2);
+         for(int i = 2; i < n; i++) {
+             array[i] = (array[i-1].multiply(array[i-1])).add(array[i-2]);
+         }
+         
+        // return array[n-1];
+         return null;
+    	
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("D://Solution.txt"));
+
+        String[] t1T2n = scanner.nextLine().split(" ");
+
+        int t1 = Integer.parseInt(t1T2n[0]);
+
+        int t2 = Integer.parseInt(t1T2n[1]);
+
+        int n = Integer.parseInt(t1T2n[2]);
+
+        int result = fib(t1, t2, n);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedWriter.close();
+
+        scanner.close();
+    }
+}

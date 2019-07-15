@@ -1,0 +1,66 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import javafx.util.Pair;
+
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class DiameterNArrayTree {
+	
+	 public int solve(ArrayList<Integer> a) {
+		 
+		 int i = 0;
+		 
+		 int n = a.size();
+		 ArrayList<ArrayList<Integer>> g = new ArrayList<>(n);
+		 
+		 for(i = 0; i < n; i++)
+		 {
+			 g.add(new ArrayList<>());
+		 }
+		 
+		 for(i = 0; i < a.size(); i++)
+		 {
+			 int x = a.get(i);
+			 if(x!=-1)
+			 {
+				 g.get(i).add(x);
+				 g.get(x).add(i);
+			 }
+		 }
+		 
+		 int x = bfs(0,g,n);
+		 
+	    }
+
+	private int bfs(int src, ArrayList<ArrayList<Integer>> g, int n) {
+		
+		int i;
+		boolean visited[] = new boolean[n];
+		for(i = 0; i < n; i++)
+		{
+			visited[i] = false;
+		}
+		
+		Pair<Integer, Integer> srcDistPair = new Pair<Integer, Integer>(src, 0);
+		Queue<Pair<Integer, Integer>> queue = new LinkedList<>();
+		queue.add(srcDistPair);
+		
+		Pair<Integer, Integer> pair = null;
+		while(!queue.isEmpty())
+		{
+			pair = queue.poll();
+		}
+		return 0;
+	}
+
+}

@@ -1,0 +1,23 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class PrintSubsequencesString {
+	
+	public static void printAllSubSequences(String input){
+        int [] temp = new int[input.length()];
+        int index = 0;
+        solve(input, index, temp);
+    }
+	
+	public static void main(String[] args) {
+		 String input = "abc";
+	      printAllSubSequences(input);
+	}
+
+}

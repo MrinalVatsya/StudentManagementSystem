@@ -1,0 +1,129 @@
+package com.mind.legalOne;
+
+import java.util.Locale;
+
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.Database;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import com.mind.legalOne.admin.common.EmailTemplateResolver;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+@Configuration
+@EnableJpaRepositories(basePackages = { "com.mind.legalOne.admin.dao", "com.mind.legalOne.contract.dao",
+		"com.mind.legalOne.boardGovernance.dao", "com.mind.legalOne.ipr.dao", "com.mind.legalOne.litigation.dao",
+		"com.mind.legalOne.mergerAcquisition.dao", "com.mind.legalOne.policyCompliance.dao",
+		"com.mind.legalOne.realEstate.dao", "com.mind.legalOne.regulatory.dao","com.mind.legalOne.boardGovernanceTab.dao" })
+public class Config implements WebMvcConfigurer{
+
+	@Bean
+	public DataSource dataSource() {
+		HikariConfig config = new HikariConfig();
+		config.setJdbcUrl("jdbc:sqlserver://172.29.58.139:1433;databaseName=LegalOne_Test;");
+		config.setUsername("sa");
+		config.setPassword("Microsoft#1234");
+		config.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+		config.setMaximumPoolSize(30);
+		config.setIdleTimeout(60000);
+		return new HikariDataSource(config);
+	}
+
+	@Bean
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		vendorAdapter.setDatabase(Database.SQL_SERVER);
+		vendorAdapter.setGenerateDdl(false);
+		vendorAdapter.setShowSql(true);
+
+		LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+		entityManagerFactoryBean.setDataSource(dataSource());
+		entityManagerFactoryBean.setJpaVendorAdapter(vendorAdapter);
+		entityManagerFactoryBean.setPackagesToScan("com.mind.legalOne.admin.entity",
+				"com.mind.legalOne.contract.entity",
+				"com.mind.legalOne.boardGovernance.entity",
+				"com.mind.legalOne.ipr.entity",
+				"com.mind.legalOne.litigation.entity",
+				"com.mind.legalOne.mergerAcquisition.entity",
+				"com.mind.legalOne.policyCompliance.entity",
+				"com.mind.legalOne.realEstate.entity",
+				"com.mind.legalOne.regulatory.entity",
+				"com.mind.legalOne.boardGovernanceTab.entity");
+		return entityManagerFactoryBean;
+	}
+
+	@Bean
+	public PlatformTransactionManager transactionManager() {
+		return new JpaTransactionManager();
+	}
+
+	
+	
+	@Bean
+	public EmailTemplateResolver dbTemplateResolver() {
+		EmailTemplateResolver resolver = new EmailTemplateResolver();
+	    //resolver.setOrder(1);
+	    return resolver;
+	}
+	
+	
+	  @Bean
+	    public SpringTemplateEngine springTemplateEngine() {
+	        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+	        templateEngine.addTemplateResolver(dbTemplateResolver());
+	        return templateEngine;
+	    }
+	  
+/*	  @Bean
+	  public JavaMailSender getJavaMailSender() {
+	      JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+	      mailSender.setHost("smtp.int.motherson.com");
+	      mailSender.setPort(25);
+	       
+	      mailSender.setUsername("Ankit.Katiyar@mind-infotech.com");
+	      mailSender.setPassword("password");
+	       
+	      Properties props = mailSender.getJavaMailProperties();
+	      props.put("mail.transport.protocol", "smtp");
+	      props.put("mail.smtp.auth", "false");
+	      props.put("mail.smtp.starttls.enable", "false");
+	      props.put("mail.debug", "true");
+	       
+	      return mailSender;
+	  }*/
+	  
+	  @Bean
+	    public ResourceBundleMessageSource messageSource() {
+	        ResourceBundleMessageSource source = new ResourceBundleMessageSource();
+	        source.setBasenames("message");
+	        source.setUseCodeAsDefaultMessage(true);
+	        return source;
+	    }
+
+	    @Bean
+	    public LocaleChangeInterceptor localeChangeInterceptor() {
+	        LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
+	        lci.setParamName("lang");
+	        return lci;
+	    }
+		
+	    @Bean
+	    public LocaleResolver localeResolver() {
+	        SessionLocaleResolver slr = new SessionLocaleResolver();
+	        slr.setDefaultLocale(Locale.US);
+	        return slr;
+	    }
+}

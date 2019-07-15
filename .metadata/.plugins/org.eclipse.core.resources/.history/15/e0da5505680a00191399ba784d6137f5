@@ -1,0 +1,102 @@
+package javademo2;
+
+
+import java.awt.List;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Base64;
+
+import microsoft.exchange.webservices.data.autodiscover.IAutodiscoverRedirectionUrl;
+import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.PropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
+import microsoft.exchange.webservices.data.core.enumeration.property.BasePropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
+import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
+import microsoft.exchange.webservices.data.core.enumeration.search.ItemTraversal;
+import microsoft.exchange.webservices.data.core.enumeration.search.LogicalOperator;
+import microsoft.exchange.webservices.data.core.enumeration.search.SortDirection;
+import microsoft.exchange.webservices.data.core.service.folder.Folder;
+import microsoft.exchange.webservices.data.core.service.item.Item;
+import microsoft.exchange.webservices.data.core.service.schema.EmailMessageSchema;
+import microsoft.exchange.webservices.data.core.service.schema.ItemSchema;
+import microsoft.exchange.webservices.data.credential.WebCredentials;
+import microsoft.exchange.webservices.data.property.complex.MessageBody;
+import microsoft.exchange.webservices.data.search.FindItemsResults;
+import microsoft.exchange.webservices.data.search.ItemView;
+import microsoft.exchange.webservices.data.search.filter.SearchFilter;
+
+public class EWSJavaAPI {
+
+	public static class RedirectionUrlCallback implements IAutodiscoverRedirectionUrl {
+		public boolean autodiscoverRedirectionUrlValidationCallback(String redirectionUrl) {
+			return redirectionUrl.toLowerCase().startsWith("https://");
+		}
+	}
+
+	public static ExchangeService connectViaExchangeAutodiscover(String email, String password) {
+		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
+		try {
+
+			service.setCredentials(new WebCredentials(email, password));
+			//  service.autodiscoverUrl(email, new RedirectionUrlCallback());
+
+			service.setUrl(new URI("https://owa.motherson.com/ews/Exchange.asmx"));
+			service.setTraceEnabled(true);
+			Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
+
+			ItemView view = new ItemView (10);
+			//			FindItemsResults<Item> findResults = service.findItems(WellKnownFolderName.Inbox, view);
+			//
+			//			int i = 0;
+			//			for(Item item : findResults.getItems()){
+			//				i++;
+			//				if(i==5)
+			//					break;
+			//				PropertySet itempropertyset = new PropertySet(BasePropertySet.FirstClassProperties);
+			//				itempropertyset.setRequestedBodyType(BodyType.Text);
+			//				view.setPropertySet(itempropertyset);
+			//				item.load(itempropertyset);
+			//				System.out.println("id==========" + item.getId());
+			//
+			//				System.out.println("sub==========" + item.getSubject());
+			//				System.out.println("body==========" + MessageBody.getStringFromMessageBody(item.getBody()));
+			//			}
+
+			// to read unread message from mailbox
+			SearchFilter sf = new SearchFilter.SearchFilterCollection(LogicalOperator.And,   new SearchFilter.IsEqualTo(EmailMessageSchema.IsRead, true));
+			FindItemsResults<Item> findResults = service.findItems(WellKnownFolderName.Inbox,sf, new ItemView(20));
+			int i = 0;
+			for(Item item : findResults.getItems())
+			{
+				PropertySet itempropertyset = new PropertySet(BasePropertySet.FirstClassProperties);
+				itempropertyset.setRequestedBodyType(BodyType.Text);
+				view.setPropertySet(itempropertyset);
+				item.load(itempropertyset);
+				//System.out.println("id==========" + item.getId());
+				System.out.println("sub==========" + item.getSubject());
+				if(item.getSubject() == "Accepted: Outlook Meeting Request Using JavaMail")
+				{
+					System.out.println("id==========" + item.getId());
+					System.out.println("sub==========" + item.getSubject());
+					System.out.println("body==========" + MessageBody.getStringFromMessageBody(item.getBody()));
+				}
+			}
+
+			//System.out.println("messages: " + inbox.getTotalCount());
+		}
+		catch (Throwable e){
+			e.printStackTrace();
+		}
+		return service;
+	}
+	public static void main(String[] args) {
+		try {
+			System.out.println("Hello World");
+			ExchangeService service = connectViaExchangeAutodiscover("mrinalvatsya", "omjha@1234");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

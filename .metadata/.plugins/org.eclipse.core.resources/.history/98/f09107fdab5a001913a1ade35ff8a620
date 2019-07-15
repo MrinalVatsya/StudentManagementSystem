@@ -1,0 +1,39 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+//Java program to print DFS traversal from a given given graph 
+import java.io.*; 
+import java.util.*; 
+
+//This class represents a directed graph using adjacency list 
+//representation 
+public class TestClass 
+{ 
+	private static int rec(int x)
+	{
+		int ans = 0;
+		if(ans == x)
+			return 1;
+		ans = ans + 1;
+		return rec(ans);
+		
+	}
+	public static void main(String[] args) {
+		System.out.println(rec(2));
+	}
+} 
+//This code is contributed by Aakash Hasija 

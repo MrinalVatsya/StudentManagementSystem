@@ -1,0 +1,59 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Stairs {
+
+	public int climbStairs(int a) {
+		
+		return climbStairsUtil(a);
+    }
+
+	private int climbStairsUtil(int a) {
+		
+		if(a < 0)
+			return 0;
+		
+		if(a==0)
+			return 1;
+		
+		return climbStairsUtil(a-1) + climbStairsUtil(a-2);
+		
+	}
+	private static Integer maxValue = Integer.MIN_VALUE;
+	private static ArrayList<Integer> ans = new ArrayList<>();
+	
+	 public ArrayList<Integer> solve(int a, ArrayList<Integer> b) {
+		 
+		 int n = b.size();
+		 return solveUtil(a, n , b);
+	    }
+	private  ArrayList<Integer> solveUtil(int a, int n, ArrayList<Integer> b, ArrayList<ArrayList<Integer>> ans) {
+		
+		if(a == 0)
+		{
+			return 1;
+		}
+		
+		if(n <= 0)
+		return 0;
+		
+		if(a < 0)
+			return 0;
+		
+		return solveUtil(a, n-1, b, ans) + solveUtil(a-b.get(n-1), n, b, ans);
+	}
+
+	public static void main(String[] args) {
+		Stairs st = new Stairs();
+		int ans = st.climbStairs(2);
+		System.out.println(ans);
+	}
+}

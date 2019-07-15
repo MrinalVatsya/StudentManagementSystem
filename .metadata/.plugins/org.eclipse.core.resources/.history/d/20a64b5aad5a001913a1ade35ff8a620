@@ -1,0 +1,21 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+//This class represents a directed graph using adjacency list 
+//representation 
+public class TestClass 
+{ 
+	private static int rec()
+	{
+		int ans =  0;
+		ans = ans + 1;
+		return ans;
+		
+	}
+	public static void main(String[] args) {
+		System.out.println(rec());
+	}
+} 
+//This code is contributed by Aakash Hasija 

@@ -1,0 +1,31 @@
+package javademo;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+public class Dateapi {
+	public static void main(String[] args) {
+		LocalDate l = LocalDate.now();
+		System.out.println(l);
+		LocalDate tomorrow = LocalDate.now().plusDays(1);
+		System.out.println(tomorrow);
+		
+		int six = LocalTime.parse("06:30").getHour();
+		System.out.println(six);
+		
+		LocalTime sevenThirty = LocalTime.parse("06:30").plus(1, ChronoUnit.HOURS);
+		System.out.println(sevenThirty);
+		
+		System.out.println(LocalDateTime.now());
+		
+		//zone date and time
+		Set<String> allZoneIds = ZoneId.getAvailableZoneIds();
+		System.out.println(allZoneIds);
+		
+		ZonedDateTime.parse("2015-05-03T10:15:30+01:00[Europe/Paris]");
+		
+	}
+}

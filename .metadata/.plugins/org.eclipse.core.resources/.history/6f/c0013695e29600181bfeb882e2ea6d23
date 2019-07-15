@@ -1,0 +1,37 @@
+package com.test;
+import java.util.*;
+class Students{
+	int rollNo;
+	String name;
+	String subject;
+	public Students(int rollNo, String name, String subject) {
+		this.rollNo=rollNo;
+		this.name=name;
+		this.subject=subject;
+	}
+}
+public class LinkedListFunctions {
+	public static void main(String args[]) {
+		LinkedList<Students> lt = new LinkedList<Students>();
+		Students s1 = new Students(101,"ankit","maths");
+		Students s2 = new Students(102,"mohini","science");
+		Students s3 = new Students(104,"abhishek","commerce");
+		                                                         
+		/*lt.addFirst(s1);                                                           // using addFirst function
+		lt.add(s2);                                                                // using boolean add function
+		lt.addLast(s3);                                                            // using void addLast function
+		Students s4 = new Students(103,"apoorva","maths");
+		lt.add(3,s4);*/
+		// using void add function
+		
+		lt.add(s2);
+		
+		
+		System.out.println(lt.size());
+		
+		/*System.out.println("does list contains mohini: "+ lt.contains("mohini"));    // using contains function
+	    lt.remove("mohini");
+		System.out.println("List contents after removing details of mohini:");*/
+		
+	}
+}

@@ -1,0 +1,15 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class DiameterNArrayTree {
+	
+	 public int solve(ArrayList<Integer> A) {
+	    }
+
+}

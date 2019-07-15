@@ -1,0 +1,104 @@
+package javademo2;
+
+
+import java.awt.List;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Base64;
+
+import microsoft.exchange.webservices.data.autodiscover.IAutodiscoverRedirectionUrl;
+import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.PropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
+import microsoft.exchange.webservices.data.core.enumeration.property.BasePropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
+import microsoft.exchange.webservices.data.core.enumeration.search.ItemTraversal;
+import microsoft.exchange.webservices.data.core.enumeration.search.LogicalOperator;
+import microsoft.exchange.webservices.data.core.enumeration.search.SortDirection;
+import microsoft.exchange.webservices.data.core.service.folder.Folder;
+import microsoft.exchange.webservices.data.core.service.item.Item;
+import microsoft.exchange.webservices.data.core.service.schema.ItemSchema;
+import microsoft.exchange.webservices.data.credential.WebCredentials;
+import microsoft.exchange.webservices.data.search.FindItemsResults;
+import microsoft.exchange.webservices.data.search.ItemView;
+import microsoft.exchange.webservices.data.search.filter.SearchFilter;
+
+public class EWSJavaAPI {
+
+	public static class RedirectionUrlCallback implements IAutodiscoverRedirectionUrl {
+		public boolean autodiscoverRedirectionUrlValidationCallback(String redirectionUrl) {
+			return redirectionUrl.toLowerCase().startsWith("https://");
+		}
+	}
+
+	public static ExchangeService connectViaExchangeAutodiscover(String email, String password) {
+		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
+		try {
+
+			service.setCredentials(new WebCredentials(email, password));
+			//  service.autodiscoverUrl(email, new RedirectionUrlCallback());
+
+			service.setUrl(new URI("https://owa.motherson.com/ews/Exchange.asmx"));
+			service.setTraceEnabled(true);
+			Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
+
+			ItemView view = new ItemView (10);
+			FindItemsResults<Item> findResults = service.findItems(WellKnownFolderName.Inbox, view);
+
+			for(Item item : findResults.getItems()){
+				item.load(new PropertySet(BasePropertySet.FirstClassProperties, ItemSchema.Body));
+				System.out.println("id==========" + item.getId());
+
+				System.out.println("sub==========" + item.getSubject());
+				System.out.println("body==========" + item.getBody());
+			}
+
+			/*   SearchFilter searchFilter = new SearchFilter.SearchFilterCollection(LogicalOperator.Or, searchFilterCollection.ToArray());
+
+         // Create a view with a page size of 50.
+         ItemView view = new ItemView(50);
+
+         // Identify the Subject and DateTimeReceived properties to return.
+         // Indicate that the base property will be the item identifier
+         view.PropertySet = new PropertySet(BasePropertySet.IdOnly, ItemSchema.Subject, ItemSchema.DateTimeReceived);
+
+         // Order the search results by the DateTimeReceived in descending order.
+         view.OrderBy.Add(ItemSchema.DateTimeReceived, SortDirection.Descending);
+
+         // Set the traversal to shallow. (Shallow is the default option; other options are Associated and SoftDeleted.)
+         view.Traversal = ItemTraversal.Shallow;
+
+         // Send the request to search the Inbox and get the results.
+         FindItemsResults<Item> findResults = service.FindItems(WellKnownFolderName.Inbox, searchFilter, view);*/
+
+
+			System.out.println("messages: " + inbox.getTotalCount());
+		}
+		catch (Throwable e){
+			e.printStackTrace();
+		}
+		return service;
+	}
+
+
+
+	private static String decodeString(String encodedStr) {// encode with padding
+
+
+		// decode a String
+		byte [] barr = Base64.getDecoder().decode(encodedStr); 
+
+		return new String(barr);
+
+	}
+
+	public static void main(String[] args) {
+		try {
+			System.out.println("Hello World");
+			ExchangeService service = connectViaExchangeAutodiscover("mrinalvatsya", "omjha@1234");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

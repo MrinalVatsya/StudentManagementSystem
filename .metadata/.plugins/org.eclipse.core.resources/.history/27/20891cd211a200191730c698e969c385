@@ -1,0 +1,90 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+class VertexWeightPair
+{
+
+	int v;
+	
+	int w;
+	
+	public VertexWeightPair(int v, int w) {
+		super();
+		this.v = v;
+		this.w = w;
+	}
+}
+
+public class ChanduGraph {
+	
+	private int V;
+	private LinkedList<VertexWeightPair> adj[];
+	
+	public ChanduGraph(int v) {
+		super();
+		this.V = v;
+		adj = new LinkedList[v];
+		for(int i = 0; i < v; i++)
+			adj[i] = new LinkedList<>();
+	}
+
+	 void DFSUtil(int v,boolean visited[]) 
+	    { 
+	        visited[v] = true; 
+	        System.out.print(v+" "); 
+	  
+	        Iterator<VertexWeightPair> i = adj[v].listIterator(); 
+	        while (i.hasNext()) 
+	        { 
+	        	VertexWeightPair n = i.next(); 
+	            if (!visited[n.v]) 
+	                DFSUtil(n.v, visited); 
+	        } 
+	    } 
+	  
+	    void DFS(int v) 
+	    { 
+	        boolean visited[] = new boolean[V]; 
+	  
+	        DFSUtil(v, visited); 
+	    } 
+	    
+	void addEdge(int u , int v, int w)
+	{
+		adj[u].add(new VertexWeightPair(v, w));
+	}
+	
+		
+ 	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int t = sc.nextInt();
+		while(t-- > 0)
+		{
+			int i , n = sc.nextInt();
+			sc.nextLine();
+			int x = n-1;
+			while(x-- > 0)
+			{
+			String str = sc.nextLine();
+			String[] strArray = str.split("\\s+");
+			int u = Integer.parseInt(strArray[0])-1;
+			int v = Integer.parseInt(strArray[1])-1;
+			int w = Integer.parseInt(strArray[2]);
+			
+			for(int i = 0; i <)
+			}
+			
+		}
+	}
+
+}

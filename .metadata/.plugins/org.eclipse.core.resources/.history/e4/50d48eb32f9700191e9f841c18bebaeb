@@ -1,0 +1,19 @@
+package crud;
+
+public class TestPoc {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		String myData = "SMG Legal 1- Meeting Invite [bog3 (2958)]";
+		
+        String meetingId= myData.replaceAll("[^0-9]", "");
+        
+        Integer beginIndex = myData.lastIndexOf("(");
+        myData = myData.substring(beginIndex);
+        
+        System.out.println(meetingId);
+
+	}
+
+}

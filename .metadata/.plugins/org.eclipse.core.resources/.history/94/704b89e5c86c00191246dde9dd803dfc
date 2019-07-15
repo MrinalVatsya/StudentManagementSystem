@@ -1,0 +1,113 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+class WHPath {
+	int distance;
+	List<WarmHole> path;
+
+	WHPath(List<WarmHole> path, int distance) {
+		this.path = path;
+		this.distance = distance;
+	};
+}
+
+class Coordinate {
+	int x;
+	int y;
+
+	Coordinate(int x, int y) {
+		this.x = x;
+		this.y = y;
+	};
+}
+
+class WarmHole {
+	Set<Coordinate> pairs = new HashSet<Coordinate>();
+	WarmHole(Coordinate a, Coordinate b) {
+		pairs.add(a);
+		pairs.add(b);
+	};
+}
+public class SpaceShipProblem {
+
+	public static void main(String[] args) {
+		Coordinate source = new Coordinate(0, 0);
+		Coordinate dest = new Coordinate(100, 200);
+		
+		WarmHole wh1 = new WarmHole(new Coordinate(1, 1), new Coordinate(1, 2));
+		WarmHole wh2 = new WarmHole(new Coordinate(1, 3), new Coordinate(1, 4));
+		WarmHole wh3 = new WarmHole(new Coordinate(1, 4), new Coordinate(1, 5));
+		WarmHole wh4 = new WarmHole(new Coordinate(1, 8), new Coordinate(2, 100));
+
+		List<WarmHole> wormHoleList = new LinkedList<>();
+		
+		wormHoleList.add(wh1);
+		wormHoleList.add(wh2);
+		wormHoleList.add(wh3);
+		wormHoleList.add(wh4);
+		
+		WHPath minPath = findMinPath(source, dest, wormHoleList);
+		System.out.println(minPath);
+	}
+	
+	public static int findDistance(Coordinate source, Coordinate dest) {
+		return Math.abs(source.x - dest.x) + Math.abs(source.y - dest.y);
+	}
+	
+	public static WHPath findMinPath(Coordinate source, Coordinate dest,
+			List<WarmHole> list) {
+				
+		if(source.x == dest.x && source.y == dest.y)
+		{
+			return new WHPath(null, 0);
+		}
+		
+		WHPath minPath = null;
+		
+		WarmHole wh = null;
+		
+		Coordinate startCor = null, endCor = null;
+		
+		Iterator<WarmHole> it = list.iterator();
+		Set<WarmHole> markSet = new HashSet<>();
+		
+		while(it.hasNext())
+		{
+			wh = it.next();
+			
+			if(markSet.contains(wh))//Donot consider same wormHole again..
+			{
+				continue;
+			}
+			markSet.add(wh);
+			Iterator<Coordinate> pointsSetIt = wh.pairs.iterator();
+			if(pointsSetIt.hasNext())
+			{
+				startCor = pointsSetIt.next();
+				endCor = pointsSetIt.next();
+			}
+			
+			//calculate distance of dest from each end of wormhole..
+			//Case 1: we are entering from startCor side..
+			WHPath path1 = findMinPath(endCor, dest, list);
+			
+			//Case 2: we are entering from endCor side..
+			WHPath path2 = findMinPath(endCor, dest, list);
+			
+			//find minimum path distance from both cases..
+			
+		}
+	}
+}

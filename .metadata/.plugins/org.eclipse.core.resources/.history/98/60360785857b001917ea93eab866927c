@@ -1,0 +1,20 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.List;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class LengthLongestSubsequence {
+	
+	 public int longestSubsequenceLength(final List<Integer> a) {
+		 	
+		 int length = a.size();
+		 
+	    }
+
+}

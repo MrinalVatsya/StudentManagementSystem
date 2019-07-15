@@ -1,0 +1,158 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+class MatCordinate{
+	int src;
+	
+	int weight ; 
+	public MatCordinate(int src, int dest, int weight) {
+		super();
+		this.src = src;
+		this.dest = dest;
+		this.weight = weight;
+	}
+
+	int dest;
+
+	public int getWeight() {
+		return weight;
+	}
+
+	public void setWeight(int weight) {
+		this.weight = weight;
+	}
+
+	public int getSrc() {
+		return src;
+	}
+
+	public void setSrc(int src) {
+		this.src = src;
+	}
+
+	public int getDest() {
+		return dest;
+	}
+
+	public void setDest(int dest) {
+		this.dest = dest;
+	}
+	
+}
+public class CoinsOnTable {
+	
+	private static int r[] = new int[]{0,0,1,-1};
+	
+	private static int c[] = new int[] {1,-1,0,0};
+	
+	private static boolean isSafe(int i , int j , int m , int n)
+	{
+		if(i < 0 || j >= m || i >= n || j < 0)
+		{
+			return false;
+		}
+		
+		return true;
+	}
+	
+	static int coinOnTheTable(int m, int k, String[] board) {
+        /*
+         * Write your code here.
+         */
+		int i , j , n = board.length;
+		int mat[][] = new int[n][m];
+		//simple BFS from stating to * cell..
+		for(i = 0; i < n; i++)
+		{
+			for(j = 0; j < m ; j++)
+			{
+				mat[i][j] = board[i].charAt(j);
+			}
+		}
+		
+		Queue<MatCordinate> queue = new LinkedList<>();
+		queue.add(new MatCordinate(0,0,0));
+		
+		boolean visited[][] = new boolean[n][m];
+		visited[0][0] = true;
+		int ans = 0;
+		MatCordinate qt = null;
+		boolean flag = false;
+		while(!queue.isEmpty())
+		{
+			qt = queue.poll();
+			int x = qt.getSrc();
+			int y = qt.getDest();
+			int dist = qt.getWeight();
+			
+			if(mat[x][y]=='*')//end reached..
+			{
+				flag = true;
+				break;
+			}
+			for(i = 0; i < 4; i++)
+			{
+				int xi = x + r[i];
+				int yi = y + c[i];
+				
+				if(isSafe(xi, yi, m, n) && !visited[xi][yi])
+				{
+					dist = dist + 1;
+					queue.add(new MatCordinate(xi, yi, dist));
+					visited[xi][yi] = true;
+					ans += 1;
+				}
+			}
+			
+		}
+			
+		if(flag && ans <= k)
+		{
+			return ans;
+		}
+		else
+		{
+			return -1;
+		}
+    }
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("D://Solution.txt"));
+
+        String[] nmk = scanner.nextLine().split(" ");
+
+        int n = Integer.parseInt(nmk[0].trim());
+
+        int m = Integer.parseInt(nmk[1].trim());
+
+        int k = Integer.parseInt(nmk[2].trim());
+
+        String[] board = new String[n];
+
+        for (int boardItr = 0; boardItr < n; boardItr++) {
+            String boardItem = scanner.nextLine();
+            board[boardItr] = boardItem;
+        }
+
+        int result = coinOnTheTable(m, k, board);
+        System.out.println(result);
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedWriter.close();
+    }
+}

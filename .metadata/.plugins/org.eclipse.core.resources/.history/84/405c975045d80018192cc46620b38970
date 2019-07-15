@@ -1,0 +1,29 @@
+/**
+ * 
+ */
+package javademo2;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+public class Main {
+	
+	private static final String DATE_FORMAT = "dd-M-yyyy";
+	private static final String TIME_FORMAT = "hh:mm:ss";
+	
+	public static void main(String[] args) {
+		TimeZone tzJapan = TimeZone.getTimeZone("Asia/Tokyo");
+		Calendar cld = Calendar.getInstance(tzJapan);
+		System.out.println(cld.get(Calendar.HOUR_OF_DAY));
+		
+//        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+//        String dateInString = "22-01-2015";
+//        Date date = formatter.parse(dateInString);
+		
+		String str = "1986-04-08 12:30";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+	}
+}

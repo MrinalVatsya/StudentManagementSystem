@@ -1,0 +1,518 @@
+/**
+ * 
+ */
+package com.mind.legalOne.administration.logic.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.mind.legalOne.admin.common.CommonUtils;
+import com.mind.legalOne.admin.entity.MenuMasterEntity;
+import com.mind.legalOne.admin.entity.MenuScreenMapEntity;
+import com.mind.legalOne.admin.entity.ModuleMasterEntity;
+import com.mind.legalOne.admin.entity.ScreenMasterEntity;
+import com.mind.legalOne.admin.exception.RecordNotFoundException;
+import com.mind.legalOne.admin.exception.UpdatedByAnotherUserException;
+import com.mind.legalOne.administration.dto.ListItem;
+import com.mind.legalOne.administration.dto.MenuMaster;
+import com.mind.legalOne.administration.dto.MenuScreenMap;
+import com.mind.legalOne.administration.dto.ScreenMaster;
+import com.mind.legalOne.administration.logic.MenuLogic;
+import com.mind.legalOne.administration.logic.MenuSubLogic;
+import com.mind.legalOne.administration.logic.ModuleSubLogic;
+
+/**
+ * @author maneeshkpandey
+ *
+ */
+@Transactional
+@Service
+public class MenuLogicImpl extends Validation implements MenuLogic {
+
+
+
+	@Autowired
+	MenuSubLogic menuSubLogic;
+
+	@Autowired
+	ModuleSubLogic moduleSubLogic;
+
+	@Override
+	public ScreenMaster getScreen(String screenId, Long moduleId, Integer userId, Integer roleId) {
+		Optional<ScreenMasterEntity> screenMasterOpt = getMenuSubLogic().getScreenMasterRecord(screenId, moduleId);
+		if(!screenMasterOpt.isPresent()) {
+			throw new RecordNotFoundException("screen Id: "+screenId+", module Id: "+moduleId);
+		}
+		ScreenMasterEntity entity = screenMasterOpt.get();
+
+		ScreenMaster screenMaster = new ScreenMaster();
+		fillScreenDetailsForGet(entity, screenMaster);
+
+		return screenMaster;
+	}
+
+	@Override
+	public List<ScreenMaster> getScreen(Long moduleId, Integer userId, Integer roleId) {
+		Iterable<ScreenMasterEntity> screenMasterIt = getMenuSubLogic().getScreenMasterRecords(moduleId);
+		List<ScreenMaster> screenMasters = StreamSupport.stream(screenMasterIt.spliterator(), false).map(entity -> {
+			ScreenMaster screenMaster = new ScreenMaster();
+			fillScreenDetailsForGet(entity, screenMaster);
+
+			return screenMaster;
+		}).collect(Collectors.toList());
+		return screenMasters;
+	}
+
+	/**
+	 * @param entity
+	 * @param screenMaster
+	 */
+	private void fillScreenDetailsForGet(ScreenMasterEntity entity, ScreenMaster screenMaster) {
+		screenMaster.setDescription(entity.getDesc());
+		screenMaster.setDisplayOrder(entity.getDisplayOrder());
+		screenMaster.setId(entity.getId());
+		screenMaster.setModuleId(entity.getModuleMaster().getId());
+		screenMaster.setName(entity.getName());
+		screenMaster.setUrl(entity.getUrl());
+		screenMaster.setVersion(entity.getVersion());
+	}
+
+	/**
+	 * @return the menuSubLogic
+	 */
+	public MenuSubLogic getMenuSubLogic() {
+		return menuSubLogic;
+	}
+
+	/**
+	 * @param menuSubLogic the menuSubLogic to set
+	 */
+	public void setMenuSubLogic(MenuSubLogic menuSubLogic) {
+		this.menuSubLogic = menuSubLogic;
+	}
+
+	@Override
+	public ScreenMaster createScreen(String screenId, Long moduleId, ScreenMaster screenMaster, Integer userId,
+			Integer roleId) {
+		ScreenMasterEntity screenMasterEntity = new ScreenMasterEntity();
+		validateScreenMaster(screenMaster,screenMasterEntity);//validation check..
+		screenMasterEntity.setActive(true);
+		screenMasterEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		screenMasterEntity.setCreatedUserId(userId);
+		screenMasterEntity.setId(screenId);
+		screenMasterEntity.setDesc(screenMaster.getDescription());
+		screenMasterEntity.setDisplayOrder(screenMaster.getDisplayOrder());
+
+		Optional<ModuleMasterEntity> entityOpt = moduleSubLogic.getModuleMasterRecord(moduleId);
+		if(entityOpt.isPresent()) {
+			screenMasterEntity.setModuleMaster(entityOpt.get());
+		}
+		else {
+			screenMasterEntity.setModuleMaster(null);
+		}
+		screenMasterEntity.setName(screenMaster.getName());
+		screenMasterEntity.setUrl(screenMaster.getUrl());
+
+		screenMaster.setVersion(1L);
+
+		String id = getMenuSubLogic().createScreenMasterRecords(screenMasterEntity);
+		screenMaster.setId(id);
+		return screenMaster;
+	}
+
+	/**
+	 * @return the moduleSubLogic
+	 */
+	public ModuleSubLogic getModuleSubLogic() {
+		return moduleSubLogic;
+	}
+
+	/**
+	 * @param moduleSubLogic the moduleSubLogic to set
+	 */
+	public void setModuleSubLogic(ModuleSubLogic moduleSubLogic) {
+		this.moduleSubLogic = moduleSubLogic;
+	}
+
+	@Override
+	public ScreenMaster updateScreen(String screenId, Long moduleId, ScreenMaster screenMaster, Integer userId,
+			Integer roleId) {
+		Optional<ScreenMasterEntity> screenMasterOpt = getMenuSubLogic().getScreenMasterRecord(screenId, moduleId);
+		if(!screenMasterOpt.isPresent()) {
+			throw new RecordNotFoundException("screen Id: "+screenId+"module Id: "+moduleId);
+		}
+		ScreenMasterEntity screenMasterEntity = screenMasterOpt.get();
+		validateScreenMaster(screenMaster,screenMasterEntity);//validation check..
+		if(screenMaster.getVersion()!=screenMasterEntity.getVersion()) {
+			throw new UpdatedByAnotherUserException();
+		}
+
+		screenMasterEntity.setDesc(screenMaster.getDescription());
+		screenMasterEntity.setDisplayOrder(screenMaster.getDisplayOrder());
+		Optional<ModuleMasterEntity> entityOpt = moduleSubLogic.getModuleMasterRecord(moduleId);
+		if(entityOpt.isPresent()) {
+			screenMasterEntity.setModuleMaster(entityOpt.get());
+		}
+		else {
+			screenMasterEntity.setModuleMaster(null);
+		}		
+		screenMasterEntity.setName(screenMaster.getName());
+		screenMasterEntity.setUrl(screenMaster.getUrl());
+		screenMasterEntity.setVersion(screenMaster.getVersion()+1L);
+		screenMaster.setVersion(screenMaster.getVersion()+1L);
+		screenMasterEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+		screenMasterEntity.setLastUpdatedUserId(userId);
+		return screenMaster;
+	}
+
+	@Override
+	public List<MenuScreenMap> getMenuScreen(Long menuId, Integer userId, Integer roleId) {
+		Iterable<MenuScreenMapEntity> menuScreenIt = getMenuSubLogic().getMenuScreenMapRecords(menuId);
+		List<MenuScreenMap> menuScreens = StreamSupport.stream(menuScreenIt.spliterator(), false).map(entity -> {
+			MenuScreenMap menuScreenMap = new MenuScreenMap();
+			menuScreenMap.setId(entity.getId());
+			menuScreenMap.setDisplayOrder(entity.getDisplayOrder());
+			menuScreenMap.setMenuId(entity.getMenu().getId());
+			menuScreenMap.setScreenId(entity.getScreen().getId());
+			menuScreenMap.setModuleId(entity.getScreen().getModuleMaster().getId());
+			menuScreenMap.setVersion(entity.getVersion());
+			return menuScreenMap;
+		}).collect(Collectors.toList());
+		return menuScreens;
+	}
+
+
+	//************************************** changes start for revised update menu screen ********************
+	
+	@Override
+	public List<MenuScreenMap> updateMenuScreen(Long menuId, List<MenuScreenMap> menuScreenMapList, Integer userId,
+			Integer roleId) {
+		Iterable<MenuScreenMapEntity> entityIt = getMenuSubLogic().getMenuScreenMapRecords(menuId);
+		
+		Map<Long, MenuScreenMapEntity> entityMap = StreamSupport.stream(entityIt.spliterator(), false).collect(Collectors.toMap(entity->entity.getId(), entity->entity));
+
+		menuScreenMapList.forEach(menuScreen -> {
+			if(menuScreen.getId() == null) {
+				MenuScreenMapEntity entity = new MenuScreenMapEntity();
+				fillMenuScreenMapEntity(menuScreen, entity);
+				
+				entity.setActive(true);
+				entity.setCreatedDate(CommonUtils.getCurrentDateTime());
+				entity.setCreatedUserId(userId);
+				
+				Long id = getMenuSubLogic().createMenuScreenMapRecord(entity);
+				
+				menuScreen.setId(id);
+				menuScreen.setVersion(entity.getVersion());
+			}
+			else {
+				MenuScreenMapEntity entity = entityMap.get(menuScreen.getId());
+				
+				if(entity == null) {
+					throw new RecordNotFoundException("Menu Screen Map ID: "+menuScreen.getId());
+				}
+				
+				if(!entity.getVersion().equals(menuScreen.getVersion())) {
+					throw new UpdatedByAnotherUserException();
+				}
+				
+				fillMenuScreenMapEntity(menuScreen, entity);
+				
+				entity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+				entity.setLastUpdatedUserId(userId);
+				entity.setVersion(menuScreen.getVersion()+1L);
+				menuScreen.setVersion(menuScreen.getVersion()+1L);
+				
+				entityMap.remove(menuScreen.getId());
+			}
+		});
+		
+		entityMap.forEach((id, entity) -> {
+			entity.setVersion(entity.getVersion()+1L);
+			entity.setActive(false);
+		});
+		
+		return menuScreenMapList;
+	}
+	
+	//**************************** changes end ***********************
+
+	/**
+	 * @param menuScreen
+	 * @param entity
+	 */
+	private void fillMenuScreenMapEntity(MenuScreenMap menuScreen, MenuScreenMapEntity entity) {
+		Optional<ScreenMasterEntity> screenMasterEntityOpt = getMenuSubLogic().getScreenMasterRecord(menuScreen.getScreenId(), menuScreen.getModuleId());
+		if(!screenMasterEntityOpt.isPresent()) {
+			throw new RecordNotFoundException("Screen ID: "+screenMasterEntityOpt.get().getId()+", Module ID: "+screenMasterEntityOpt.get().getModuleMaster().getId());
+		}
+		entity.setScreen(screenMasterEntityOpt.get());
+		entity.setDisplayOrder(menuScreen.getDisplayOrder());
+		
+		Optional<MenuMasterEntity> menuMasterEntityOpt = getMenuSubLogic().getMenuMasterRecord(menuScreen.getMenuId());
+		if(!menuMasterEntityOpt.isPresent()) {
+			throw new RecordNotFoundException("Menu ID: "+menuScreen.getMenuId());
+		}
+		entity.setMenu(menuMasterEntityOpt.get());
+	}
+	
+	
+	@Override
+	public List<ListItem> getScreenListItems(Long moduleId, Integer userId, Integer roleId) {
+		Iterable<ScreenMasterEntity> screenMasterIt = getMenuSubLogic().getScreenMasterRecords(moduleId);
+		List<ListItem> screenMasters = StreamSupport.stream(screenMasterIt.spliterator(), false).map(entity -> {
+			ListItem screenMaster = new ListItem();
+			screenMaster.setKey(entity.getId());
+			screenMaster.setValue(entity.getName());
+			return screenMaster;
+		}).collect(Collectors.toList());
+		return screenMasters;
+	}
+
+	@Override
+	public List<MenuMaster> getMenuMaster(Integer userId, Integer roleId) {
+		Iterable<MenuMasterEntity> menuMasterIt = getMenuSubLogic().getMenuMasterRecord();
+		List<MenuMaster> menuMasters = StreamSupport.stream(menuMasterIt.spliterator(), false)
+				.filter(entity -> entity.getParentMenu() == null).map(entity -> {
+			MenuMaster menuMaster = new MenuMaster();
+			menuMaster.setDesc(entity.getDesc());
+			menuMaster.setDisplayOrder(entity.getDisplayOrder());
+			menuMaster.setKey(entity.getKey());
+			menuMaster.setName(entity.getName());
+			menuMaster.setId(entity.getId());
+			menuMaster.setVersion(entity.getVersion());
+
+			getChildInMenuMaster(menuMaster, entity);
+
+			return menuMaster;
+		}).collect(Collectors.toList());
+		return menuMasters;
+	}
+
+	@Override
+	public MenuMaster getMenuMaster(Long menuId, Integer userId, Integer roleId) {
+		MenuMaster menuMaster = new MenuMaster();
+		Optional<MenuMasterEntity> menuMasterOpt = getMenuSubLogic().getMenuMasterRecord(menuId);
+		if(!menuMasterOpt.isPresent()) {
+			throw new RecordNotFoundException("menuId: "+menuId);
+		}
+		MenuMasterEntity menuMasterEntity = menuMasterOpt.get();
+		menuMaster.setDesc(menuMasterEntity.getDesc());
+		menuMaster.setDisplayOrder(menuMasterEntity.getDisplayOrder());
+		menuMaster.setKey(menuMasterEntity.getKey());
+		menuMaster.setName(menuMasterEntity.getName());
+		menuMaster.setId(menuMasterEntity.getId());
+		menuMaster.setVersion(menuMasterEntity.getVersion());
+		getChildInMenuMaster(menuMaster, menuMasterEntity);
+		//		List<MenuMasterEntity> subfields = entity.get
+//		menuMasterEntity.getSubFields().stream().filter(entity -> entity.getActive().equals(true)).map(entity -> {
+//			MenuMaster menu = new MenuMaster();
+//			menu.setDesc(entity.getDesc());
+//			menu.setDisplayOrder(entity.getDisplayOrder());
+//			menu.setName(entity.getName());
+//			menu.setVersion(entity.getVersion());
+//			//menu.setParentMenu(menuMasterEntity.getId());
+//			Long id = getMenuSubLogic().createMenuRecord(menuMasterEntity);
+//			menuMaster.setId(id);
+//
+//			createSubFields(menuMaster, null, userId);
+//
+//			return menuMaster;
+//		});
+		//		menuMaster.setChild(child);
+
+		return menuMaster;
+	}
+
+	@Override
+	public MenuMaster createMenuMaster(MenuMaster menuMaster, Integer userId, Integer roleId) {
+		MenuMasterEntity menuMasterEntity = new MenuMasterEntity();
+		validateMenuMaster(menuMaster, menuMasterEntity);//validation check..
+		menuMasterEntity.setActive(true);
+		menuMasterEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+		menuMasterEntity.setCreatedUserId(userId);
+		menuMasterEntity.setDesc(menuMaster.getDesc());
+		menuMasterEntity.setDisplayOrder(menuMaster.getDisplayOrder());
+		menuMasterEntity.setName(menuMaster.getName());
+		menuMasterEntity.setKey(menuMaster.getKey());
+		menuMaster.setVersion(1L);
+		menuMasterEntity.setParentMenu(null);
+		Long id = getMenuSubLogic().createMenuRecord(menuMasterEntity);
+		menuMaster.setId(id);
+
+		createSubFields(menuMaster, null, userId);
+
+		return menuMaster;
+	}
+
+	@Override
+	public MenuMaster updateMenuMaster(Long menuId, MenuMaster menuMaster, Integer userId, Integer roleId) {
+		Map<Long, MenuMasterEntity> menuMap = new HashMap<>();
+		Optional<MenuMasterEntity> menuMasterOpt = getMenuSubLogic().getMenuMasterRecord(menuId);
+		if(!menuMasterOpt.isPresent()) {
+			throw new RecordNotFoundException("menuId: "+menuId);
+		}
+		MenuMasterEntity menuMasterEntity = menuMasterOpt.get();
+		
+		if(!menuMasterEntity.getVersion().equals(menuMaster.getVersion())) {
+			throw new UpdatedByAnotherUserException();
+		}
+
+		menuMap.put(menuMasterEntity.getId(), menuMasterEntity);
+
+		updateEntityMap(menuMasterEntity, menuMap);
+
+		menuMasterEntity.setDesc(menuMaster.getDesc());
+		menuMasterEntity.setDisplayOrder(menuMaster.getDisplayOrder());
+		menuMasterEntity.setKey(menuMaster.getKey());
+		menuMasterEntity.setName(menuMaster.getName());
+
+
+		menuMasterEntity.setParentMenu(null);
+
+		menuMasterEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+		menuMasterEntity.setLastUpdatedUserId(userId);
+		menuMasterEntity.setVersion(menuMaster.getVersion()+1L);
+
+		menuMaster.setVersion(menuMaster.getVersion()+1L);
+
+		MenuMasterEntity parentEntity = menuMap.get(menuMaster.getId());
+
+		menuMap.remove(menuMaster.getId());
+
+		createOrUpdateChild(menuMaster, parentEntity, userId, menuMap);
+
+		menuMap.forEach((key, value) -> {
+			value.setActive(false);
+			value.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+			value.setLastUpdatedUserId(userId);
+			value.setVersion(value.getVersion()+1L);
+		});
+
+		return menuMaster;
+	}
+
+	private void updateEntityMap(MenuMasterEntity menuMasterEntity, Map<Long, MenuMasterEntity> menuMap) {
+		if(null != menuMasterEntity.getSubFields() && menuMasterEntity.getSubFields().size()>0 ) {
+			menuMasterEntity.getSubFields().stream().filter(entity -> entity.getActive().equals(true)).forEach(entity -> {
+				menuMap.put(entity.getId(), entity);
+				updateEntityMap(menuMasterEntity, menuMap);
+			});
+		}
+
+	}
+
+	private void createOrUpdateChild(MenuMaster menuMaster, MenuMasterEntity parentEntity, Integer userId,
+			Map<Long, MenuMasterEntity> menuMap) {
+
+		if(null != menuMaster.getChild() && menuMaster.getChild().size() > 0) {
+			menuMaster.getChild().stream().map(child -> {
+				MenuMasterEntity childEntity = new MenuMasterEntity();
+				if(null == child.getId()) {
+					childEntity.setActive(true);
+					childEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+					childEntity.setCreatedUserId(userId);
+					childEntity.setDesc(child.getDesc());
+					childEntity.setDisplayOrder(child.getDisplayOrder());
+					childEntity.setKey(child.getKey());
+					childEntity.setName(child.getName());
+					if(null == parentEntity) {
+						childEntity.setParentMenu(null);
+					}
+					else {
+						Optional<MenuMasterEntity> entityOpt = getMenuSubLogic().getMenuMasterRecord(parentEntity.getId());
+						childEntity.setParentMenu(entityOpt.get());
+					}
+
+					Long id = getMenuSubLogic().createMenuRecord(childEntity);
+					child.setVersion(1L);
+					child.setId(id);
+				}
+				else {
+					menuMap.remove(child.getId());
+					childEntity.setDesc(child.getDesc());
+					childEntity.setDisplayOrder(child.getDisplayOrder());
+					childEntity.setKey(child.getKey());
+					childEntity.setName(child.getName());
+					if(null == parentEntity) {
+						childEntity.setParentMenu(null);
+					}
+					else {
+						Optional<MenuMasterEntity> entityOpt = getMenuSubLogic().getMenuMasterRecord(parentEntity.getId());
+						childEntity.setParentMenu(entityOpt.get());
+					}
+
+					childEntity.setVersion(child.getVersion()+1L);
+					child.setVersion(child.getVersion()+1L);
+					childEntity.setActive(true);
+					childEntity.setLastUpdatedDate(CommonUtils.getCurrentDateTime());
+					childEntity.setLastUpdatedUserId(userId);
+				}
+				return child;
+			}).collect(Collectors.toList());
+		}
+	}
+
+	private void createSubFields(MenuMaster menuMaster,
+			MenuMasterEntity parentEntity, Integer userId) {
+		if(menuMaster.getChild() != null && menuMaster.getChild().size() > 0) {
+
+			menuMaster.getChild().stream().forEach(child ->{
+
+				MenuMasterEntity menuMasterEntity = new MenuMasterEntity();
+
+				menuMasterEntity.setActive(true);
+				menuMasterEntity.setCreatedDate(CommonUtils.getCurrentDateTime());
+				menuMasterEntity.setCreatedUserId(userId);
+				menuMasterEntity.setDesc(menuMaster.getDesc());
+				menuMasterEntity.setDisplayOrder(menuMaster.getDisplayOrder());
+				menuMasterEntity.setName(menuMaster.getName());
+				menuMaster.setVersion(1L);
+				menuMasterEntity.setParentMenu(parentEntity);
+
+				if(null == child.getId()) {
+
+					Long id = getMenuSubLogic().createMenuRecord(menuMasterEntity);
+					child.setId(id);
+					child.setVersion(1L);
+				}
+
+
+				createSubFields(child, menuMasterEntity, userId);
+			});
+		}
+
+	}
+
+	private MenuMaster getChildInMenuMaster(MenuMaster menuMaster, MenuMasterEntity menuMasterEntity) {
+		List<MenuMaster> childList = new ArrayList<>();
+		if(null != menuMasterEntity.getSubFields() && menuMasterEntity.getSubFields().size() > 0) {
+			menuMasterEntity.getSubFields().stream().filter(child -> child.getActive()).forEach(childEntity -> {
+				MenuMaster childMenuMaster = new MenuMaster();
+				childMenuMaster.setDesc(childEntity.getDesc());
+				childMenuMaster.setDisplayOrder(childEntity.getDisplayOrder());
+				childMenuMaster.setKey(childEntity.getKey());
+				childMenuMaster.setName(childEntity.getName());
+				childMenuMaster.setId(childEntity.getId());
+				childMenuMaster.setVersion(childEntity.getVersion());
+				childMenuMaster = getChildInMenuMaster(childMenuMaster,childEntity);
+				childList.add(childMenuMaster);
+				
+			});
+		}
+		menuMaster.setChild(childList);
+		return menuMaster;
+	}
+
+
+}

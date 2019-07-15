@@ -1,0 +1,57 @@
+/**
+ * 
+ */
+package javademo2;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.TimeZone;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class TimePOC {
+
+	static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+
+	public static void main(String[] args) throws ParseException {
+
+		SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss a", Locale.JAPAN);
+		formatter.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+
+		//		String timeInString = "13:1:23"; 
+		//		LocalTime time = LocalTime.parse(timeInString);
+		//		String formattedDateString = formatter.format(time);
+		//		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+		//		System.out.println(formattedDateString);
+
+
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
+		//dateTimeFormatter.withZone(ZoneId.of("Asia/Tokyo"));
+		//dateTimeFormatter.withZone(ZoneOffset.UTC);
+		String time = "18:29:30";
+		String date = "26-10-2018";
+		LocalTime time1 = LocalTime.parse(time, dateTimeFormatter);
+//		int hour = time1.getHour();
+//		int minutes = time1.getMinute();
+//		int seconds = time1.getSecond();
+		
+		System.out.println("Current Time in Japan is :- "+ time1);
+		LocalTime time2 = time1.minusMinutes(540L);
+		System.out.println("UTC Time is :- "+time2);
+
+		String dateInDb =  date;
+		String timeInDb = time1.toString();
+		
+		LocalTime convertTime = LocalTime.parse(timeInDb, dateTimeFormatter);
+		LocalTime timeInUI = convertTime.plusMinutes(540L);
+		String timeStoredInUI = timeInUI.toString();
+		System.out.println(timeStoredInUI);
+	}
+}

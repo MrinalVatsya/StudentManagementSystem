@@ -1,0 +1,24 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+
+class ListNode {
+	public int val;
+	public ListNode next;
+	ListNode(int x) { val = x; next = null; }
+}
+public class InterviewBitLinkedList {
+
+
+	public ListNode removeNthFromEnd(ListNode A, int B) {
+
+
+	}
+
+}

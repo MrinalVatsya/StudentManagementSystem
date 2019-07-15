@@ -1,0 +1,109 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class RedJohn {
+
+    // Complete the redJohn function below.
+    static int redJohn(int n) {
+
+    		
+    		int i = 0;
+    		if(n<4)
+    			return 1;
+    		int dp[] = new int[n+1];
+    		Arrays.fill(dp, 0);
+    		dp[1] = 1;
+    		dp[2] = 1;
+    		dp[3] = 1;
+    		
+    		for(i = 4; i <= n; i++)
+    		{
+    			dp[i] = 1 + dp[i-1];
+    		}
+    	
+    		int ways = dp[n];
+    		System.out.println(ways);
+    		
+    		//System.out.println(query(1,ways));
+    		int ans = query(1,ways);
+    		System.out.println(ans);
+    }
+    		
+    		static final int MAX = 10000; 
+    		  
+    		// prefix[i] is going to store count  
+    		// of primes till i (including i). 
+    		static int prefix[] = new int[MAX + 1]; 
+    		  
+    		static void buildPrefix() { 
+    		      
+    		    // Create a boolean array "prime[0..n]". A 
+    		    // value in prime[i] will finally be false 
+    		    // if i is Not a prime, else true. 
+    		    boolean prime[] = new boolean[MAX + 1]; 
+    		    Arrays.fill(prime, true); 
+    		  
+    		    for (int p = 2; p * p <= MAX; p++) { 
+    		  
+    		    // If prime[p] is not changed, then 
+    		    // it is a prime 
+    		    if (prime[p] == true) { 
+    		  
+    		        // Update all multiples of p 
+    		        for (int i = p * 2; i <= MAX; i += p) 
+    		        prime[i] = false; 
+    		    } 
+    		    } 
+    		  
+    		    // Build prefix array 
+    		    prefix[0] = prefix[1] = 0; 
+    		    for (int p = 2; p <= MAX; p++) { 
+    		    prefix[p] = prefix[p - 1]; 
+    		    if (prime[p]) 
+    		        prefix[p]++; 
+    		    } 
+    		} 
+    		  
+    		// Returns count of primes in range  
+    		// from L to R (both inclusive). 
+    		static int query(int L, int R) 
+    		{ 
+    		    return prefix[R] - prefix[L - 1];  
+    		} 
+    
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(("D://Solution.txt")));
+
+        int t = scanner.nextInt();
+        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+        for (int tItr = 0; tItr < t; tItr++) {
+            int n = scanner.nextInt();
+            scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+            int result = redJohn(n);
+
+            bufferedWriter.write(String.valueOf(result));
+            bufferedWriter.newLine();
+        }
+
+        bufferedWriter.close();
+
+        scanner.close();
+    }
+}

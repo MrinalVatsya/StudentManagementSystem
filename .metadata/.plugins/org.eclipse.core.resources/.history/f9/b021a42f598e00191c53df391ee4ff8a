@@ -1,0 +1,15 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class LongestPalindromicSubstring {
+	
+	  public String longestPalindrome(String A) {
+	    }
+
+}

@@ -1,0 +1,21 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class InvertBinaryTree {
+
+	    public TreeNode invertTree(TreeNode a) {
+	    	
+	    	//swap left and right children..
+	    	TreeNode temp = a.left;
+	    	a.left = a.right;
+	    	a.right = temp;
+	    	
+	    	invertTree();
+	    }
+}

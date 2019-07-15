@@ -1,0 +1,99 @@
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * @author MRINAL VATS
+ *
+ */
+public class PrintPalindromicSubsequence {
+
+	static int countPS(String str) 
+	{ 
+		int i, j , n  = str.length();
+		int dp[][] = new int[n+1][n+1];
+		for(i = 0; i < n; i++)
+		{
+			System.out.println(str.charAt(i));
+			dp[i][i] = 1;
+		}
+
+		for(int L = 2; L <= n; L++)
+		{
+			for(i = 0; i < n; i++)
+			{
+				j = i + L - 1;
+				//System.out.println("i is : -- " + i + " j :-- " +j);
+				if(j < n)
+				{
+					if(str.charAt(i)==str.charAt(j))
+					{
+						System.out.println("i is : -- " + i + " j :-- " +j);
+						dp[i][j] = dp[i+1][j] + dp[i][j-1] + 1; 
+					}
+					else
+					{
+						dp[i][j] = dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1]; 
+					}
+				}
+			}
+		}
+		int length = dp[0][n-1];
+		int pCount = str.length();
+		List<String> ansStr = new LinkedList<>();
+		for(i = 0; i < n; i++)
+		{
+			for(j = 0; j < n; j++)
+				System.out.print(dp[i][j] + " ");
+			System.out.println();
+		}
+
+			i = 0 ; j = n-1;
+			StringBuilder palindrome = new StringBuilder();
+			while(i < n && j > 0)
+			{
+				if(str.charAt(i)==str.charAt(j))
+				{
+					if(dp[i][j] == dp[i+1][j] + dp[i][j-1] + 1)//Common charachter found..
+					{
+						palindrome.append(str.charAt(i));
+						palindrome.append(str.charAt(j));
+						ansStr.add(palindrome.toString());
+						palindrome = new StringBuilder();
+						pCount++;//1 palindrome added here..
+					}
+				}
+				else
+				{
+					if(dp[i][j] == dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1])
+					{
+						
+					}
+				}
+			}
+//			for(int L = 2; L <= n; L++)
+//			{
+//				for(i = 0; i < n; i++)
+//				{
+//					j = i + L - 1;
+//					//System.out.println("i is : -- " + i + " j :-- " +j);
+//					if(j < n)
+//					{
+//						if(dp[i][j] == )
+//					}
+//				}
+//			}
+			ansStr.forEach(item->{
+				System.out.println(item);
+			});
+
+		return dp[0][n-1];
+	}
+
+	public static void main(String args[]) 
+	{ 
+		String str = "abcb"; 
+		System.out.println("Total palindromic "+ 
+				"subsequence are : "
+				+ countPS(str)); 
+	} 
+}

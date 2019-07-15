@@ -1,0 +1,16 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class PasswordTest {
+	String plainTextPassword = "abc@1234";
+	String encoded = new BCryptPasswordEncoder().encode(plainTextPassword);
+
+}

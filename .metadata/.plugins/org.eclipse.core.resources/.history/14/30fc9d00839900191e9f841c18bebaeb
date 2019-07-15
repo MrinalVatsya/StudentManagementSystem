@@ -1,0 +1,42 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+
+class ListNode {
+	public int val;
+	public ListNode next;
+	ListNode(int x) { val = x; next = null; }
+}
+public class InterviewBitLinkedList {
+
+
+	public ListNode removeNthFromEnd(ListNode a, int b) {
+		
+		int i, count = 0;
+		while(a != null)
+		{
+			count++;
+			a = a.next;
+		}
+		
+		for(i = 1; i <= count-b; i++)
+		{
+			a = a.next;
+		}
+		
+		ListNode temp = a.next;
+		a.next = temp.next;
+		return a;
+	}
+	
+	public static void main(String[] args) {
+		InterviewBitLinkedList obj = new InterviewBitLinkedList();
+	}
+
+}

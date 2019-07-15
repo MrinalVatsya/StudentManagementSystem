@@ -1,0 +1,30 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.LinkedList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Bfs {
+	
+	private int V;
+	private LinkedList<Integer> adj[];
+	
+	public Bfs(int v) {
+		super();
+		this.V = v;
+		adj = new List[v];
+		for(int i = 0 ; i < V; i++)
+		{
+			adj[i] = new LinkedList<>();
+		}
+		
+	}
+	
+	
+
+}

@@ -1,0 +1,16 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class ChanduGraph {
+	
+	public static void main(String[] args) {
+		
+	}
+
+}

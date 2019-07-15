@@ -1,0 +1,875 @@
+/**
+ * 
+ */
+package com.mind.legalOne.administration.logic.impl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.mind.legalOne.admin.entity.AlertCategoryMasterEntity;
+import com.mind.legalOne.admin.entity.AlertSubCategoryMasterEntity;
+import com.mind.legalOne.admin.entity.AlertTypeMasterEntity;
+import com.mind.legalOne.admin.entity.AppFunctionAlertMapEntity;
+import com.mind.legalOne.admin.entity.AppFunctionMasterEntity;
+import com.mind.legalOne.admin.entity.CheckListMasterEntity;
+import com.mind.legalOne.admin.entity.CommitteeMasterEntity;
+import com.mind.legalOne.admin.entity.CompanyMasterEntity;
+import com.mind.legalOne.admin.entity.DirectorMasterEntity;
+import com.mind.legalOne.admin.entity.DocTypeAlertMapEntity;
+import com.mind.legalOne.admin.entity.DocumentTypeMasterEntity;
+import com.mind.legalOne.admin.entity.DocumentTypeSectionMasterEntity;
+import com.mind.legalOne.admin.entity.MenuMasterEntity;
+import com.mind.legalOne.admin.entity.MetaDataMasterEntity;
+import com.mind.legalOne.admin.entity.NotificationTmplCategoryMasterEntity;
+import com.mind.legalOne.admin.entity.NotificationTmplMasterEntity;
+import com.mind.legalOne.admin.entity.NotificationTmplSubCategoryMasterEntity;
+import com.mind.legalOne.admin.entity.PartyMasterEntity;
+import com.mind.legalOne.admin.entity.ScreenMasterEntity;
+import com.mind.legalOne.admin.entity.UnitMasterEntity;
+import com.mind.legalOne.admin.entity.UserInfoMasterEntity;
+import com.mind.legalOne.admin.entity.WorkFlowMasterEntity;
+import com.mind.legalOne.admin.exception.ValidationException;
+import com.mind.legalOne.administration.dto.AlertCategory;
+import com.mind.legalOne.administration.dto.AlertSubCategory;
+import com.mind.legalOne.administration.dto.AlertTypeMaster;
+import com.mind.legalOne.administration.dto.AppFunction;
+import com.mind.legalOne.administration.dto.AppFunctionAlertMap;
+import com.mind.legalOne.administration.dto.CheckListMaster;
+import com.mind.legalOne.administration.dto.Committee;
+import com.mind.legalOne.administration.dto.CompanyMaster;
+import com.mind.legalOne.administration.dto.Director;
+import com.mind.legalOne.administration.dto.DocTypeAlertMap;
+import com.mind.legalOne.administration.dto.DocumentTypeMaster;
+import com.mind.legalOne.administration.dto.DocumentTypeMetaData;
+import com.mind.legalOne.administration.dto.MenuMaster;
+import com.mind.legalOne.administration.dto.MetaDataDetail;
+import com.mind.legalOne.administration.dto.NotificationTmpl;
+import com.mind.legalOne.administration.dto.NotificationTmplCategory;
+import com.mind.legalOne.administration.dto.NotificationTmplSubCategory;
+import com.mind.legalOne.administration.dto.PartyMaster;
+import com.mind.legalOne.administration.dto.ScreenMaster;
+import com.mind.legalOne.administration.dto.Section;
+import com.mind.legalOne.administration.dto.UnitMaster;
+import com.mind.legalOne.administration.dto.UserCompanyUnitMap;
+import com.mind.legalOne.administration.dto.UserMaster;
+import com.mind.legalOne.administration.dto.WorkFlowMaster;
+import com.mind.legalOne.administration.logic.ValidationSubLogic;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Validation{
+
+	@Autowired
+	ValidationSubLogic validationSubLogic;
+
+	//validation check for metaData..
+	public void validateMetaData(MetaDataDetail metaDataDetail, MetaDataMasterEntity metaDataMasterEntity)
+	{
+		if(!(metaDataDetail.getLabel().equals(metaDataMasterEntity.getLabel())))
+		{
+			Boolean isLabelExist = getValidationSubLogic().getMetaDataValueRecordByName(metaDataDetail.getLabel());
+			if(isLabelExist) {
+				//throw new ValidationException("Label name is Duplicate, Label name: "+ metaDataDetail.getLabel());
+				throw new ValidationException("msg001",new Object[] {"lbl046"});
+			}
+			metaDataMasterEntity.setLabel(metaDataDetail.getLabel());
+		}
+
+		Long fieldTypeId = metaDataDetail.getFieldTypeId();
+
+		Long dataTypeId = metaDataDetail.getDataTypeId();
+
+		List<Long> dataTypeIdList;
+
+		//validation checks..
+		if(fieldTypeId.equals(1L))//validation for field textbox..
+		{
+			dataTypeIdList = Arrays.asList(1L,2L);//dataType should be String, Number..
+
+			if(!dataTypeIdList.contains(dataTypeId)) {
+				//throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+		else if(fieldTypeId.equals(2L))//validation for field  radio..
+		{
+			Long dataIdToMatch = 3L;//dataType should be String..
+
+			if(!(dataTypeId.equals(dataIdToMatch)))
+			{
+				//throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+		else if(fieldTypeId.equals(3L))//validation for field checkbox..
+		{
+			Long dataIdToMatch = 3L;//dataType should be String..
+
+			if(!(dataTypeId.equals(dataIdToMatch)))
+			{
+				//throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+		else if(fieldTypeId.equals(4L))//validation for field textarea..
+		{
+			dataTypeIdList = Arrays.asList(1L,2L);//dataType should be String, Number..
+
+			if(!dataTypeIdList.contains(dataTypeId)) {
+				//	throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+		else if(fieldTypeId.equals(5L))//validation for field file
+		{
+			Long dataIdToMatch = 6L;
+
+			if(!(dataTypeId.equals(dataIdToMatch)))//dataType should be Binary..
+			{
+				//throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+		else if(fieldTypeId.equals(6L))//validation for field date
+		{
+			Long dataIdToMatch = 5L;
+
+			if(!(dataTypeId.equals(dataIdToMatch)))//dataType should be Date..
+			{
+				//	throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+		else if(fieldTypeId.equals(7L))//validation for field table
+		{
+			Long dataIdToMatch = 3L;
+
+			if(!(dataTypeId.equals(dataIdToMatch)))//dataType should be List..
+			{
+				//throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+		else if(fieldTypeId.equals(9L))//validation for field label
+		{
+			Long dataIdToMatch = 1L;
+
+			if(!(dataTypeId.equals(dataIdToMatch)))//dataType should be String..
+			{
+				//throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+		else if(fieldTypeId.equals(10L))//validation for field toggle
+		{
+			Long dataIdToMatch = 3L;
+
+			if(!(dataTypeId.equals(dataIdToMatch)))//dataType should be List..
+			{
+				//throw new ValidationException("DataType is not compatible with fieldType");
+				Object[] labelCodes = new Object[] {"lbl039","lbl040"};
+				throw new ValidationException("msg031",labelCodes);
+			}
+		}
+
+		if(dataTypeId.equals(3L))//validation check for lazyList..
+		{
+			if(metaDataDetail.getIsLazyList())
+			{
+				if(metaDataDetail.getLazyListMasterId()==null)//LazyListMasterId should not be blank..
+				{
+					//throw new ValidationException("LazyListMasterId cannot be null");
+					Object[] labelCodes = new Object[] {"lbl041"};
+					throw new ValidationException("msg002",labelCodes);
+				}
+			}
+			else if(metaDataDetail.getListValueMapId()==null)//ListValueMapId should not be blank..
+			{
+				//throw new ValidationException("ListValueMapID cannot be null");
+				Object[] labelCodes = new Object[] {"lbl042"};
+				throw new ValidationException("msg002",labelCodes);
+			}
+		}
+
+		if(metaDataDetail.getMaxLength() < metaDataDetail.getMinLength())//maxLength >= minLength..
+		{
+			//throw new ValidationException("MaxLength should be greater than equal to MinLength");	
+			Object[] labelCodes = new Object[] {"lbl043","lbl044"};
+			throw new ValidationException("msg032",labelCodes);
+		}
+
+		if(metaDataDetail.getMinRow() < 0)//minRow >= 0..
+		{
+			//throw new ValidationException("MinRow should be greater than equal to zero");
+			Object[] labelCodes = new Object[] {"lbl045"};
+			throw new ValidationException("msg034",labelCodes);
+		}
+	}
+
+	//validation check for documentTypeMetaData..
+	public void validateDocumentTypeMetaData(DocumentTypeMetaData documentTypeMetaData)
+	{
+		Integer displayOrder = documentTypeMetaData.getDisplayOrder();
+		if(displayOrder < 0)
+		{
+			Object[] labelCodes = new Object[] {"lbl012"};
+			throw new ValidationException("msg007",labelCodes);
+		}
+
+		Integer titleSeq = documentTypeMetaData.getTitleSeq();
+		if(titleSeq != null)
+		{
+			if(titleSeq <= 0)
+			{
+				//throw new ValidationException("TitleSeq should not be null or if TitleSeq is not null, it must be greater than zero");
+				Object[] labelCodes = new Object[] {"lbl024"};
+				throw new ValidationException("msg013", labelCodes);
+			}
+		}
+		List<String> positionList = Arrays.asList("L", "R", "U" , "D");
+		if(documentTypeMetaData.getDisplayPosition()!=null)
+		{
+			if(!positionList.contains(documentTypeMetaData.getDisplayPosition()))
+			{
+				Object[] labelCodes = new Object[] {"lbl025"};
+				//	throw new ValidationException("Display Position should contain only four directions Left , Right , Up , Down");
+				throw new ValidationException("msg009", labelCodes);
+			}
+		}
+
+
+		if(documentTypeMetaData.getReferenceCount() < 0)
+		{
+
+			//throw new ValidationException("Reference Count should be greater than or equal to zero");
+			throw new ValidationException("msg007", new Object[] {"lbl026"});
+		}
+	}
+
+	//validation for Section..
+	public void validateSection(Section section, DocumentTypeSectionMasterEntity sectionEntity)
+	{
+		Long docTypeId = section.getDocumentTypeId();
+		if(!(section.getName().equals(sectionEntity.getName())))
+		{
+			Long nameCount = getValidationSubLogic().getDocumentTypeSectionRecordByName(docTypeId,section.getName());
+			if(nameCount >= 1)//name is duplicate for docTypeId..
+			{
+				//throw new ValidationException("Name is duplicate for given DocTypeID :- " + docTypeId);
+				Object[] labelCodes = new Object[] {"lbl014"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+		}
+		if(section.getOrder() <= 0)
+		{
+			//throw new ValidationException("Order should be greater than zero");
+			Object[] labelCodes = new Object[] {"lbl015"};
+			throw new ValidationException("msg007", labelCodes);
+		}
+	}
+
+	//validation check for CompanyMaster
+	public void validateCompanyMaster(CompanyMaster company,CompanyMasterEntity companyMasterEntity)
+	{
+		//if(company.getParentId() )//check for parentId
+
+		if(!(company.getName().equals(companyMasterEntity.getName())))
+		{
+			Boolean isNameExist = getValidationSubLogic().getCompanyMasterRecordByName(company.getName());
+			if(isNameExist)
+			{
+				//throw new ValidationException("CompanyMaster name is duplicate, CompanyMaster name : "+ company.getName());
+				Object[] labelCodes = new Object[] {"lbl016"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			companyMasterEntity.setName(company.getName());
+		}
+	}
+
+
+
+	//validation check for MenuMaster
+	public void validateMenuMaster(MenuMaster menuMaster, MenuMasterEntity menuMasterEntity)
+	{
+		if(!(menuMaster.getName().equals(menuMasterEntity.getName())))
+		{
+			Boolean isMenuNameExist = getValidationSubLogic().getMenuMasterRecordByName(menuMaster.getName());
+			if(isMenuNameExist)
+			{
+				//throw new ValidationException("MenuMaster name is duplicate, MenuMaster name : " + menuMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl016"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			menuMasterEntity.setName(menuMaster.getName());
+		}
+
+		if(menuMaster.getDisplayOrder() <= 0)
+		{
+			throw new ValidationException("DisplayOrder should be greater than zero");
+		}
+	}
+
+	//validation check for AlertCategory
+	public void validateAlertCategory(AlertCategory alertCategory, AlertCategoryMasterEntity alertCategoryMasterEntity)
+	{
+		if(!(alertCategory.getName().equals(alertCategoryMasterEntity.getName()))) {
+			Boolean isAlertCategoryNameExist = getValidationSubLogic().getAlertCategoryRecordByName(alertCategory.getName());
+			if(isAlertCategoryNameExist)
+			{
+				//throw new ValidationException("AlertCategory name is duplicate , AlertCategory name : "+ alertCategory.getName());
+				Object[] labelCodes = new Object[] {"lbl001"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			alertCategoryMasterEntity.setName(alertCategory.getName());
+		}
+	}
+
+	//validation check for AppFunction
+	public void validateAppFunction(AppFunction appFunction, AppFunctionMasterEntity appFunctionMasterEntity)
+	{
+		if(!(appFunction.getName().equals(appFunctionMasterEntity.getName())))
+		{
+			Boolean isAppFunctionNameExist = getValidationSubLogic().getAppFunctionRecordByName(appFunction.getName());
+			if(isAppFunctionNameExist)
+			{
+				//throw new ValidationException("AppFunction name is duplicate , AppFunction name : "+ appFunction.getName());
+				Object[] labelCodes = new Object[] {"lbl003"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			appFunctionMasterEntity.setName(appFunction.getName());
+		}
+	}
+
+
+	//validation check for AppFunctionAlertMap
+	public void validateAppFunctionAlertMap(AppFunctionAlertMap appFunctionAlertMap, AppFunctionAlertMapEntity appFunctionAlertMapEntity)
+	{
+		//categorySubId should fall in categoryId..
+	}
+
+	//validation check for checkListMaster..
+	public void validateCheckListMaster(CheckListMaster checkListMaster, CheckListMasterEntity checkListMasterEntity)
+	{
+		if(!(checkListMaster.getName().equals(checkListMasterEntity.getName())))
+		{
+			Boolean isCheckListMasterNameExist = getValidationSubLogic().getCheckListMasterRecordByName(checkListMaster.getName());
+			if(isCheckListMasterNameExist)
+			{
+				//throw new ValidationException("CheckListMaster name is duplicate " + checkListMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl027"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			checkListMasterEntity.setName(checkListMaster.getName());
+		}
+
+		Long checkListMstrId = checkListMaster.getId();
+		if(checkListMstrId == null)//post case..
+		{
+			if(checkListMaster.getCheckListDetails() != null && checkListMaster.getCheckListDetails().size() > 0)
+			{
+				checkListMaster.getCheckListDetails().forEach(checkListDetail->{
+					if(checkListDetail.getCheckListId() != null)
+					{
+						//throw new ValidationException("CheckListId must be null while creating checkList");
+						Object[] labelCodes = new Object[] {"lbl004"};
+						throw new ValidationException("msg006", labelCodes);
+					}
+				});
+			}
+		}
+		else//put case..
+		{
+			if(checkListMaster.getCheckListDetails() != null && checkListMaster.getCheckListDetails().size() > 0)
+			{
+				checkListMaster.getCheckListDetails().forEach(checkListDetail->{
+					if(!(checkListDetail.getCheckListId().equals(checkListMstrId)))//if parentId and childId donot match throw exception..
+					{
+						//throw new ValidationException("CheckListMasterId and CheckListDetailId must match");
+						Object[] labelCodes = new Object[] {"lbl005"};
+						throw new ValidationException("msg003", labelCodes);
+					}
+				});
+			}
+		}
+	}
+
+	//validation for AlertSubCategory
+	public void validateAlertSubCategory(AlertSubCategory alertSubCategory, AlertSubCategoryMasterEntity alertSubCategoryMasterEntity)
+	{
+		if(!(alertSubCategory.getName().equals(alertSubCategoryMasterEntity.getName())))
+		{
+			Boolean isAlertSubCategoryNameExist = getValidationSubLogic().getAlertSubCategoryRecordByName(alertSubCategory.getName());
+			if(isAlertSubCategoryNameExist)
+			{
+				//	throw new ValidationException("AlertSubCategory name is duplicate " + alertSubCategory.getName());
+				Object[] labelCodes = new Object[] {"lbl002"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			alertSubCategoryMasterEntity.setName(alertSubCategory.getName());
+		}
+	}
+
+	//validation for AlertTypeMaster
+	public void validateAlertTypeMaster(AlertTypeMaster alertTypeMaster, AlertTypeMasterEntity alertTypeMasterEntity)
+	{
+		if(!(alertTypeMaster.getName().equals(alertTypeMasterEntity.getName())))
+		{
+			Boolean isAlertSubCategoryNameExist = getValidationSubLogic().getAlertTypeMasterRecordByName(alertTypeMaster.getName());
+			if(isAlertSubCategoryNameExist)
+			{
+				//throw new ValidationException("AlertTypeMaster name is duplicate " + alertTypeMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl006"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			alertTypeMasterEntity.setName(alertTypeMaster.getName());
+		}
+	}
+
+	//validation for Committee..
+	public void validateCommittee(Committee committee, CommitteeMasterEntity committeeMasterEntity)
+	{
+		if(!(committee.getName().equals(committeeMasterEntity.getName())))
+		{
+			Boolean isCommitteeNameExist = getValidationSubLogic().getCommitteeRecordByName(committee.getName());
+			if(isCommitteeNameExist)
+			{
+				//throw new ValidationException("Committee name is duplicate " + committee.getName());
+				Object[] labelCodes = new Object[] {"lbl007"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			committeeMasterEntity.setName(committee.getName());
+		}
+	}
+
+
+	//validation for Director..
+	public void validateDirector(Director director, DirectorMasterEntity directorMasterEntity)
+	{
+		//validation for email 
+		String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+ 
+				"[a-zA-Z0-9_+&*-]+)*@" + 
+				"(?:[a-zA-Z0-9-]+\\.)+[a-z" + 
+				"A-Z]{2,7}$"; 
+
+		Pattern pat = Pattern.compile(emailRegex); 
+		if (director.getEmailId() == null) 
+		{
+			//throw new ValidationException("EmailId cannot be null");
+			Object[] labelCodes = new Object[] {"lbl008"};
+			throw new ValidationException("msg002", labelCodes);
+		}
+		if(!(pat.matcher(director.getEmailId()).matches()))//for checking whether valid email id comes from Dto or not..
+		{
+			//throw new ValidationException("EmailId is not correct");
+			Object[] labelCodes = new Object[] {"lbl008"};
+			throw new ValidationException("msg004", labelCodes);
+		}
+
+		//check whether email id is already present in database or not..
+		if(!(director.getEmailId().equals(directorMasterEntity.getEmailId())))
+		{
+			Boolean isEmailIdExist = getValidationSubLogic().getDirectorEmailId(director.getEmailId());
+			if(isEmailIdExist)
+			{
+				//throw new ValidationException("EmailId is duplicate "+ director.getEmailId());
+				Object[] labelCodes = new Object[] {"lbl008"};
+				throw new ValidationException("msg014", labelCodes);
+			}
+			directorMasterEntity.setEmailId(director.getEmailId());
+		}
+	}
+
+	//validation for DocTypeAlertMap
+	public void validateDocTypeAlertMap(DocTypeAlertMap docTypeAlertMap, DocTypeAlertMapEntity docTypeAlertMapEntity)
+	{
+		Long docTypeAlertId = docTypeAlertMap.getId();
+		if(docTypeAlertId == null)//post case..
+		{
+			docTypeAlertMap.getDocTypeAlertDetail().forEach(docTypeAlertDetail->{
+				if(docTypeAlertMap.getDocTypeId() != null)
+				{
+					//throw new ValidationException("DocTypeId must be null while creating Document");
+					Object[] labelCodes = new Object[] {"lbl009"};
+					throw new ValidationException("msg015", labelCodes);
+				}
+			});
+		}
+		else//put case..
+		{
+			docTypeAlertMap.getDocTypeAlertDetail().forEach(docTypeAlertDetail->{
+				if(!(docTypeAlertMap.getDocTypeId().equals(docTypeAlertId)))//if parentId and childId donot match throw exception..
+				{
+					//throw new ValidationException("DocTypeId of table DocTypeAlertMap and DocTypeId of table DocTypeAlertDetail must match");
+					Object[] labelCodes = new Object[] {"lbl009"};
+					throw new ValidationException("msg016", labelCodes);
+				}
+			});
+		}
+	}
+
+
+	//validation for DocumentTypeMaster
+	public void validateDocumentTypeMaster(DocumentTypeMaster docTypeMaster, DocumentTypeMasterEntity documentTypeEntity)
+	{
+		if(!(docTypeMaster.getName().equals(documentTypeEntity.getName())))
+		{
+			Boolean isDocNameExist = getValidationSubLogic().getDocumentTypeMasterRecordByName(docTypeMaster.getName());
+			if(isDocNameExist)
+			{
+				//throw new ValidationException("DocumentTypeMaster name is duplicate " + docTypeMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl011"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			documentTypeEntity.setName(docTypeMaster.getName());
+		}
+
+		//abbr should not be duplicate..
+		if(!(docTypeMaster.getAbbrv().equals(documentTypeEntity.getAbbrv())))
+		{
+			Boolean isDocAbbrExist = getValidationSubLogic().getDocumentTypeMasterRecordByAbbr(docTypeMaster.getAbbrv());
+			if(isDocAbbrExist)
+			{
+				//throw new ValidationException("DocumentTypeMaster name is duplicate " + docTypeMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl011"};
+				throw new ValidationException("msg030", labelCodes);
+			}
+		}
+	}
+
+
+	//validation check for ListValueTypeMaster
+	//	public void validateListValueTypeMaster(ListValueTypeMaster listTypeMaster, ListValueTypeMasterEntity listValueTypeMasterEntity)
+	//	{
+	//		if(!(listTypeMaster.getName().equals(listValueTypeMasterEntity.getName())))
+	//		{
+	//			Boolean isListNameExist = getValidationSubLogic().getDocumentTypeMasterRecordByName(listTypeMaster.getName());
+	//			if(isListNameExist)
+	//			{
+	//				throw new ValidationException("ListTypeMaster name is duplicate " + listTypeMaster.getName());
+	//			}
+	//			listValueTypeMasterEntity.setName(listTypeMaster.getName());
+	//		}
+	//	}
+
+	//validation for NotificationTmpl..
+	public void validateNotificationTmpl(NotificationTmpl notificationTmpl, NotificationTmplMasterEntity notificationTmplMasterEntity)
+	{
+		if(!(notificationTmpl.getName().equals(notificationTmplMasterEntity.getName())))
+		{
+			Boolean isNotificationTmplNameExist = getValidationSubLogic().getNotificationTmplRecordByName(notificationTmpl.getName());
+			if(isNotificationTmplNameExist)
+			{
+				//throw new ValidationException("NotificationTmpl name is duplicate " + notificationTmpl.getName());
+				Object[] labelCodes = new Object[] {"lbl028"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			notificationTmplMasterEntity.setName(notificationTmpl.getName());
+		}
+	}
+
+	//validation for NotificationTmplCategory..
+	public void validateNotificationTmplCategory(NotificationTmplCategory notificationTmplCategory, NotificationTmplCategoryMasterEntity notificationTmplCategoryMasterEntity)
+	{
+		if(!(notificationTmplCategory.getName().equals(notificationTmplCategoryMasterEntity.getName())))
+		{
+			Boolean isNotificationTmplCategoryNameExist = getValidationSubLogic().getNotificationTmplRecordByName(notificationTmplCategory.getName());
+			if(isNotificationTmplCategoryNameExist)
+			{
+				//throw new ValidationException("NotificationTmplCategory name is duplicate " + notificationTmplCategory.getName());
+				Object[] labelCodes = new Object[] {"lbl029"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			notificationTmplCategoryMasterEntity.setName(notificationTmplCategory.getName());
+		}
+	}
+
+	//validation for NotificationTmplSubCategory..
+	public void validateNotificationTmplSubCategory(NotificationTmplSubCategory notificationTmplSubCategory, NotificationTmplSubCategoryMasterEntity notificationTmplSubCategoryMasterEntity)
+	{
+		if(!(notificationTmplSubCategory.getName().equals(notificationTmplSubCategoryMasterEntity.getName())))
+		{
+			Boolean isNotificationTmplCategoryNameExist = getValidationSubLogic().getNotificationTmplSubCategoryRecordByName(notificationTmplSubCategory.getName());
+			if(isNotificationTmplCategoryNameExist)
+			{
+				//throw new ValidationException("NotificationTmplSubCategory name is duplicate " + notificationTmplSubCategory.getName());
+				Object[] labelCodes = new Object[] {"lbl030"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			notificationTmplSubCategoryMasterEntity.setName(notificationTmplSubCategory.getName());
+		}
+	}
+
+	//validation for PartyMaster..
+	public void validatePartyMaster(PartyMaster partyMaster, PartyMasterEntity partyMasterEntity)
+	{
+		if(!(partyMaster.getName().equals(partyMasterEntity.getName())))
+		{
+			Boolean isPartyNameExist = getValidationSubLogic().getPartyMasterRecordByAbbrv(partyMaster.getName());
+			if(isPartyNameExist)
+			{
+				//throw new ValidationException("PartyMaster name is duplicate " + partyMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl013"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			partyMasterEntity.setName(partyMaster.getName());
+		}
+
+		if(!(partyMaster.getAbbr().equals(partyMasterEntity.getAbbr())))
+		{
+			Boolean isPartyAbbrExist = getValidationSubLogic().getPartyMasterRecordByName(partyMaster.getName());
+			if(isPartyAbbrExist)
+			{
+				//throw new ValidationException("PartyMaster name is duplicate " + partyMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl013"};
+				throw new ValidationException("msg030", labelCodes);
+			}
+			partyMasterEntity.setName(partyMaster.getName());
+		}
+	}
+
+	//validation for ScreenMaster
+	public void validateScreenMaster(ScreenMaster screenMaster, ScreenMasterEntity screenMasterEntity)
+	{
+		if(!(screenMaster.getName().equals(screenMasterEntity.getName())))
+		{
+			Boolean isScreenNameExist = getValidationSubLogic().getPartyMasterRecordByName(screenMaster.getName());
+			if(isScreenNameExist)
+			{
+				//throw new ValidationException("ScreenMaster name is duplicate " + screenMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl031"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			screenMasterEntity.setName(screenMaster.getName());
+		}
+
+		if(screenMaster.getDisplayOrder() <= 0)
+		{
+			//throw new ValidationException("Display Order must be greater than zero");
+			Object[] labelCodes = new Object[] {"lbl012"};
+			throw new ValidationException("msg007", labelCodes);
+		}
+	}
+
+	//validation for UnitMaster
+	public void validateUnitMaster(UnitMaster unitMaster, UnitMasterEntity unitMasterEntity)
+	{
+		if(!(unitMaster.getName().equals(unitMasterEntity.getName())))
+		{
+			Boolean isUnitNameExist = getValidationSubLogic().getUnitMasterRecordByName(unitMaster.getName());
+			if(isUnitNameExist)
+			{
+				//throw new ValidationException("UnitMaster name is duplicate " + unitMaster.getName());
+				Object[] labelCodes = new Object[] {"lbl032"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			unitMasterEntity.setName(unitMaster.getName());
+		}
+
+
+		//todaysDate check..
+	}
+
+	//validation for UserCompanyUnitMap
+	public void validateUserCompanyUnitMap(UserCompanyUnitMap userCompanyUnitMap, Integer unitID , Integer companyId)
+	{
+		//unit_id should not be duplicate within a given company_id..
+		//	Integer companyId = userCompanyUnitMap.getCompanyId();
+		Long unitCount = getValidationSubLogic().getUserCompanyUnitMap(companyId, unitID);
+		//				if(unitCount > 1)
+		//				{
+		//					throw new ValidationException("Unit_Id :- " + unitID + "is duplicate for CompanyId :- " + companyId);
+		//				}
+		if(unitCount==0)
+		{
+			//throw new ValidationException("Unit_Id :- "+ unitID + "mapping donot exists with CompanyId :- " + companyId);
+			Object[] labelCodes = new Object[] {"lbl033","lbl034"};
+			throw new ValidationException("msg008", labelCodes);
+		}
+	}
+
+
+	//validation for UserMaster..
+	public void validateUserMaster(UserMaster userMaster, UserInfoMasterEntity userInfoMasterEntity)
+	{
+		//empCode and loginId should be unique..
+		if(!(userMaster.getEmpId().equals(userInfoMasterEntity.getEmpId())))
+		{
+			Boolean isEmpIdExist = getValidationSubLogic().getUserMasterEmployeeByEmpId(userMaster.getEmpId());
+			if(isEmpIdExist)
+			{
+				//throw new ValidationException("Employee Id should be unique :- " + userMaster.getEmpId());
+				Object[] labelCodes = new Object[] {"lbl017"};
+				throw new ValidationException("msg010", labelCodes);
+			}
+			userInfoMasterEntity.setEmpId(userMaster.getEmpId());
+		}
+
+		if(!(userMaster.getLoginId().equals(userInfoMasterEntity.getLoginId())))
+		{
+			Boolean isLoginIdExist = getValidationSubLogic().getUserMasterEmployeeByLoginId(userMaster.getLoginId());
+			if(isLoginIdExist)
+			{
+				//throw new ValidationException("LoginId Id should be unique :- " + userMaster.getLoginId());
+				Object[] labelCodes = new Object[] {"lbl018"};
+				throw new ValidationException("msg010", labelCodes);
+			}
+			userInfoMasterEntity.setEmpId(userMaster.getLoginId());
+		}
+	}
+
+	//validation for workFlowMaster..
+	public void validateWorkFlowMaster(WorkFlowMaster workFlowMaster, WorkFlowMasterEntity workFlowMasterEntity)
+	{
+		//workflowName, processingType should belongs to a Seq or Par, steps > 0
+		List<String> processingTypeList = new ArrayList<>();
+		processingTypeList.add("Seq");
+		processingTypeList.add("Par");
+		if(!(processingTypeList.contains(workFlowMaster.getProcessingType())))
+		{
+			//throw new ValidationException("ProcessingType :- " + workFlowMaster.getProcessingType() + "entered should contain Seq , Par only ");
+			Object[] labelCodes = new Object[] {"lbl035"};
+			throw new ValidationException("msg017", labelCodes);
+		}
+		workFlowMasterEntity.setProcessingType(workFlowMaster.getProcessingType());
+
+		if(workFlowMaster.getSeq() != null && workFlowMaster.getSeq() < 0)
+		{
+				//throw new ValidationException("WorkFlow sequence should be greater than zero :- " + workFlowMaster.getSeq());
+				Object[] labelCodes = new Object[] {"lbl020"};
+				throw new ValidationException("msg007", labelCodes);
+		}
+
+		if(!(workFlowMaster.getWorkflowName().equals(workFlowMasterEntity.getName())))
+		{
+			Boolean isWorkflowNameExist = getValidationSubLogic().getWorkFlowMasterRecordByName(workFlowMaster.getWorkflowName());
+			if(isWorkflowNameExist)
+			{
+				//throw new ValidationException("workFlowMaster Name should be unique :- " + workFlowMaster.getWorkflowName());
+				Object[] labelCodes = new Object[] {"lbl019"};
+				throw new ValidationException("msg001", labelCodes);
+			}
+			workFlowMasterEntity.setName(workFlowMaster.getWorkflowName());
+		}
+		Long workFlowId = workFlowMaster.getWorkflowId();
+
+		if(workFlowMaster.getWorkflowId() == null)//post for WorkFlowMaster
+		{
+			if(workFlowMaster.getWorkflowSteps() != null && workFlowMaster.getWorkflowSteps().size() > 0)
+			{
+				workFlowMaster.getWorkflowSteps().forEach(workFlowStepDetail->{
+					if(workFlowStepDetail.getWorkflowId() != null)
+					{
+						//throw new ValidationException("WorkFlowId of WorkFlowStepDetail must be null while creating new WorkFlowMaster");
+						Object[] labelCodes = new Object[] {"lbl021","lbl036","lbl037"};
+						throw new ValidationException("msg018", labelCodes);
+					}
+					if(workFlowStepDetail.getViewSeq() < 0)
+					{
+						Object[] labelCodes = new Object[] {"lbl047"};
+						throw new ValidationException("msg007", labelCodes);
+					}
+				});
+			}
+		}
+		else
+		{
+			if(workFlowMaster.getWorkflowSteps() != null && workFlowMaster.getWorkflowSteps().size() > 0)
+			{
+				workFlowMaster.getWorkflowSteps().forEach(workFlowStepDetail->{
+					if(workFlowStepDetail.getId() == null)//post case..
+					{
+						Long id = workFlowStepDetail.getWorkflowId();
+						if(!(workFlowId.equals(id)))
+						{
+							//throw new ValidationException("WorkFlowId of WorkFlowStepDetail :- " + id + " should match with WorkFlowId of WorkFlowMaster :- " + workFlowId);
+							Object[] labelCodes = new Object[] {"lbl021","lbl036","lbl037"};
+							throw new ValidationException("msg019", labelCodes);
+						}
+						Boolean isNameExist = getValidationSubLogic().getWorkFlowStepDetailByName(workFlowStepDetail.getName(), workFlowId);
+						if(isNameExist)
+						{
+							//throw new ValidationException("Name :- " + workFlowStepDetail.getName() + "is duplicate for WorkFlowMaster id :- " + workFlowMaster.getWorkflowId());
+							Object[] labelCodes = new Object[] {"lbl036","lbl022"};
+							throw new ValidationException("msg020", labelCodes);
+						}
+
+						Boolean isLabelExist = getValidationSubLogic().getWorkFlowStepDetailByViewLabel(workFlowStepDetail.getViewLabel(), workFlowId);
+						if(isLabelExist)
+						{
+							//throw new ValidationException("ViewLabel :- " + workFlowStepDetail.getViewLabel() + "is duplicate for WorkFlowMaster id :- " + workFlowMaster.getWorkflowId());
+							Object[] labelCodes = new Object[] {"lbl038","lbl022"};
+							throw new ValidationException("msg012", labelCodes);
+						}
+						
+						if(workFlowStepDetail.getViewSeq() < 0)
+						{
+							Object[] labelCodes = new Object[] {"lbl047"};
+							throw new ValidationException("msg007", labelCodes);
+						}
+					}
+					else//put case..	
+					{
+						if(workFlowMasterEntity.getSteps() != null && workFlowMasterEntity.getSteps().size() > 0)
+						{
+							List<String> nameList = new ArrayList<>();//for storing names of workFlowStepDetailEntity..
+							List<String> labelList = new ArrayList<>();//for storing viewLabels of workFlowStepDetailEntity..
+							workFlowMasterEntity.getSteps().forEach(workFlowStepDetailEntity->{
+								nameList.add(workFlowStepDetailEntity.getName());
+								labelList.add(workFlowStepDetailEntity.getViewLabel());
+							});
+
+							if(!(nameList.contains(workFlowStepDetail.getName())))//before updating check whether updated name exists in database or not..
+							{
+								Boolean isNameExist = getValidationSubLogic().getWorkFlowStepDetailByName(workFlowStepDetail.getName(), workFlowId);
+								if(isNameExist)
+								{
+									//throw new ValidationException("Name :- " + workFlowStepDetail.getName() + "is duplicate for WorkFlowMaster id :- " + workFlowMaster.getWorkflowId());
+									Object[] labelCodes = new Object[] {"lbl036","lbl022"};
+									throw new ValidationException("msg020", labelCodes);
+								}
+							}
+
+							if(!(labelList.contains(workFlowStepDetail.getViewLabel())))//before updating check whether updated name exists in database or not..
+							{
+								Boolean isLabelExist = getValidationSubLogic().getWorkFlowStepDetailByViewLabel(workFlowStepDetail.getViewLabel(), workFlowId);
+								if(isLabelExist)
+								{
+									//throw new ValidationException("ViewLabel :- " + workFlowStepDetail.getViewLabel() + "is duplicate for WorkFlowMaster id :- " + workFlowMaster.getWorkflowId());
+									Object[] labelCodes = new Object[] {"lbl038","lbl022"};
+									throw new ValidationException("msg020", labelCodes);
+								}
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+
+	/**
+	 * @return the validationSubLogic
+	 */
+	public ValidationSubLogic getValidationSubLogic() {
+		return validationSubLogic;
+	}
+
+	/**
+	 * @param validationSubLogic the validationSubLogic to set
+	 */
+	public void setValidationSubLogic(ValidationSubLogic validationSubLogic) {
+		this.validationSubLogic = validationSubLogic;
+	}
+}

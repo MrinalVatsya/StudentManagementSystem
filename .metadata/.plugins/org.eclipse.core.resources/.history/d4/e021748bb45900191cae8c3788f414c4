@@ -1,0 +1,35 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.map.HashedMap;
+
+
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class TestClass {
+	
+	public static rec(int x)
+	{
+		x++;
+		
+	}
+
+	public static void main(String[] args) {
+		
+		rec(0);
+	}
+
+}

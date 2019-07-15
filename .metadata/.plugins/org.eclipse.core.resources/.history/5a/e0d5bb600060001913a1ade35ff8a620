@@ -1,0 +1,198 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+class VertexEdgePair{
+    int vertex;
+    int weight;
+    /**
+     * @return the vertex
+     */
+    public int getVertex() {
+        return vertex;
+    }
+    /**
+     * @param vertex the vertex to set
+     */
+    public void setVertex(int vertex) {
+        this.vertex = vertex;
+    }
+    /**
+     * @return the weight
+     */
+    public int getWeight() {
+        return weight;
+    }
+    /**
+     * @param weight the weight to set
+     */
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+    public VertexEdgePair(int vertex, int weight) {
+        super();
+        this.vertex = vertex;
+        this.weight = weight;
+    }
+
+}
+public class MinimumPenaltyPath {
+
+    private static LinkedList<VertexEdgePair> adj[];
+
+    private static boolean [][] visited  ;
+    static int beautifulPath(int[][] edges, int A, int B) {
+
+        int i ;
+        for(i = 0; i < edges.length; i++)
+        {
+            int u = edges[i][0];
+            int v = edges[i][1];
+            int w = edges[i][2];
+            
+            adj[u].add(new VertexEdgePair(v, w));
+            adj[v].add(new VertexEdgePair(u, w));
+            
+        }
+
+//        for(i = 0; i < adj.length; i++)
+//        {
+//            adj[i].forEach(item->{
+//                System.out.print("{"+item.getVertex()+", "+ item.getWeight()+"}");
+//            });
+//            System.out.println();
+//        }
+
+        //using BFS to traverse graph..
+        Queue<Integer> BFS = new LinkedList<>();
+        BFS.add(A);
+        int ut = 0;
+        //distance[A] = 0; 
+        visited[A][0] = true;
+        Queue<Integer> K = new LinkedList<>();
+        int k = 0;
+        K.add(0);
+        while(!BFS.isEmpty())
+        {
+//            System.out.println("/////////////////////Before Queue///////////////////////////");
+//            BFS.forEach(item -> {
+//                System.out.print(item+" ");
+//            });
+            ut = BFS.poll();
+//            System.out.println("Removed Value is : " +  ut);
+//            System.out.println("//////////////////////////After Queue Start//////////////////////////");
+//            BFS.forEach(item -> {
+//                System.out.print(item+" ");
+//            });
+//            System.out.println("//////////////////////////After Queue End//////////////////////////");
+//            System.out.println("******************************************************************");
+//            K.forEach(item->{
+//                System.out.print(item+" ");
+//            });
+            k = K.poll();
+//            System.out.println("Removed Value is : " +  k);
+//            K.forEach(item->{
+//                System.out.print(item+" ");
+//            });
+//            System.out.println("******************************************************************");
+    
+            //int srcOrValue = distance[ut];
+
+            Iterator<VertexEdgePair>  it = adj[ut].listIterator();
+            VertexEdgePair vx = null;
+            while(it.hasNext())
+            {
+                vx = it.next();
+                int vt =  vx.getVertex();
+                int wt = vx.getWeight();
+                
+                if(!visited[vt][k|wt])
+                {
+                    visited[vt][k|wt] = true;
+                    BFS.add(vt);
+                    K.add(k|wt);
+                }
+            }
+            
+        }
+
+        
+        for (i = 0; i < 1024; i++)
+            if (visited[B][i])//minimum one prints first..
+            {
+                //System.out.println(i);
+                return i;
+            }
+        
+            return -1;
+    }
+    private static final Scanner scanner = new Scanner(System.in);
+
+      public static void main(String[] args) throws IOException {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+            String[] nm = scanner.nextLine().split(" ");
+
+            int n = Integer.parseInt(nm[0]);
+
+            int m = Integer.parseInt(nm[1]);
+
+            int[][] edges = new int[m][3];
+
+            for (int i = 0; i < m; i++) {
+                String[] edgesRowItems = scanner.nextLine().split(" ");
+                scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+                for (int j = 0; j < 3; j++) {
+                    int edgesItem = Integer.parseInt(edgesRowItems[j]);
+                    if(j != 2)
+                        edges[i][j] = edgesItem-1;
+                    else
+                        edges[i][j] = edgesItem;
+                }
+            }
+
+            String[] AB = scanner.nextLine().split(" ");
+
+            int A = Integer.parseInt(AB[0]);
+
+            int B = Integer.parseInt(AB[1]);
+
+            adj = new LinkedList[n];
+
+            visited = new boolean[n+1][1024];
+
+             for(int i = 0; i < visited.length; i++)
+                for(int j = 0; j < visited[i].length ; j++)
+                    visited[i][j] = false;
+
+            for(int i = 0; i < n; i++)
+            {
+                adj[i] = new LinkedList<>();
+            }
+
+            int result = beautifulPath(edges, A-1, B-1);
+
+            bufferedWriter.write(String.valueOf(result));
+            bufferedWriter.newLine();
+
+            bufferedWriter.close();
+
+            scanner.close();
+        }
+}
+

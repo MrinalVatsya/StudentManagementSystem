@@ -1,0 +1,108 @@
+package com.mind.poc;
+import java.util.Scanner;
+
+/**
+ * 
+ */
+
+/**
+ * @author MRINAL VATS
+ *
+ */
+public class Jio2 {
+
+	private static Scanner sc = new Scanner(System.in);
+	public static void main(String args[] ) throws Exception {
+
+		int i, t = sc.nextInt();
+		for(i = 0; i < t; i++)
+		{
+			long j ,  n  = sc.nextLong();
+			long arr[] = new long[(int) n];
+			long negCount = 0;
+			for(j = 0; j < n; j++)
+			{
+				arr[(int) j] = sc.nextLong();
+				if(arr[(int)j] < 0)
+				{
+					negCount++;
+				}
+			}
+			long maxValue = Integer.MIN_VALUE;
+			//to handle cases of all negative numbers in array..
+			if(negCount == n)
+			{
+				for(j = 0; j < n; j++)
+				{
+					if(arr[(int) j] > maxValue)
+						maxValue =  arr[(int) j];
+				}
+				
+				System.out.print(maxValue);
+				continue;
+			}
+			
+			
+			
+			long dp[] = new long[(int) (n+1)];
+			dp[0] = arr[0] >= 0 ? arr[0] : 0;
+			if(n == 1)
+			{
+				if(arr[0]==0)
+				{
+					continue;
+				}
+				else
+				{
+				System.out.print(arr[0]);
+				continue;
+				}
+			}
+			
+			dp[1] = (arr[1] > arr[0]) ? arr[1] : arr[0];
+			if(dp[1] < 0)
+				dp[1] = 0;
+			else if(dp[1] == 0)//0 is there
+				dp[1] = dp[0];
+			if(n==2)
+			{
+				System.out.print(dp[1]);
+				continue;
+			}
+			for(j = 2; j < n; j++)
+			{
+				long x  = (dp[(int) (j-1)] > dp[(int) (j-2)]+arr[(int) j] ? dp[(int) (j-1)] : dp[(int) (j-2)] + arr[(int) j]);
+				if(x > 0)
+					dp[(int) j] = x;
+				else
+					dp[(int) j] = 0;
+			}
+
+			long maxSum = dp[(int) (n-1)];
+			for(long k = n - 1 ; k >= 2 ; k--)
+			{
+				
+				if((maxSum > 0) && (dp[(int) (k-2)] + arr[(int) k] > dp[(int) (k-1)]))
+				{
+					if(arr[(int)k]!=0)
+					System.out.print(arr[(int) k]);
+					maxSum = maxSum - arr[(int) k];
+				}
+			}
+			if(maxSum != 0 && n > 2)
+			{
+			if(dp[0] + arr[2] > dp[1])
+			{
+				System.out.print(arr[0]);
+			}
+			else
+			{
+				System.out.print(arr[1]);
+			}
+			}
+			System.out.println("MaxSum is : -- "+dp[(int) (n-1)]);
+			System.out.println();
+		}
+
+   }
+}

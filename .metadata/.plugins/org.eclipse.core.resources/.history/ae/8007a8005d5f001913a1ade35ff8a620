@@ -1,0 +1,95 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class WetSharkAndSubsequences {
+
+    /*
+     * Complete the twoSubsequences function below.
+     */
+	
+	private static int dp[][];
+	private static int MOD = 1000000007;
+    static int twoSubsequences(int[] x, int r, int s) {
+        /*
+         * Write your code here.
+         */
+    	int n = x.length;
+    	int a = (r+s)/2;
+    	int b = (r-s)/2;
+    	int ways1 = twoSubsequencesHelper(x,n,a);
+    	int ways2 = twoSubsequencesHelper(x, n, b);
+    	
+    	int finalWays = ((ways1%MOD)*(ways2%MOD))%MOD;
+    	return finalWays;
+    }
+
+    private static int twoSubsequencesHelper(int[] set, int n, int sum) {
+    	
+    	if (sum == 0) 
+		{
+			return 1;
+		}
+		if (n == 0 && sum != 0) 
+			return 0; 
+
+		if(dp[n][sum]!=-1)
+		{
+			return dp[n][sum];
+		}
+
+		int ans = 0;
+
+		if (set[n-1] > sum) 
+		{
+			ans =  twoSubsequencesHelper(set, n-1, sum); 
+		}
+		else
+		{
+			ans =  twoSubsequencesHelper(set, n-1, sum) +  twoSubsequencesHelper(set, n-1, sum-set[n-1]);
+		}
+		return dp[n][sum] = ans;
+	}
+
+	private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("D://Solution.txt"));
+
+        String[] mrs = scanner.nextLine().split(" ");
+
+        int m = Integer.parseInt(mrs[0].trim());
+
+        int r = Integer.parseInt(mrs[1].trim());
+
+        int s = Integer.parseInt(mrs[2].trim());
+
+        int[] x = new int[m];
+
+        String[] xItems = scanner.nextLine().split(" ");
+
+        for (int xItr = 0; xItr < m; xItr++) {
+            int xItem = Integer.parseInt(xItems[xItr].trim());
+            x[xItr] = xItem;
+        }
+
+        dp = new int[m+1][2001];
+        int result = twoSubsequences(x, r, s);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedWriter.close();
+    }
+}
+

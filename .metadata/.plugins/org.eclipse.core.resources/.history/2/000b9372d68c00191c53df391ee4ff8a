@@ -1,0 +1,21 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Stairs {
+
+	public int climbStairs(int a) {
+		
+		return climbStairsUtil(a);
+    }
+
+	private void return climbStairsUtil(int a) {
+		// TODO Auto-generated method stub
+		
+	}
+}

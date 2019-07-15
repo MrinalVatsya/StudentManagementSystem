@@ -1,0 +1,50 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+//Simple Java program to find diameter 
+//of a binary tree. 
+public class Diameter { 
+
+static int height(Node root, int ans) 
+{
+}
+static int diameter(Node root) 
+{ 
+	if (root == null) 
+		return 0; 
+
+	int ans = 0;
+	int height_of_tree = height(root, 0); 
+	return ans; 
+} 
+
+static Node newNode(int data) 
+{ 
+	Node node = new Node(); 
+	node.data = data; 
+	node.left = null; 
+	node.right = null; 
+
+	return (node); 
+} 
+
+//Driver code 
+public static void main(String[] args) 
+{ 
+	Node root = newNode(1); 
+	root.left = newNode(2); 
+	root.right = newNode(3); 
+	root.left.left = newNode(4); 
+	root.left.right = newNode(5); 
+
+	System.out.println("Diameter is " + diameter(root)); 
+} 
+} 
+
+//This code is contributed by Prerna Saini. 

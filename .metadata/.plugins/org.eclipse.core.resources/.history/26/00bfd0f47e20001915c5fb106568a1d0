@@ -1,0 +1,51 @@
+package com.mind.poc;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class CountArray {
+
+	static long countArray(int n, int k, int x) {
+		// Return the number of ways to fill in the array
+		long dp[][] = new long[n+1][2]; 
+		if(x==1)
+		{
+			dp[n-2][0] = k-1;
+			dp[n-1][0] = 0;
+			dp[n-1][1] = 1;
+			dp[n-2][1] = 0;
+		}
+		else
+		{
+			dp[n-1][1] = 0;
+			dp[n-1][0] = 1;
+			dp[n-2][1] = 1;
+			dp[n-2][0] = k-2;
+		}
+		
+		for(int i = n-3; i > 0; i--)
+		{
+			dp[i][0] = dp[i+1][0];
+			dp[i][1] = dp[i+1][0]*(k-2) + dp[i+1][1]*(k-1);
+		}
+	}
+	private static final Scanner scanner = new Scanner(System.in);
+
+	public static void main(String[] args) {
+
+		String[] nkx = scanner.nextLine().split(" ");
+
+		int n = Integer.parseInt(nkx[0]);
+
+		int k = Integer.parseInt(nkx[1]);
+
+		int x = Integer.parseInt(nkx[2]);
+
+		long answer = countArray(n, k, x);
+
+		System.out.println(answer);
+	}
+
+}

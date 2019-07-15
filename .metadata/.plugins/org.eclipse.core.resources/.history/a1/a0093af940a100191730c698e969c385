@@ -1,0 +1,15 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class AkashGCD1 {
+
+	public static void main(String[] args) {
+		
+	}
+}

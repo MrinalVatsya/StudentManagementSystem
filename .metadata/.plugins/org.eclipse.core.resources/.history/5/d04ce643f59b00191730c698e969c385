@@ -1,0 +1,18 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.List;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class SakshamTCS {
+
+	public static int minimizeCost(List<Integer> p , List<Integer> x, List<Integer> y)
+	{
+		
+	}
+}

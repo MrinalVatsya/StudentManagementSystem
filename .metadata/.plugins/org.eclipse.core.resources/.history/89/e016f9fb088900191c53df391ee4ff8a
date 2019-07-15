@@ -1,0 +1,32 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class Add1ToNumber {
+	
+	 public ArrayList<Integer> plusOne(ArrayList<Integer> a) {
+
+		 	int n = a.size();
+		 	int i = 0;
+		 	for(i = a.size()-1; i >= 0; i--)
+		 	{
+		 		
+		 	}
+	    }
+	 
+	 public static void main(String[] args) {
+		Add1ToNumber obj = new Add1ToNumber();
+		ArrayList<Integer> ans = new ArrayList<>(Arrays.asList(1, 1, 1, 3, 2, 1, 1, 2, 5, 9, 6, 5));
+		obj.plusOne(ans);
+	}
+
+}

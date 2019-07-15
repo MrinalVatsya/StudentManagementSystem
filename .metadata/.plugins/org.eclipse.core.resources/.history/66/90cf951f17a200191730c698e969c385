@@ -1,0 +1,48 @@
+/**
+ * 
+ */
+package com.mind.poc.AmazonHiring;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class ChanduGraph {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int t = sc.nextInt();
+		while(t-- > 0)
+		{
+			int i , n = sc.nextInt();
+			int graph[][] = new int[n][n];
+			sc.nextLine();
+			int x = n-1;
+			while(x-- > 0)
+			{
+				String str = sc.nextLine();
+				String[] strArray = str.split("\\s+");
+				int u = Integer.parseInt(strArray[0])-1;
+				int v = Integer.parseInt(strArray[1])-1;
+				int w = Integer.parseInt(strArray[2]);
+				graph[u][v] = w;
+			}
+			int dist[][] = new int[n][n];
+			for(i = 0; i < n; i++)
+				for(j = 0; j < n; j++)
+					dist[i][j] = graph[i][j];
+			for(int k = 0; k < n; k++)
+			{
+				for(i = 0; i < n; i++)
+				{
+					for(j = 0; j <)
+				}
+			}
+		}
+	}
+
+}

@@ -1,0 +1,21 @@
+package javademo;
+import java.util.*;
+import java.util.stream.Collectors;
+public class MapStreamPractice {
+		public static void main(String[] args) {
+			List<String> l = new ArrayList<String>();
+			l.add("MRINAL");
+			l.add("VISHAL");
+			l.add("HiTESH");
+			//without lambda expression
+			for(String s: l)
+				System.out.println(s.toLowerCase());
+		
+			//after using lambda expression
+			
+			List<String> ans = l.stream().map(e->{
+				System.out.println(e.toUpperCase());
+				return e;
+			}).collect(Collectors.toList());
+		}
+}

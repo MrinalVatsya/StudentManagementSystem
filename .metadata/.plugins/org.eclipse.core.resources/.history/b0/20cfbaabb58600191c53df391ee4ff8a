@@ -1,0 +1,29 @@
+/**
+ * 
+ */
+package com.mind.poc;
+
+import java.util.ArrayList;
+
+/**
+ * @author mrinalvatsya
+ *
+ */
+public class DiameterNArrayTree {
+	
+	ArrayList<ArrayList<Integer>> g;
+	
+	 public int solve(ArrayList<Integer> a) {
+		 
+		 int i = 0;
+		 for(i = 0; i < a.size(); i++)
+		 {
+			 int x = a.get(i);
+			 if(!=-1)
+			 {
+				 
+			 }
+		 }
+	    }
+
+}
