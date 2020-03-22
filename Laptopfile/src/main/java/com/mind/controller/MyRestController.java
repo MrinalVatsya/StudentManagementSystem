@@ -1,7 +1,6 @@
 
 package com.mind.controller;
 import java.util.Locale;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MyRestController {
 
 	@Autowired
-	private MessageSource messageSource; 
+	private MessageSource messageSource;
 
 	@RequestMapping(value = "test", method = RequestMethod.GET)
 	  public ResponseEntity<?> test() {
@@ -23,6 +22,7 @@ public class MyRestController {
 		Locale locale = LocaleContextHolder.getLocale();
 		String message = messageSource.getMessage ("name1", new Object[] {"AlertCategory","AlertSubCategory"}, locale);
 		System.out.println(message);
+		System.out.println("Mrinal is the king");
 		return ResponseEntity.ok(message);
 	}
 }
