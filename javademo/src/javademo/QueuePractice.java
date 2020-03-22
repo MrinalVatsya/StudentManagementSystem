@@ -11,7 +11,7 @@ public class QueuePractice {
 		q.add(i+1);
 	}
 		System.out.print("My Queue contains : "+q);
-		
+
 		int x = q.remove();//GET top element from array
 		System.out.println();
 		System.out.println("Removed Element is : "+ x);
@@ -24,5 +24,6 @@ public class QueuePractice {
 			//System.out.println(q.size());
 		}
 		System.out.println(sum);
+		System.out.println("Mrinal is the king here");
 	}
 }
